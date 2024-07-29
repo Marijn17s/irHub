@@ -1,0 +1,46 @@
+﻿<Border
+    Background="{DynamicResource RegionBrush}"
+    CornerRadius="10"
+    Height="350"
+    Width="600"
+    mc:Ignorable="d"
+    x:Class="irHub.Dialogs.ProgramDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <hc:SimplePanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="5" />
+            </Grid.ColumnDefinitions>
+
+            <hc:SimpleStackPanel Margin="20,35,20,10">
+                <TextBlock Text="{Binding Program.Name}" />
+                <!--<TextBlock Text="{Binding TotalInvestmentWeight, StringFormat=N2}" />
+                <TextBlock Text="{Binding Investment.StartDate, StringFormat=dd-MMM-yyyy}" />-->
+                <Label
+                    BorderThickness="0"
+                    Content="Total current worth:"
+                    Foreground="White"
+                    HorizontalAlignment="left" />
+                <TextBlock Text="{Binding Investment.TotalValueWithCurrencySymbol}" />
+            </hc:SimpleStackPanel>
+        </Grid>
+        <Button
+            Command="hc:ControlCommands.Close"
+            Foreground="{DynamicResource WarningBrush}"
+            Height="22"
+            HorizontalAlignment="Right"
+            Margin="0,4,4,0"
+            Padding="0"
+            Style="{StaticResource ButtonIcon}"
+            VerticalAlignment="Top"
+            Width="22"
+            hc:IconElement.Geometry="{StaticResource ErrorGeometry}" />
+    </hc:SimplePanel>
+</Border>

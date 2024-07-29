@@ -1,0 +1,45 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+x64/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+*.tmp
+
+*.log
+
+*.class
+
+*.vsidx
+
+*.cache
+
+*.pfx
+
+*.DotSettings.user
+*.DotSettings
+
+/.vs
+/.idea
+
+packages/**/*
+!packages/repositories.config
+
+#nuget packages
+# Ignore all my NuGet temp Packages
+*.nupkg
+# NuGet Symbol Packages
+*.snupkg
+# The packages folder can be ignored because of Package Restore
+**/[Pp]ackages/*
+# except build/, which is used as an MSBuild target.
+!**/[Pp]ackages/build/
+# Uncomment if necessary however generally it will be regenerated when needed
+!**/[Pp]ackages/repositories.config
+# NuGet v3's project.json files produces more ignorable files
+*.nuget.props
+*.nuget.targets
