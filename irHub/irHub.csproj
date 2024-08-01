@@ -15,6 +15,7 @@
       <PackageReference Include="HandyControls" Version="3.5.3" />
       <PackageReference Include="Material.Icons.WPF" Version="2.1.10" />
       <PackageReference Include="MaterialDesignThemes.Wpf" Version="1.0.1" />
+      <PackageReference Include="System.Drawing.Common" Version="9.0.0-preview.6.24327.6" />
     </ItemGroup>
 
     <ItemGroup>

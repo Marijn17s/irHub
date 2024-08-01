@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
-using System.Windows.Media.Imaging;
 using HandyControl.Controls;
 using irHub.Classes;
 using irHub.Classes.Enums;
@@ -23,26 +25,52 @@ public partial class ProgramListPage
     {
         InitializeComponent();
         LoadPrograms();
-        CheckProgramsRunning();
+        Task.Run(async () =>
+        {
+            await CheckProgramsRunning();
+        });
+
+        Loaded += OnLoaded;
         
         var client = new SdkWrapper();
         client.Start();
+        
         client.Connected += async (_, _) =>
         {
             foreach (var program in Global.Programs.Where(program => program is { StartWithIracingSim: true, State: ProgramState.Stopped }))
                 await Global.StartProgram(program);
         };
 
-        client.Disconnected += (_, _) =>
+        client.Disconnected += async (_, _) =>
         {
             foreach (var program in Global.Programs.Where(program => program is { StopWithIracingSim: true, State: ProgramState.Running }))
-                Global.StopProgram(program);
+                await Global.StopProgram(program);
         };
-        
-        // todo constantly loop or find other way to hook into iRacingUI.exe for start and stop
-        /*if (Process.GetProcesses().Any(process => process.ProcessName.Contains("iRacingUI", StringComparison.InvariantCultureIgnoreCase)))
-            foreach (var program in Global.Programs.Where(program => program is { StartWithIracingUI: true, State: ProgramState.Stopped }))
-                Global.StartProgram(program);*/
+    }
+
+    private async void OnLoaded(object o, RoutedEventArgs routedEventArgs)
+    {
+        var cancel = false;
+        while (!cancel)
+        {
+            try
+            {
+                if (Process.GetProcesses().Any(process =>
+                        process.ProcessName.Contains("iRacingUI", StringComparison.InvariantCultureIgnoreCase)))
+                    foreach (var program in Global.Programs.Where(program =>
+                                 program is { StartWithIracingUI: true, State: ProgramState.Stopped }))
+                        await Global.StartProgram(program);
+                else
+                {
+                    foreach (var program in Global.Programs.Where(program =>
+                                 program is { StopWithIracingUI: true, State: ProgramState.Running }))
+                        await Global.StopProgram(program);
+                }
+
+                await Task.Delay(1000);
+            }
+            catch { cancel = true; }
+        }
     }
 
     private void LoadPrograms()
@@ -54,10 +82,18 @@ public partial class ProgramListPage
         // todo Load in from json file or something (handle changes in config by giving default values if no valid value is found)
     }
 
-    private static void CheckProgramsRunning()
+    private static async Task CheckProgramsRunning()
     {
         foreach (var program in Global.Programs)
+        {
+            var exists = File.Exists(program.FilePath);
+            if (!exists)
+            {
+                await program.ChangeState(ProgramState.NotFound);
+                continue;
+            } 
             Global.IsProgramRunning(program);
+        }
     }
     
     private void CreateCard(Program program)
@@ -87,7 +123,7 @@ public partial class ProgramListPage
             Height = 60,
             HorizontalAlignment = HorizontalAlignment.Left,
             Margin = new Thickness(5, 5, 0, 5),
-            Source = new BitmapImage(new Uri("pack://application:,,,/irHub;component/Resources/logo.png")),
+            Source = program.Icon.Source,
             VerticalAlignment = VerticalAlignment.Center
         };
         Grid.SetColumn(image, 0);
@@ -176,21 +212,30 @@ public partial class ProgramListPage
         
         if (program.State is ProgramState.Stopped)
         {
-            var success = await Global.StartProgram(program);
-            
-            if (success)
-                return;
+            await Global.StartProgram(program);
+            return;
+        }
+
+        if (program.State is ProgramState.NotFound)
+        {
+            var exists = File.Exists(program.FilePath);
+            if (exists)
+            {
+                await program.ChangeState(ProgramState.Stopped);
+                await Global.StartProgram(program);
+            }
+            return;
         }
 
         if (program.Process is null || program.Process.HasExited)
         {
-            program.ChangeState(ProgramState.Stopped);
+            await program.ChangeState(ProgramState.Stopped);
             Global.KillProcessesByPartialName(program.ExecutableName);
             return;
         }
         
         if (program.State is ProgramState.Running)
-            Global.StopProgram(program);
+            await Global.StopProgram(program);
     }
     
     private void EditButton_OnClick(object sender, RoutedEventArgs e)

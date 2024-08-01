@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using irHub.Classes.Enums;
@@ -33,37 +34,37 @@ public class Program
     
     // todo maybe GetProcess() return Process if not null, else search for running processes by the exe name
 
-    internal void ChangeState(ProgramState state)
+    internal async Task ChangeState(ProgramState state)
     {
-        if (state is ProgramState.Running)
+        await Task.Run(() =>
         {
-            State = ProgramState.Running;
-            ActionButton.Dispatcher.BeginInvoke(() =>
+            if (state is ProgramState.Running)
             {
-                ActionButton.Content = "RUNNING";
-                ActionButton.Background = Brushes.LightGreen;
-                ActionButton.IsEnabled = true;
-            });
-        }
-        else if (state is ProgramState.Stopped)
-        {
-            State = ProgramState.Stopped;
-            ActionButton.Dispatcher.BeginInvoke(() =>
+                State = ProgramState.Running;
+                ActionButton.Dispatcher.BeginInvoke(() =>
+                {
+                    ActionButton.Content = "RUNNING";
+                    ActionButton.Background = Brushes.LightGreen;
+                });
+            }
+            else if (state is ProgramState.Stopped)
             {
-                ActionButton.Content = "START";
-                ActionButton.Background = Brushes.LightGray;
-                ActionButton.IsEnabled = true;
-            });
-        }
-        else if (state is ProgramState.NotFound)
-        {
-            State = ProgramState.NotFound;
-            ActionButton.Dispatcher.BeginInvoke(() =>
+                State = ProgramState.Stopped;
+                ActionButton.Dispatcher.BeginInvoke(() =>
+                {
+                    ActionButton.Content = "START";
+                    ActionButton.Background = Brushes.LightGray;
+                });
+            }
+            else if (state is ProgramState.NotFound)
             {
-                ActionButton.Content = "NOT FOUND";
-                ActionButton.Background = Brushes.Gray;
-                ActionButton.IsEnabled = false;
-            });
-        }
+                State = ProgramState.NotFound;
+                ActionButton.Dispatcher.BeginInvoke(() =>
+                {
+                    ActionButton.Content = "NOT FOUND";
+                    ActionButton.Background = Brushes.Gray;
+                });
+            }
+        });
     }
 }

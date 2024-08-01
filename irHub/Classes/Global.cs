@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using HandyControl.Controls;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
+using Image = System.Windows.Controls.Image;
+using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace irHub.Classes;
 
 internal struct Global
 {
     private const int MaxRetries = 50;
-    private const int SW_MINIMIZE = 6;
+    private static readonly Image DefaultIcon = new();
+    
     private const int SW_HIDE = 0;
+    private const int SW_MINIMIZE = 6;
 
     internal static string BasePath = ""; // todo ?????????
 
@@ -39,6 +43,12 @@ internal struct Global
 
     private static List<Program> GetPrograms()
     {
+        var bitmap = new BitmapImage();
+        bitmap.BeginInit();
+        bitmap.UriSource = new Uri("pack://application:,,,/irHub;component/Resources/logo.png");
+        bitmap.EndInit();
+        DefaultIcon.Source = bitmap;
+        
         // todo check continuously if any of the programs start running (maybe not needed?)
         // todo support importing icon from EXE
         // todo make real data with json
@@ -49,16 +59,10 @@ internal struct Global
         {
             Name = "Crewchief",
             FilePath = "C:\\Program Files (x86)\\Britton IT Ltd\\CrewChiefV4\\CrewChiefV4.exe",
+            StartWithIracingUI = true,
+            StopWithIracingUI = true,
         };
-        var bitmap = new BitmapImage();
-        bitmap.BeginInit();
-        bitmap.UriSource = new Uri("pack://application:,,,/irHub;component/Resources/logo.png");
-        bitmap.EndInit();
-        var img = new Image
-        {
-            Source = bitmap
-        };
-        crewchief.Icon = img;
+        GetIcon(crewchief);
         programs.Add(crewchief);
         
         var fanalab = new Program
@@ -66,7 +70,7 @@ internal struct Global
             Name = "FanaLab",
             FilePath = "C:\\Program Files (x86)\\Fanatec\\FanaLab\\Control\\FanaLab.exe",
         };
-        fanalab.Icon = img;
+        GetIcon(fanalab);
         programs.Add(fanalab);
         
         var vrstelemetry = new Program
@@ -75,15 +79,17 @@ internal struct Global
             FilePath = "C:\\Users\\marij\\VirtualRacingSchool\\VRS-TelemetryLogger.exe",
             StartHidden = true,
         };
-        vrstelemetry.Icon = img;
+        GetIcon(vrstelemetry);
         programs.Add(vrstelemetry);
         
         var iOverlay = new Program
         {
             Name = "iOverlay",
             FilePath = "C:\\Program Files\\iOverlay\\iOverlay.exe",
+            StartWithIracingUI = true,
+            StopWithIracingUI = true,
         };
-        iOverlay.Icon = img;
+        GetIcon(iOverlay);
         programs.Add(iOverlay);
         
         var onesimracing = new Program
@@ -92,7 +98,7 @@ internal struct Global
             FilePath = "C:\\Users\\marij\\AppData\\Local\\1simracing\\1simracing.exe",
             StartHidden = true,
         };
-        onesimracing.Icon = img;
+        GetIcon(onesimracing);
         programs.Add(onesimracing);
         
         var irsidekick = new Program
@@ -101,15 +107,17 @@ internal struct Global
             FilePath = "C:\\Users\\marij\\AppData\\Local\\Programs\\irSidekick\\Livery\\irSidekickLivery.exe",
             StartHidden = true,
         };
-        irsidekick.Icon = img;
+        GetIcon(irsidekick);
         programs.Add(irsidekick);
         
         var garage61 = new Program
         {
             Name = "Garage 61",
             FilePath = "C:\\Users\\marij\\AppData\\Roaming\\garage61-install\\garage61-launcher.exe",
+            StartWithIracingUI = true,
+            StopWithIracingUI = true,
         };
-        garage61.Icon = img;
+        GetIcon(garage61);
         programs.Add(garage61);
 
         var racelabapps = new Program
@@ -117,8 +125,9 @@ internal struct Global
             Name = "RaceLabApps",
             FilePath = "C:\\Users\\marij\\AppData\\Local\\racelabapps\\RacelabApps.exe",
             StartWithIracingUI = true,
+            StopWithIracingUI = true,
         };
-        racelabapps.Icon = img;
+        GetIcon(racelabapps);
         programs.Add(racelabapps);
 
         return programs;
@@ -134,8 +143,6 @@ internal struct Global
             program.ExecutableName = existingProcess.ProcessName;
 
         AddProcessEventHandlers(program, program.Process);
-        
-        program.ChangeState(ProgramState.Running);
         return true;
     }
 
@@ -148,115 +155,23 @@ internal struct Global
             var processes = Process.GetProcessesByName(program.ExecutableName);
             if (processes.Length is not 0)
                 return;
-            program.ChangeState(ProgramState.Stopped);
+            await program.ChangeState(ProgramState.Stopped);
         };
     }
-
-    /*internal static bool StartProgram(Program program)
-    {
-        // Check if process is already running
-        if (IsProgramRunning(program))
-            return true;
-
-        // Check if executable exists
-        if (!File.Exists(program.FilePath))
-            return false;
-        
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = program.FilePath,
-            Arguments = program.StartArguments
-        };
-        var process = Process.Start(startInfo);
-        if (process is null) return false; // todo check
-        
-        // Replace executablename if it differs from current process name
-        if (program.ExecutableName != process.ProcessName) // todo check (maybe also do in IsProgramRunning();)!!!
-            program.ExecutableName = process.ProcessName;
-
-        const string racelab = "RaceLabApps";
-        if (process.ProcessName.Contains(racelab, StringComparison.InvariantCultureIgnoreCase))
-        {
-            
-        }
-
-        const string onesim = "1simracing";
-        if (process.ProcessName.Contains(onesim, StringComparison.InvariantCultureIgnoreCase))
-        {
-            var hWnd = IntPtr.Zero;
-            int retries = 0;
-            
-            while ((hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) && retries <= MaxRetries)
-            {
-                hWnd = FindWindow(null, process.ProcessName);
-                Thread.Sleep(200);
-
-                retries++;
-            }
-            
-            if (hWnd != IntPtr.Zero)
-                ShowWindow(hWnd, SW_MINIMIZE);
-        }
-
-        const string vrs = "VRS-Telemetry";
-        if (process.ProcessName.Contains(vrs, StringComparison.InvariantCultureIgnoreCase))
-        {
-            var hWnd = IntPtr.Zero;
-            int retries = 0;
-            
-            while ((hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) && retries < MaxRetries)
-            {
-                Thread.Sleep(100);
-                
-                process.Refresh();
-                hWnd = process.MainWindowHandle;
-
-                retries++;
-            }
-            
-            if (hWnd != IntPtr.Zero)
-                SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
-        }
-
-        if (process.HasExited)
-        {
-            var processes = GetProcessesByPartialName(program.ExecutableName);
-            
-        }
-        
-        program.Process = process;
-        var isOtherProcessRunning = AddProcessEventHandlers(program);
-
-        if (!process.Responding && !isOtherProcessRunning)
-        {
-            if (!program.Process.ProcessName.IsNullOrEmpty())
-                KillProcessesByPartialName(program.Process.ProcessName);
-            program.Process = null;
-            return false;
-        }
-        
-        // RACELABS DOES NOT WORK WITH THIS LOGIC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! todo
-
-        if (isOtherProcessRunning)
-        {
-            // todo handle
-        }
-        
-        program.ChangeState(ProgramState.Running);
-        program.Process = process;
-        return true;
-    }*/
     
     internal static async Task<bool> StartProgram(Program program)
     {
         // Check if the program is already running
         if (IsProgramRunning(program))
+        {
+            await program.ChangeState(ProgramState.Running);
             return true;
+        }
 
         var startInfo = GetApplicationStartInfo(program);
         if (startInfo is null)
         {
-            program.ChangeState(ProgramState.NotFound);
+            await program.ChangeState(ProgramState.NotFound);
             return false;
         }
         
@@ -279,14 +194,14 @@ internal struct Global
         
         AddProcessEventHandlers(program, process);
         
-        PostApplicationStartLogic(program, process);
+        PostApplicationStartLogic(process);
 
-        program.ChangeState(ProgramState.Running);
+        await program.ChangeState(ProgramState.Running);
         program.Process = process;
         return true;
     }
     
-    internal static void StopProgram(Program program)
+    internal static async Task StopProgram(Program program)
     {
         if (program.Process is null || program.Process.HasExited)
         {
@@ -305,7 +220,7 @@ internal struct Global
             KillProcessesByPartialName(g61);
 
         program.Process = null;
-        program.ChangeState(ProgramState.Stopped);
+        await program.ChangeState(ProgramState.Stopped);
     }
 
     private static ProcessStartInfo? GetApplicationStartInfo(Program program)
@@ -345,7 +260,7 @@ internal struct Global
         return startInfo;
     }
 
-    private static async void PostApplicationStartLogic(Program program, Process? process = null)
+    private static async void PostApplicationStartLogic(Process process)
     {
         /*const string racelab = "RaceLabApps";
         if (process.ProcessName.Contains(racelab, StringComparison.InvariantCultureIgnoreCase))
@@ -395,6 +310,34 @@ internal struct Global
     internal static void ApplicationSpecificStopLogic(Program program, Process? process = null)
     {
         
+    }
+
+    private static void GetIcon(Program program)
+    {
+        if (!File.Exists(program.FilePath))
+        {
+            program.Icon = DefaultIcon;
+            return;
+        }
+        
+        var bitmap = Icon.ExtractAssociatedIcon(program.FilePath)?.ToBitmap();
+        if (bitmap is null)
+        {
+            program.Icon = DefaultIcon;
+            return;
+        }
+
+        using var memoryStream = new MemoryStream();
+        bitmap.Save(memoryStream, ImageFormat.Png);
+        memoryStream.Position = 0;
+
+        var bitmapImage = new BitmapImage();
+        bitmapImage.BeginInit();
+        bitmapImage.StreamSource = memoryStream;
+        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+        bitmapImage.EndInit();
+
+        program.Icon = new Image { Source = bitmapImage };
     }
 
     internal static List<Process> GetProcessesByPartialName(string name)
