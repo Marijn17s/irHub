@@ -1,10 +1,8 @@
 ﻿<hc:Window
     Closing="MainWindow_OnClosing"
     Height="550"
-    MaxHeight="550"
-    MaxWidth="900"
-    MinHeight="300"
-    MinWidth="820"
+    MinHeight="500"
+    MinWidth="850"
     ResizeMode="CanResize"
     ShowMaxButton="False"
     Title="irHub"
@@ -23,14 +21,12 @@
                 <MenuItem Header="Project">
                     <MenuItem
                         Command="hc:ControlCommands.OpenLink"
-                        CommandParameter="https://github.com/Marijn17s/MetalTracker"
-                        Header="GitHub Repository"
-                        Name="RepositoryButton" />
+                        CommandParameter="https://github.com/Marijn17s/irHub"
+                        Header="GitHub Repository" />
                     <MenuItem
                         Command="hc:ControlCommands.OpenLink"
                         CommandParameter="https://paypal.me/marijn17s"
-                        Header="Buy me a drink 🍹"
-                        Name="DonateButton" />
+                        Header="Buy me a drink 🍹" />
                 </MenuItem>
                 <MenuItem Click="StartAll_OnClick" Header="START ALL" />
                 <!--  click start all above and other menu's below  -->
@@ -50,18 +46,8 @@
                 <RowDefinition Height="5*" />
             </Grid.RowDefinitions>
 
-            <hc:TabControl Grid.Row="1" Style="{StaticResource TabControlInLine}">
-                <hc:TabItem Foreground="{DynamicResource TextIconBrush}" Header="Program Manager">
-                    <Frame
-                        Background="White"
-                        BorderThickness="0"
-                        Source="../Pages/ProgramListPage.xaml" />
-                </hc:TabItem>
-                <hc:TabItem Header="SOON" />
-                <hc:TabItem Header="SOON" />
-            </hc:TabControl>
-
             <hc:NotifyIcon
+                Grid.Row="0"
                 Icon="pack://application:,,,/irHub;component/Resources/logo.png"
                 Name="TrayIcon"
                 Visibility="Hidden">
@@ -84,16 +70,21 @@
                     VerticalAlignment="Center" />
             </Grid>
 
-            <!--<Frame
-                Background="White"
-                BorderThickness="0"
-                Grid.Column="0"
-                Grid.Row="1"
-                Source="../Pages/ProgramListPage.xaml" />-->
+            <hc:TabControl Grid.Row="1" Style="{StaticResource TabControlInLine}">
+                <hc:TabItem Foreground="{DynamicResource TextIconBrush}" Header="Program Manager">
+                    <Frame
+                        Background="White"
+                        BorderThickness="0"
+                        Source="../Pages/ProgramListPage.xaml" />
+                </hc:TabItem>
+                <hc:TabItem Header="SOON" />
+                <hc:TabItem Header="SOON" />
+            </hc:TabControl>
 
             <hc:ScrollViewer
                 Grid.Column="0"
                 Grid.Row="0"
+                Grid.RowSpan="2"
                 HorizontalAlignment="Right"
                 IsInertiaEnabled="True"
                 IsPenetrating="True"

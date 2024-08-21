@@ -59,8 +59,6 @@ internal struct Global
         {
             Name = "Crewchief",
             FilePath = "C:\\Program Files (x86)\\Britton IT Ltd\\CrewChiefV4\\CrewChiefV4.exe",
-            StartWithIracingUI = true,
-            StopWithIracingUI = true,
         };
         GetIcon(crewchief);
         programs.Add(crewchief);
@@ -86,8 +84,6 @@ internal struct Global
         {
             Name = "iOverlay",
             FilePath = "C:\\Program Files\\iOverlay\\iOverlay.exe",
-            StartWithIracingUI = true,
-            StopWithIracingUI = true,
         };
         GetIcon(iOverlay);
         programs.Add(iOverlay);
@@ -114,8 +110,6 @@ internal struct Global
         {
             Name = "Garage 61",
             FilePath = "C:\\Users\\marij\\AppData\\Roaming\\garage61-install\\garage61-launcher.exe",
-            StartWithIracingUI = true,
-            StopWithIracingUI = true,
         };
         GetIcon(garage61);
         programs.Add(garage61);
@@ -124,8 +118,6 @@ internal struct Global
         {
             Name = "RaceLabApps",
             FilePath = "C:\\Users\\marij\\AppData\\Local\\racelabapps\\RacelabApps.exe",
-            StartWithIracingUI = true,
-            StopWithIracingUI = true,
         };
         GetIcon(racelabapps);
         programs.Add(racelabapps);
