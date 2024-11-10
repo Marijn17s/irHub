@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -9,61 +10,77 @@ namespace irHub.Classes.Models;
 
 public class Program
 {
+    private const string Start = "START";
+    private const string Running = "RUNNING";
+    private const string Notfound = "NOT FOUND";
+    
     private string? _executableName { get; set; }
     internal string ExecutableName {
         get => _executableName ?? Path.GetFileNameWithoutExtension(FilePath);
         set => _executableName = value;
     }
 
-    internal string FilePath { get; set; } = "";
-    internal Image Icon { get; set; } // todo check image obj type | allow jpeg etc but also support extracting icon from another EXE
-    internal string Name { get; set; } = "";
-    internal ProgramState State { get; set; } = ProgramState.Stopped;
+    public string FilePath { get; set; } = "";
+    [JsonIgnore]
+    public Image? Icon { get; set; } // todo check image obj type | allow jpeg etc but also support extracting icon from another EXE
+    public string Name { get; set; } = "";
+    [JsonIgnore]
+    public ProgramState State { get; private set; } = ProgramState.Stopped;
 
-    internal Process? Process { get; set; } = null;
+    [JsonIgnore]
+    public Process? Process { get; set; }
     // todo maybe list of processes
-    internal string StartArguments { get; set; } = "";
-    internal bool StartHidden { get; set; } = false;
-    internal bool IsOverlay { get; set; } // todo Make behaviour different with start hidden etc
-    internal bool StartWithIracingSim { get; set; } = true;
-    internal bool StopWithIracingSim { get; set; } = true;
-    internal bool StartWithIracingUI { get; set; }
-    internal bool StopWithIracingUI { get; set; }
+    public string StartArguments { get; set; } = "";
+    public bool StartHidden { get; init; }
+    public bool IsOverlay { get; set; } // todo Make behaviour different with start hidden etc
+    public bool StartWithIracingSim { get; set; } = true;
+    public bool StopWithIracingSim { get; set; } = true;
+    public bool StartWithIracingUi { get; set; }
+    public bool StopWithIracingUi { get; set; }
     
-    internal Button ActionButton { get; set; }
-    
-    // todo maybe GetProcess() return Process if not null, else search for running processes by the exe name
+    [JsonIgnore]
+    public Button ActionButton { get; set; }
+
+    internal Process? GetProcess()
+    {
+        if (Process is not null) return Process;
+
+        var processes = Global.GetProcessesByPartialName(ExecutableName);
+        if (processes.Count > 0) return processes[0];
+
+        return null;
+    }
 
     internal async Task ChangeState(ProgramState state)
     {
+        State = state;
+        
         await Task.Run(() =>
         {
-            if (state is ProgramState.Running)
+            switch (state)
             {
-                State = ProgramState.Running;
-                ActionButton.Dispatcher.BeginInvoke(() =>
-                {
-                    ActionButton.Content = "RUNNING";
-                    ActionButton.Background = Brushes.LightGreen;
-                });
-            }
-            else if (state is ProgramState.Stopped)
-            {
-                State = ProgramState.Stopped;
-                ActionButton.Dispatcher.BeginInvoke(() =>
-                {
-                    ActionButton.Content = "START";
-                    ActionButton.Background = Brushes.LightGray;
-                });
-            }
-            else if (state is ProgramState.NotFound)
-            {
-                State = ProgramState.NotFound;
-                ActionButton.Dispatcher.BeginInvoke(() =>
-                {
-                    ActionButton.Content = "NOT FOUND";
-                    ActionButton.Background = Brushes.Gray;
-                });
+                case ProgramState.Running:
+                    ActionButton.Dispatcher.BeginInvoke(() =>
+                    {
+                        ActionButton.Content = Running;
+                        ActionButton.Background = Brushes.LightGreen;
+                    });
+                    break;
+                case ProgramState.Stopped:
+                    ActionButton.Dispatcher.BeginInvoke(() =>
+                    {
+                        ActionButton.Content = Start;
+                        ActionButton.Background = Brushes.LightGray;
+                    });
+                    break;
+                case ProgramState.NotFound:
+                default:
+                    ActionButton.Dispatcher.BeginInvoke(() =>
+                    {
+                        ActionButton.Content = Notfound;
+                        ActionButton.Background = Brushes.Gray;
+                    });
+                    break;
             }
         });
     }
