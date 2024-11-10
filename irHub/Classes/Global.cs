@@ -6,6 +6,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using irHub.Classes.Enums;
@@ -24,6 +26,13 @@ internal struct Global
     private const int SW_MINIMIZE = 6;
 
     internal static string BasePath = ""; // todo ?????????
+    internal static string irHubFolder = "";
+    internal const bool CancelStateCheck = false;
+
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     private static List<Program>? _programs;
     internal static List<Program> Programs
@@ -49,80 +58,43 @@ internal struct Global
         bitmap.EndInit();
         DefaultIcon.Source = bitmap;
         
+        // todo when changes have been made have 2 buttons (revert, save) if none clicked and tries to close, ask if they want to save or discard)
         // todo check continuously if any of the programs start running (maybe not needed?)
-        // todo support importing icon from EXE
         // todo make real data with json
         // todo make list of well known applications and quick-add (tab)
         // todo make list of detected simracing related applications
         var programs = new List<Program>();
-        var crewchief = new Program
-        {
-            Name = "Crewchief",
-            FilePath = "C:\\Program Files (x86)\\Britton IT Ltd\\CrewChiefV4\\CrewChiefV4.exe",
-        };
-        GetIcon(crewchief);
-        programs.Add(crewchief);
         
-        var fanalab = new Program
-        {
-            Name = "FanaLab",
-            FilePath = "C:\\Program Files (x86)\\Fanatec\\FanaLab\\Control\\FanaLab.exe",
-        };
-        GetIcon(fanalab);
-        programs.Add(fanalab);
+        var json = File.ReadAllText(Path.Combine(irHubFolder, "programs.json"));
+        if (!IsValidJson(json))
+            return programs;
+        programs = JsonSerializer.Deserialize<List<Program>>(json);
+        if (programs is null || programs.Count is 0)
+            return [];
         
-        var vrstelemetry = new Program
-        {
-            Name = "VRS-TelemetryLogger",
-            FilePath = "C:\\Users\\marij\\VirtualRacingSchool\\VRS-TelemetryLogger.exe",
-            StartHidden = true,
-        };
-        GetIcon(vrstelemetry);
-        programs.Add(vrstelemetry);
+        foreach (var program in programs)
+            GetIcon(program);
         
-        var iOverlay = new Program
-        {
-            Name = "iOverlay",
-            FilePath = "C:\\Program Files\\iOverlay\\iOverlay.exe",
-        };
-        GetIcon(iOverlay);
-        programs.Add(iOverlay);
-        
-        var onesimracing = new Program
-        {
-            Name = "1simracing",
-            FilePath = "C:\\Users\\marij\\AppData\\Local\\1simracing\\1simracing.exe",
-            StartHidden = true,
-        };
-        GetIcon(onesimracing);
-        programs.Add(onesimracing);
-        
-        var irsidekick = new Program
-        {
-            Name = "irSidekickLivery",
-            FilePath = "C:\\Users\\marij\\AppData\\Local\\Programs\\irSidekick\\Livery\\irSidekickLivery.exe",
-            StartHidden = true,
-        };
-        GetIcon(irsidekick);
-        programs.Add(irsidekick);
-        
-        var garage61 = new Program
-        {
-            Name = "Garage 61",
-            FilePath = "C:\\Users\\marij\\AppData\\Roaming\\garage61-install\\garage61-launcher.exe",
-        };
-        GetIcon(garage61);
-        programs.Add(garage61);
-
-        var racelabapps = new Program
-        {
-            Name = "RaceLabApps",
-            FilePath = "C:\\Users\\marij\\AppData\\Local\\racelabapps\\RacelabApps.exe",
-        };
-        GetIcon(racelabapps);
-        programs.Add(racelabapps);
-
         return programs;
+    }
+
+    private static void SavePrograms()
+    { 
+        var programsJson = JsonSerializer.Serialize(Programs, JsonSerializerOptions);
+        File.WriteAllText(Path.Combine(irHubFolder, "programs.json"), programsJson);
+    }
+    
+    private static bool IsValidJson(string source)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(source);
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     internal static bool IsProgramRunning(Program program)
