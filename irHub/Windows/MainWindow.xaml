@@ -1,6 +1,7 @@
 ﻿<hc:Window
     Closing="MainWindow_OnClosing"
     Height="550"
+    Loaded="MainWindow_OnLoaded"
     MinHeight="500"
     MinWidth="850"
     ResizeMode="CanResize"

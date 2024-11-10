@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using HandyControl.Controls;
 using HandyControl.Data;
@@ -18,6 +20,35 @@ namespace irHub.Windows
         public MainWindow()
         {
             InitializeComponent();
+            InitialChecks();
+        }
+
+        private void InitialChecks()
+        {
+            var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Global.irHubFolder = Path.Combine(documents, "irHub");
+            if (!Path.Exists(Global.irHubFolder))
+                Directory.CreateDirectory(Global.irHubFolder);
+
+            if (!File.Exists(Path.Combine(Global.irHubFolder, "programs.json")))
+                File.WriteAllText(Path.Combine(Global.irHubFolder, "programs.json"), "[]");
+        }
+
+        private static async Task CheckProgramStateLoop()
+        {
+            // todo optimize
+            while (!Global.CancelStateCheck)
+            {
+                foreach (var program in Global.Programs)
+                {
+                    var running = Global.IsProgramRunning(program);
+                    if (running && program.State == ProgramState.Stopped)
+                        await program.ChangeState(ProgramState.Running);
+                    if (!running && program.State == ProgramState.Running)
+                        await program.ChangeState(ProgramState.Stopped);
+                }
+                await Task.Delay(500);
+            }
         }
 
         private void AddProgram_OnClick(object sender, RoutedEventArgs e)
@@ -28,14 +59,15 @@ namespace irHub.Windows
         
         private async void StartAll_OnClick(object sender, RoutedEventArgs e)
         {
+            // todo check parallelization performance
             foreach (var program in Global.Programs)
                 await Global.StartProgram(program);
         }
         
-        private void StopAll_OnClick(object sender, RoutedEventArgs e)
+        private async void StopAll_OnClick(object sender, RoutedEventArgs e)
         {
             foreach (var program in Global.Programs)
-                Global.StopProgram(program);
+                await Global.StopProgram(program);
         }
         
         protected override void OnStateChanged(EventArgs e)
@@ -55,7 +87,7 @@ namespace irHub.Windows
             base.OnStateChanged(e);
         }
 
-        private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
+        private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)
         {
             if (!Global.Programs.Any(program => program.State is ProgramState.Running)) Process.GetCurrentProcess().Kill();
             
@@ -73,13 +105,18 @@ namespace irHub.Windows
             if (dialog == MessageBoxResult.Yes)
             {
                 foreach (var program in Global.Programs)
-                    Global.StopProgram(program);
+                    await Global.StopProgram(program);
                 Process.GetCurrentProcess().Kill();
             }
             if (dialog == MessageBoxResult.No)
                 Process.GetCurrentProcess().Kill();
             if (dialog is MessageBoxResult.Cancel)
                 e.Cancel = true;
+        }
+
+        private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            await CheckProgramStateLoop();
         }
     }
 }
