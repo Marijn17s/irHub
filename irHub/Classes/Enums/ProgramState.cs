@@ -1,6 +1,6 @@
 ﻿namespace irHub.Classes.Enums;
 
-internal enum ProgramState
+public enum ProgramState
 {
     Running,
     Stopped,

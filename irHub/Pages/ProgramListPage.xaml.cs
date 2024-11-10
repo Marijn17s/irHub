@@ -58,12 +58,12 @@ public partial class ProgramListPage
                 if (Process.GetProcesses().Any(process =>
                         process.ProcessName.Contains("iRacingUI", StringComparison.InvariantCultureIgnoreCase)))
                     foreach (var program in Global.Programs.Where(program =>
-                                 program is { StartWithIracingUI: true, State: ProgramState.Stopped }))
+                                 program is { StartWithIracingUi: true, State: ProgramState.Stopped }))
                         await Global.StartProgram(program);
                 else
                 {
                     foreach (var program in Global.Programs.Where(program =>
-                                 program is { StopWithIracingUI: true, State: ProgramState.Running }))
+                                 program is { StopWithIracingUi: true, State: ProgramState.Running }))
                         await Global.StopProgram(program);
                 }
 
