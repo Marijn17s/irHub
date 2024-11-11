@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -49,6 +50,12 @@ public class Program
         if (processes.Count > 0) return processes[0];
 
         return null;
+    }
+    
+    public Program DeepClone()
+    {
+        string json = JsonSerializer.Serialize(this, Global.JsonSerializerOptions);
+        return JsonSerializer.Deserialize<Program>(json, Global.JsonSerializerOptions);
     }
 
     internal async Task ChangeState(ProgramState state)

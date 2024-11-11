@@ -1,7 +1,14 @@
-﻿<Border
+﻿<hc:Window
     Background="{DynamicResource RegionBrush}"
-    CornerRadius="10"
+    BorderThickness="0"
     Height="350"
+    ResizeMode="NoResize"
+    ShowCloseButton="False"
+    ShowIcon="False"
+    ShowInTaskbar="False"
+    ShowMaxButton="False"
+    ShowMinButton="False"
+    ShowNonClientArea="False"
     Width="600"
     mc:Ignorable="d"
     x:Class="irHub.Dialogs.ProgramDialog"
@@ -10,37 +17,62 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <hc:SimplePanel>
+    <Border CornerRadius="10">
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="5" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="5" />
-            </Grid.ColumnDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="5" />
+                </Grid.ColumnDefinitions>
 
-            <hc:SimpleStackPanel Margin="20,35,20,10">
-                <TextBlock Text="{Binding Program.Name}" />
-                <!--<TextBlock Text="{Binding TotalInvestmentWeight, StringFormat=N2}" />
+                <hc:SimpleStackPanel Grid.Column="1" Margin="20,25,20,10">
+                    <TextBox Foreground="White" Text="{Binding Name}" />
+                    <!--<TextBlock Text="{Binding TotalInvestmentWeight, StringFormat=N2}" />
                 <TextBlock Text="{Binding Investment.StartDate, StringFormat=dd-MMM-yyyy}" />-->
-                <Label
-                    BorderThickness="0"
-                    Content="Total current worth:"
-                    Foreground="White"
-                    HorizontalAlignment="left" />
-                <TextBlock Text="{Binding Investment.TotalValueWithCurrencySymbol}" />
-            </hc:SimpleStackPanel>
+                    <Label
+                        BorderThickness="0"
+                        Content="File path:"
+                        Foreground="White"
+                        HorizontalAlignment="Left" />
+                    <TextBox Text="{Binding FilePath}" />
+                </hc:SimpleStackPanel>
+
+                <hc:SimpleStackPanel Grid.Column="2" Margin="20,25,20,10">
+                    <TextBlock Foreground="White" Text="{Binding Name}" />
+                    <!--<TextBlock Text="{Binding TotalInvestmentWeight, StringFormat=N2}" />
+                <TextBlock Text="{Binding Investment.StartDate, StringFormat=dd-MMM-yyyy}" />-->
+                    <Label
+                        BorderThickness="0"
+                        Content="File path:"
+                        Foreground="White"
+                        HorizontalAlignment="Left" />
+                    <TextBlock Text="{Binding FilePath}" />
+                </hc:SimpleStackPanel>
+            </Grid>
+            <Button
+                Click="SaveButton_OnClick"
+                Foreground="{DynamicResource SuccessBrush}"
+                Height="22"
+                HorizontalAlignment="Right"
+                Margin="0,4,30,0"
+                Padding="0"
+                Style="{StaticResource ButtonIcon}"
+                VerticalAlignment="Top"
+                Width="22"
+                hc:IconElement.Geometry="{StaticResource SuccessGeometry}" />
+            <Button
+                Click="CancelButton_OnClick"
+                Foreground="{DynamicResource WarningBrush}"
+                Height="22"
+                HorizontalAlignment="Right"
+                Margin="0,4,4,0"
+                Padding="0"
+                Style="{StaticResource ButtonIcon}"
+                VerticalAlignment="Top"
+                Width="22"
+                hc:IconElement.Geometry="{StaticResource ErrorGeometry}" />
         </Grid>
-        <Button
-            Command="hc:ControlCommands.Close"
-            Foreground="{DynamicResource WarningBrush}"
-            Height="22"
-            HorizontalAlignment="Right"
-            Margin="0,4,4,0"
-            Padding="0"
-            Style="{StaticResource ButtonIcon}"
-            VerticalAlignment="Top"
-            Width="22"
-            hc:IconElement.Geometry="{StaticResource ErrorGeometry}" />
-    </hc:SimplePanel>
-</Border>
+    </Border>
+</hc:Window>

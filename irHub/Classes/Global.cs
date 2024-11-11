@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -29,13 +30,13 @@ internal struct Global
     internal static string irHubFolder = "";
     internal const bool CancelStateCheck = false;
 
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    internal static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    private static List<Program>? _programs;
-    internal static List<Program> Programs
+    private static ObservableCollection<Program>? _programs;
+    internal static ObservableCollection<Program> Programs
     {
         get
         {
@@ -50,7 +51,7 @@ internal struct Global
         }
     }
 
-    private static List<Program> GetPrograms()
+    private static ObservableCollection<Program> GetPrograms()
     {
         var bitmap = new BitmapImage();
         bitmap.BeginInit();
@@ -63,12 +64,12 @@ internal struct Global
         // todo make real data with json
         // todo make list of well known applications and quick-add (tab)
         // todo make list of detected simracing related applications
-        var programs = new List<Program>();
+        var programs = new ObservableCollection<Program>();
         
         var json = File.ReadAllText(Path.Combine(irHubFolder, "programs.json"));
         if (!IsValidJson(json))
             return programs;
-        programs = JsonSerializer.Deserialize<List<Program>>(json);
+        programs = JsonSerializer.Deserialize<ObservableCollection<Program>>(json);
         if (programs is null || programs.Count is 0)
             return [];
         

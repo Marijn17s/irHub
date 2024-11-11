@@ -243,7 +243,9 @@ public partial class ProgramListPage
         if (sender is not Button button) return;
         if (button.Tag is not Program program) return;
         
-        Dialog.Show(new ProgramDialog(ref program));
+        var t = new ProgramDialog(ref program);
+        t.ShowDialog();
+        //CollectionViewSource.GetDefaultView(Global.Programs).Refresh();
     }
     
     private void ActionButton_OnMouseEnter(object sender, MouseEventArgs e)
