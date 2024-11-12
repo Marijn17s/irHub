@@ -100,6 +100,7 @@ internal struct Global
 
     internal static bool IsProgramRunning(Program program)
     {
+        // Check if program is running
         var existingProcess = Process.GetProcesses().FirstOrDefault(process => process.ProcessName == program.ExecutableName);
         if (existingProcess is null) return false;
         
@@ -113,6 +114,7 @@ internal struct Global
 
     private static void AddProcessEventHandlers(Program program, Process process)
     {
+        // Add event handlers like the process exiting
         process.EnableRaisingEvents = true;
         process.Exited += async (_, _) =>
         {
