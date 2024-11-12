@@ -32,7 +32,8 @@ internal struct Global
 
     internal static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = true,
     };
 
     private static ObservableCollection<Program>? _programs;
@@ -59,9 +60,6 @@ internal struct Global
         bitmap.EndInit();
         DefaultIcon.Source = bitmap;
         
-        // todo when changes have been made have 2 buttons (revert, save) if none clicked and tries to close, ask if they want to save or discard)
-        // todo check continuously if any of the programs start running (maybe not needed?)
-        // todo make real data with json
         // todo make list of well known applications and quick-add (tab)
         // todo make list of detected simracing related applications
         var programs = new ObservableCollection<Program>();
@@ -79,7 +77,7 @@ internal struct Global
         return programs;
     }
 
-    private static void SavePrograms()
+    internal static void SavePrograms()
     { 
         var programsJson = JsonSerializer.Serialize(Programs, JsonSerializerOptions);
         File.WriteAllText(Path.Combine(irHubFolder, "programs.json"), programsJson);

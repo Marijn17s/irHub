@@ -39,6 +39,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
 
         OriginalProgram = Global.DeepCloneT(program);
         // Manually copy over properties that can't be parsed to JSON (1/2)
+        // todo make it possible to convert these properties to JSON (maybe base64 encoding it?) 
         OriginalProgram.Icon = program.Icon;
         OriginalProgram.Process = program.Process;
         OriginalProgram.ActionButton = program.ActionButton;
@@ -60,6 +61,8 @@ public partial class ProgramDialog : INotifyPropertyChanged
     private void SaveButton_OnClick(object sender, RoutedEventArgs e)
     {
         // Save changes
+        Global.SavePrograms();
+        
         if (Application.Current.MainWindow is MainWindow mainWindow)
             mainWindow.Focus();
         Close();
