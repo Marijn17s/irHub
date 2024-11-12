@@ -8,6 +8,7 @@
     ShowMaxButton="False"
     Title="irHub"
     Width="900"
+    WindowStartupLocation="Manual"
     hc:WindowAttach.SystemBackdropType="Auto"
     mc:Ignorable="d"
     x:Class="irHub.Windows.MainWindow"

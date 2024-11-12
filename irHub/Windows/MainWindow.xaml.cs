@@ -21,6 +21,10 @@ namespace irHub.Windows
         {
             InitializeComponent();
             InitialChecks();
+            
+            // Open on center of screen
+            Left = (SystemParameters.WorkArea.Width - Width) / 2;
+            Top = (SystemParameters.WorkArea.Height - Height) / 2;
         }
 
         private void InitialChecks()
