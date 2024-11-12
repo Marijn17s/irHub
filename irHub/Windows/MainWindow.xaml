@@ -66,10 +66,13 @@
                 Background="Red"
                 Grid.Row="0"
                 Opacity="0.9">
-                <Image
-                    HorizontalAlignment="Right"
-                    Source="pack://application:,,,/irHub;component/Resources/iRacingLogo.png"
-                    VerticalAlignment="Center" />
+                <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                    <Image Source="pack://application:,,,/irHub;component/Resources/iRacingLogo.png" VerticalAlignment="Center" />
+                    <Image
+                        Margin="5,0,0,0"
+                        Source="pack://application:,,,/irHub;component/Resources/logo.png"
+                        VerticalAlignment="Center" />
+                </StackPanel>
             </Grid>
 
             <hc:TabControl Grid.Row="1" Style="{StaticResource TabControlInLine}">

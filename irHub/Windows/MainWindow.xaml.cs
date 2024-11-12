@@ -58,7 +58,8 @@ namespace irHub.Windows
         private void AddProgram_OnClick(object sender, RoutedEventArgs e)
         {
             var program = new Program();
-            var dialog = Dialog.Show(new ProgramDialog(ref program));
+            var t = new ProgramDialog(ref program);
+            t.ShowDialog();
         }
         
         private async void StartAll_OnClick(object sender, RoutedEventArgs e)
