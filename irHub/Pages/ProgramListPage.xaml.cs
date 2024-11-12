@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
@@ -118,26 +119,30 @@ public partial class ProgramListPage
         headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(75) });
         headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
+        var iconBinding = new Binding("Source") { Source = program, Path = new PropertyPath("Icon.Source") };
         var image = new Image
         {
             Height = 60,
             HorizontalAlignment = HorizontalAlignment.Left,
             Margin = new Thickness(5, 5, 0, 5),
-            Source = program.Icon.Source,
             VerticalAlignment = VerticalAlignment.Center
         };
+        image.SetBinding(Image.SourceProperty, iconBinding);
+        
         Grid.SetColumn(image, 0);
         headerGrid.Children.Add(image);
 
+        var nameBinding = new Binding("Text") { Source = program, Path = new PropertyPath("Name") };
         var textBlock = new TextBlock
         {
             FontSize = 16,
             Foreground = Brushes.Black,
             FontWeight = FontWeights.SemiBold,
-            Text = program.Name,
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Center
         };
+        textBlock.SetBinding(TextBlock.TextProperty, nameBinding);
+        
         Grid.SetColumn(textBlock, 1);
         headerGrid.Children.Add(textBlock);
 

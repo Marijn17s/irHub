@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -9,8 +11,18 @@ using irHub.Classes.Enums;
 
 namespace irHub.Classes.Models;
 
-public class Program
+public class Program : INotifyPropertyChanged
 {
+    #region INotifyPropertyChanged
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void OnPropertyChanged([CallerMemberName] string? name = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    #endregion
+    
     private const string Start = "START";
     private const string Running = "RUNNING";
     private const string Notfound = "NOT FOUND";
@@ -22,15 +34,41 @@ public class Program
     }
 
     public string FilePath { get; set; } = "";
+
+    private Image? _icon;
+
     [JsonIgnore]
-    public Image? Icon { get; set; } // todo check image obj type | allow jpeg etc but also support extracting icon from another EXE
-    public string Name { get; set; } = "";
+    public Image? Icon // todo check image obj type | allow jpeg etc but also support extracting icon from another EXE
+    {
+        get => _icon;
+        set
+        {
+            if (_icon == value) return;
+            _icon = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _name = "";
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            if (_name == value) return;
+            _name = value;
+            OnPropertyChanged();
+        }
+    }
+    
     [JsonIgnore]
     public ProgramState State { get; private set; } = ProgramState.Stopped;
 
     [JsonIgnore]
     public Process? Process { get; set; }
+    
     // todo maybe list of processes
+    
     public string StartArguments { get; set; } = "";
     public bool StartHidden { get; init; }
     public bool IsOverlay { get; set; } // todo Make behaviour different with start hidden etc

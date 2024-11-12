@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using irHub.Classes;
 using irHub.Classes.Models;
 using irHub.Windows;
 
@@ -33,8 +34,15 @@ public partial class ProgramDialog : INotifyPropertyChanged
     internal ProgramDialog(ref Program program)
     {
         InitializeComponent();
+        if (Application.Current.MainWindow is MainWindow mainWindow)
+            Owner = mainWindow;
+
+        OriginalProgram = Global.DeepCloneT(program);
+        // Manually copy over properties that can't be parsed to JSON (1/2)
+        OriginalProgram.Icon = program.Icon;
+        OriginalProgram.Process = program.Process;
+        OriginalProgram.ActionButton = program.ActionButton;
         
-        OriginalProgram = program.DeepClone();
         Program = program;
         DataContext = Program;
     }
@@ -60,7 +68,16 @@ public partial class ProgramDialog : INotifyPropertyChanged
     private void CancelButton_OnClick(object sender, RoutedEventArgs e)
     {
         // Cancel changes
-        Program = OriginalProgram?.DeepClone();
+        if (OriginalProgram is not null && Program is not null)
+        {
+            Global.CopyProperties(OriginalProgram, Program);
+            // Manually copy over properties that can't be parsed to JSON (2/2)
+            Program.Icon = OriginalProgram.Icon;
+            Program.Process = OriginalProgram.Process;
+            Program.ActionButton = OriginalProgram.ActionButton;
+            
+        }
+        
         if (Application.Current.MainWindow is MainWindow mainWindow)
             mainWindow.Focus();
         Close();
