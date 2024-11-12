@@ -97,6 +97,21 @@ internal struct Global
             return false;
         }
     }
+    
+    public static T DeepCloneT<T>(T obj)
+    {
+        // Deep clone any type of object
+        string json = JsonSerializer.Serialize(obj, Global.JsonSerializerOptions);
+        return JsonSerializer.Deserialize<T>(json, Global.JsonSerializerOptions);
+    }
+    
+    internal static void CopyProperties(Program source, Program destination)
+    {
+        // Use reflection to copy over each property
+        foreach (var property in typeof(Program).GetProperties())
+            if (property.CanWrite)
+                property.SetValue(destination, property.GetValue(source));
+    }
 
     internal static bool IsProgramRunning(Program program)
     {
