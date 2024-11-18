@@ -28,6 +28,7 @@ internal struct Global
 
     internal static string BasePath = ""; // todo ?????????
     internal static string irHubFolder = "";
+    internal static bool NeedsProgramRefresh;
     internal const bool CancelStateCheck = false;
 
     internal static readonly JsonSerializerOptions JsonSerializerOptions = new()
@@ -75,6 +76,12 @@ internal struct Global
             GetIcon(program);
         
         return programs;
+    }
+
+    internal static void RefreshPrograms()
+    {
+        Programs = GetPrograms();
+        NeedsProgramRefresh = true;
     }
 
     internal static void SavePrograms()
