@@ -106,8 +106,6 @@ internal struct Global
     public static T DeepCloneT<T>(T obj)
     {
         // Deep clone any type of object
-        string json = JsonSerializer.Serialize(obj, Global.JsonSerializerOptions);
-        return JsonSerializer.Deserialize<T>(json, Global.JsonSerializerOptions);
         string json = JsonSerializer.Serialize(obj, JsonSerializerOptions);
         return JsonSerializer.Deserialize<T>(json, JsonSerializerOptions);
     }
