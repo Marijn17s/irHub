@@ -27,13 +27,35 @@ public class Program : INotifyPropertyChanged
     private const string Running = "RUNNING";
     private const string Notfound = "NOT FOUND";
     
+    private string _name = "";
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            if (_name == value) return;
+            _name = value;
+            OnPropertyChanged();
+        }
+    }
+    
     private string? _executableName { get; set; }
     internal string ExecutableName {
         get => _executableName ?? Path.GetFileNameWithoutExtension(FilePath);
         set => _executableName = value;
     }
 
-    public string FilePath { get; set; } = "";
+    private string _filePath = "";
+
+    public string FilePath
+    {
+        get => _filePath;
+        set
+        {
+            _filePath = value;
+            OnPropertyChanged();
+        }
+    }
 
     private Image? _icon;
 
@@ -49,17 +71,19 @@ public class Program : INotifyPropertyChanged
         }
     }
 
-    private string _name = "";
-    public string Name
+    private string _iconPath = "";
+    public string IconPath
     {
-        get => _name;
-        set
+        get
         {
-            if (_name == value) return;
-            _name = value;
-            OnPropertyChanged();
+            if (_iconPath is "" || UseExecutableIcon)
+                return FilePath;
+            return _iconPath;
         }
+        set => _iconPath = value;
     }
+    
+    public bool UseExecutableIcon { get; set; } = true;
     
     [JsonIgnore]
     public ProgramState State { get; private set; } = ProgramState.Stopped;
@@ -78,7 +102,7 @@ public class Program : INotifyPropertyChanged
     public bool StopWithIracingUi { get; set; }
     
     [JsonIgnore]
-    public Button ActionButton { get; set; }
+    public Button ActionButton { get; set; } = null!;
 
     internal Process? GetProcess()
     {
@@ -93,7 +117,7 @@ public class Program : INotifyPropertyChanged
     public Program DeepClone()
     {
         string json = JsonSerializer.Serialize(this, Global.JsonSerializerOptions);
-        return JsonSerializer.Deserialize<Program>(json, Global.JsonSerializerOptions);
+        return JsonSerializer.Deserialize<Program>(json, Global.JsonSerializerOptions) ?? new Program();
     }
 
     internal async Task ChangeState(ProgramState state)

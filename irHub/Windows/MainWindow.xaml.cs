@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using HandyControl.Controls;
 using HandyControl.Data;
 using irHub.Classes;
 using irHub.Classes.Enums;
