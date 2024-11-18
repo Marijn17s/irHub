@@ -56,6 +56,9 @@ public partial class ProgramListPage
         {
             try
             {
+                if (Global.NeedsProgramRefresh)
+                    LoadPrograms();
+                
                 if (Process.GetProcesses().Any(process =>
                         process.ProcessName.Contains("iRacingUI", StringComparison.InvariantCultureIgnoreCase)))
                     foreach (var program in Global.Programs.Where(program =>
@@ -77,10 +80,7 @@ public partial class ProgramListPage
     private void LoadPrograms()
     {
         foreach (var program in Global.Programs)
-        {
             CreateCard(program);
-        }
-        // todo Load in from json file or something (handle changes in config by giving default values if no valid value is found)
     }
 
     private static async Task CheckProgramsRunning()
@@ -123,6 +123,7 @@ public partial class ProgramListPage
         var image = new Image
         {
             Height = 60,
+            Width = 60,
             HorizontalAlignment = HorizontalAlignment.Left,
             Margin = new Thickness(5, 5, 0, 5),
             VerticalAlignment = VerticalAlignment.Center
