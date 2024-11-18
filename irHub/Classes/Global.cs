@@ -108,6 +108,8 @@ internal struct Global
         // Deep clone any type of object
         string json = JsonSerializer.Serialize(obj, Global.JsonSerializerOptions);
         return JsonSerializer.Deserialize<T>(json, Global.JsonSerializerOptions);
+        string json = JsonSerializer.Serialize(obj, JsonSerializerOptions);
+        return JsonSerializer.Deserialize<T>(json, JsonSerializerOptions);
     }
     
     internal static void CopyProperties(Program source, Program destination)
@@ -122,7 +124,7 @@ internal struct Global
     {
         // Check if program is running
         var existingProcess = Process.GetProcesses().FirstOrDefault(process => process.ProcessName == program.ExecutableName);
-        if (existingProcess is null) return false;
+        if (existingProcess is null || existingProcess.HasExited) return false;
         
         program.Process = existingProcess;
         if (program.ExecutableName != existingProcess.ProcessName)
@@ -135,6 +137,8 @@ internal struct Global
     private static void AddProcessEventHandlers(Program program, Process process)
     {
         // Add event handlers like the process exiting
+        if (process is null || process.HasExited) return;
+        
         process.EnableRaisingEvents = true;
         process.Exited += async (_, _) =>
         {
@@ -192,6 +196,8 @@ internal struct Global
     {
         if (program.Process is null || program.Process.HasExited)
         {
+            if (program.FilePath is "") return;
+            
             KillProcessesByPartialName(program.ExecutableName);
             return;
         }
@@ -229,6 +235,8 @@ internal struct Global
         }
         else
         {
+            if (!File.Exists(program.FilePath)) return null;
+            
             var fi = new FileInfo(program.FilePath);
             if (!fi.Exists) return null;
             
