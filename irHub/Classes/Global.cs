@@ -304,8 +304,10 @@ internal struct Global
     {
         
     }
+    
+    internal static bool IsFile(string path) => !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
 
-    private static void GetIcon(Program program)
+    internal static Image GetIconFromFile(string path)
     {
         if (!File.Exists(program.FilePath))
         {
