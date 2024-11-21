@@ -63,7 +63,7 @@ namespace irHub.Windows
                 Filter = "Executables (*.exe, *.bat, *.cmd)|*.exe;*.bat;*.cmd",
                 InitialDirectory = Environment.SpecialFolder.CommonProgramFiles.ToString(),
                 Multiselect = false,
-                Title = "Please select an application you would like to add"
+                Title = "Select an application you want to add"
             };
 
             if (dialog.ShowDialog() is not true || dialog.FileName is "")
