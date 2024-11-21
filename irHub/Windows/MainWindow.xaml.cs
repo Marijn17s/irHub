@@ -11,6 +11,7 @@ using irHub.Classes;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using irHub.Dialogs;
+using Microsoft.Win32;
 using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace irHub.Windows
@@ -57,8 +58,23 @@ namespace irHub.Windows
 
         private void AddProgram_OnClick(object sender, RoutedEventArgs e)
         {
-            var program = new Program();
-            var t = new ProgramDialog(ref program);
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Executables (*.exe, *.bat, *.cmd)|*.exe;*.bat;*.cmd",
+                InitialDirectory = Environment.SpecialFolder.CommonProgramFiles.ToString(),
+                Multiselect = false,
+                Title = "Please select an application you would like to add"
+            };
+
+            if (dialog.ShowDialog() is not true || dialog.FileName is "")
+                return;
+
+            var program = new Program
+            {
+                FilePath = dialog.FileName,
+                Icon = Global.GetIconFromFile(dialog.FileName)
+            };
+            var t = new ProgramDialog(ref program, true);
             t.ShowDialog();
         }
         
