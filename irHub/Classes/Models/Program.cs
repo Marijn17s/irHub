@@ -60,7 +60,7 @@ public class Program : INotifyPropertyChanged
     private Image? _icon;
 
     [JsonIgnore]
-    public Image? Icon // todo check image obj type | allow jpeg etc but also support extracting icon from another EXE
+    public Image? Icon
     {
         get => _icon;
         set
@@ -98,12 +98,12 @@ public class Program : INotifyPropertyChanged
     // todo maybe list of processes
     
     public string StartArguments { get; set; } = "";
-    public bool StartHidden { get; init; }
+    public bool StartHidden { get; set; }
     public bool IsOverlay { get; set; } // todo Make behaviour different with start hidden etc
-    public bool StartWithIracingSim { get; set; } = true;
-    public bool StopWithIracingSim { get; set; } = true;
     public bool StartWithIracingUi { get; set; }
     public bool StopWithIracingUi { get; set; }
+    public bool StartWithIracingSim { get; set; } = true;
+    public bool StopWithIracingSim { get; set; } = true;
     
     [JsonIgnore]
     public Button ActionButton { get; set; } = null!;
