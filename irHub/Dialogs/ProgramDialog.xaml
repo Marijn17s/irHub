@@ -28,29 +28,87 @@
                     <ColumnDefinition Width="5" />
                 </Grid.ColumnDefinitions>
 
-                <hc:SimpleStackPanel Grid.Column="1" Margin="20,25,20,10">
-                    <TextBox Foreground="White" Text="{Binding Name}" />
+                <Grid
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
+                    Margin="20,20,20,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="70" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
                     <!--<TextBlock Text="{Binding TotalInvestmentWeight, StringFormat=N2}" />
-                <TextBlock Text="{Binding Investment.StartDate, StringFormat=dd-MMM-yyyy}" />-->
-                    <Label
-                        BorderThickness="0"
-                        Content="File path:"
-                        Foreground="White"
-                        HorizontalAlignment="Left" />
-                    <TextBox Text="{Binding FilePath}" />
-                </hc:SimpleStackPanel>
-
-                <hc:SimpleStackPanel Grid.Column="2" Margin="20,25,20,10">
-                    <TextBlock Foreground="White" Text="{Binding Name}" />
-                    <!--<TextBlock Text="{Binding TotalInvestmentWeight, StringFormat=N2}" />
-                <TextBlock Text="{Binding Investment.StartDate, StringFormat=dd-MMM-yyyy}" />-->
-                    <Label
-                        BorderThickness="0"
-                        Content="File path:"
-                        Foreground="White"
-                        HorizontalAlignment="Left" />
-                    <TextBlock Text="{Binding FilePath}" />
-                </hc:SimpleStackPanel>
+            <TextBlock Text="{Binding Investment.StartDate, StringFormat=dd-MMM-yyyy}" />-->
+                    <Grid
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="0"
+                        Margin="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80" />
+                                <ColumnDefinition Width="90" />
+                                <ColumnDefinition Width="220" />
+                            </Grid.ColumnDefinitions>
+                            <Image
+                                Grid.Column="0"
+                                Height="60"
+                                Margin="5,0,5,5"
+                                Source="{Binding Icon.Source}"
+                                Width="60" />
+                            <Button
+                                Click="ResetIconButton_OnClick"
+                                Foreground="{DynamicResource DarkDangerBrush}"
+                                Grid.Column="0"
+                                Height="15"
+                                HorizontalAlignment="Right"
+                                Margin="0,0,10,5"
+                                Name="ResetIconButton"
+                                Padding="0"
+                                Style="{StaticResource ButtonIcon}"
+                                VerticalAlignment="Bottom"
+                                Visibility="Hidden"
+                                Width="15"
+                                hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}" />
+                            <Button
+                                Click="SelectNewIcon_OnClick"
+                                Content="Select"
+                                Grid.Column="1"
+                                Width="80" />
+                            <TextBox
+                                Grid.Column="2"
+                                Height="20"
+                                IsReadOnly="True"
+                                Text="{Binding IconPath}" />
+                        </Grid>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Name" />
+                        <TextBox
+                            Foreground="White"
+                            Grid.Column="2"
+                            Grid.Row="0"
+                            Height="20"
+                            Margin="2"
+                            Text="{Binding Name}" />
+                    </Grid>
+                </Grid>
             </Grid>
             <Button
                 Click="SaveButton_OnClick"
