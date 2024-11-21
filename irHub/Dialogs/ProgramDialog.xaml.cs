@@ -107,7 +107,6 @@ public partial class ProgramDialog : INotifyPropertyChanged
     {
         Program ??= new Program();
         
-        // todo test if .ico works with GetIconFromFile!
         var dialog = new OpenFileDialog
         {
             Filter = "Images / Icons (*.exe, *.jpg, *.jpeg, *.png, *.ico)|*.exe;*.jpg;*.jpeg;*.png;*.ico",
