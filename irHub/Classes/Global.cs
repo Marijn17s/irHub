@@ -77,10 +77,16 @@ internal struct Global
         programs = JsonSerializer.Deserialize<ObservableCollection<Program>>(json);
         if (programs is null || programs.Count is 0)
             return [];
-        
+
         foreach (var program in programs)
-            GetIcon(program);
-        
+        {
+            if (!program.UseExecutableIcon)
+            {
+                program.Icon = GetIconFromFile(program.IconPath);
+                continue;
+            }
+            program.Icon = GetIconFromExe(program.FilePath);
+        }
         return programs;
     }
 
@@ -315,18 +321,39 @@ internal struct Global
 
     internal static Image GetIconFromFile(string path)
     {
-        if (!File.Exists(program.FilePath))
-        {
-            program.Icon = DefaultIcon;
-            return;
-        }
+        if (!File.Exists(path) || !IsFile(path))
+            return DefaultIcon;
         
-        var bitmap = Icon.ExtractAssociatedIcon(program.FilePath)?.ToBitmap();
+        var info = new FileInfo(path);
+        var fileExtension = info.Extension;
+        if (fileExtension == ".exe")
+            return GetIconFromExe(path);
+        
+        var bitmap = new Bitmap(path);
+        if (bitmap is { Height: 0, Width: 0 })
+            return DefaultIcon;
+        
+        using var memoryStream = new MemoryStream();
+        bitmap.Save(memoryStream, ImageFormat.Png);
+        memoryStream.Position = 0;
+        
+        var bitmapImage = new BitmapImage();
+        bitmapImage.BeginInit();
+        bitmapImage.StreamSource = memoryStream;
+        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+        bitmapImage.EndInit();
+        
+        return new Image { Source = bitmapImage };
+    }
+
+    private static Image GetIconFromExe(string path)
+    {
+        if (!File.Exists(path))
+            return DefaultIcon;
+        
+        var bitmap = Icon.ExtractAssociatedIcon(path)?.ToBitmap();
         if (bitmap is null)
-        {
-            program.Icon = DefaultIcon;
-            return;
-        }
+            return DefaultIcon;
 
         using var memoryStream = new MemoryStream();
         bitmap.Save(memoryStream, ImageFormat.Png);
@@ -338,7 +365,7 @@ internal struct Global
         bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
         bitmapImage.EndInit();
 
-        program.Icon = new Image { Source = bitmapImage };
+        return new Image { Source = bitmapImage };
     }
 
     internal static List<Process> GetProcessesByPartialName(string name)
