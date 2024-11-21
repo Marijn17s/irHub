@@ -6,6 +6,7 @@ using irHub.Classes;
 using irHub.Classes.Models;
 using irHub.Windows;
 using Microsoft.Win32;
+using MessageBox = HandyControl.Controls.MessageBox;
 using Path = System.IO.Path;
 
 namespace irHub.Dialogs;
@@ -72,6 +73,11 @@ public partial class ProgramDialog : INotifyPropertyChanged
     private void SaveButton_OnClick(object sender, RoutedEventArgs e)
     {
         // Save changes
+        if (Program?.Name is "" || Program?.Name?.Length > 20)
+        {
+            MessageBox.Warning("The program must have a name with a maximum length of 20 characters.");
+            return;
+        }
         
         if (_isNew && Program is not null)
             Global.Programs.Add(Program);
