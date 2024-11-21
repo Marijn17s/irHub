@@ -111,6 +111,23 @@ public partial class ProgramDialog : INotifyPropertyChanged
             mainWindow.Focus();
         Close();
     }
+    
+    private void DeleteButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        // Delete program
+        if (!_isNew && OriginalProgram is not null && Program is not null)
+            Global.Programs.Remove(Program);
+        
+        Program = null;
+        OriginalProgram = null;
+        Global.SavePrograms();
+        Global.RefreshPrograms();
+        
+        if (Application.Current.MainWindow is MainWindow mainWindow)
+            mainWindow.Focus();
+        Close();
+        Growl.Success("Successfully removed program!");
+    }
 
     private void ShowNewIconDialog()
     {
