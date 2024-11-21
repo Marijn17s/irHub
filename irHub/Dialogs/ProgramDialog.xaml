@@ -48,8 +48,6 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <!--<TextBlock Text="{Binding TotalInvestmentWeight, StringFormat=N2}" />
-            <TextBlock Text="{Binding Investment.StartDate, StringFormat=dd-MMM-yyyy}" />-->
                     <Grid
                         Grid.Column="0"
                         Grid.ColumnSpan="2"
