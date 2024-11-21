@@ -1,7 +1,7 @@
 ﻿<hc:Window
     Background="{DynamicResource RegionBrush}"
     BorderThickness="0"
-    Height="350"
+    Height="360"
     ResizeMode="NoResize"
     ShowCloseButton="False"
     ShowIcon="False"
