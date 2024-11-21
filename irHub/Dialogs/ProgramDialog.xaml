@@ -93,7 +93,7 @@
                                 Text="{Binding IconPath}" />
                         </Grid>
                     </Grid>
-                    <Grid Grid.Row="1">
+                    <Grid Grid.Column="0" Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="60" />
                             <ColumnDefinition Width="20" />
@@ -109,7 +109,121 @@
                             Grid.Row="0"
                             Height="20"
                             Margin="2"
-                            Text="{Binding Name}" />
+                            Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="85" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Margin="0,0,2,0"
+                            Text="Application"
+                            VerticalAlignment="Center" />
+                        <Button
+                            Click="SelectNewApplication_OnClick"
+                            Content="Select"
+                            Grid.Column="1"
+                            HorizontalAlignment="Left"
+                            Margin="2,0,0,0"
+                            Width="80" />
+                        <TextBox
+                            Grid.Column="2"
+                            Height="20"
+                            IsReadOnly="True"
+                            Margin="2"
+                            Text="{Binding FilePath}" />
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="20" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Arguments"
+                            VerticalAlignment="Center" />
+                        <TextBox
+                            Foreground="White"
+                            Grid.Column="2"
+                            Grid.Row="0"
+                            Height="20"
+                            Margin="2"
+                            Text="{Binding StartArguments}" />
+                        <TextBlock
+                            Grid.Column="3"
+                            Margin="5,0,0,0"
+                            Text="Start Hidden:"
+                            VerticalAlignment="Center" />
+                        <CheckBox
+                            Grid.Column="4"
+                            HorizontalAlignment="Center"
+                            IsChecked="{Binding StartHidden}" />
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="35" />
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Start:"
+                            VerticalAlignment="Center" />
+                        <CheckBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Center"
+                            IsChecked="{Binding StartWithIracingUi}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            Margin="5,0,0,0"
+                            Text="Stop:"
+                            VerticalAlignment="Center" />
+                        <CheckBox
+                            Grid.Column="3"
+                            HorizontalAlignment="Center"
+                            IsChecked="{Binding StopWithIracingUi}" />
+                        <TextBlock
+                            Grid.Column="4"
+                            Text=" with iRacing UI"
+                            VerticalAlignment="Center" />
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="35" />
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Start:"
+                            VerticalAlignment="Center" />
+                        <CheckBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Center"
+                            IsChecked="{Binding StartWithIracingSim}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            Margin="5,0,0,0"
+                            Text="Stop:"
+                            VerticalAlignment="Center" />
+                        <CheckBox
+                            Grid.Column="3"
+                            HorizontalAlignment="Center"
+                            IsChecked="{Binding StopWithIracingSim}" />
+                        <TextBlock
+                            Grid.Column="4"
+                            Text=" with iRacing Sim"
+                            VerticalAlignment="Center" />
                     </Grid>
                 </Grid>
             </Grid>

@@ -72,10 +72,19 @@ public partial class ProgramDialog : INotifyPropertyChanged
     private void SaveButton_OnClick(object sender, RoutedEventArgs e)
     {
         // Save changes
+        
+        if (_isNew && Program is not null)
+            Global.Programs.Add(Program);
+        
         Global.SavePrograms();
+        
+        // Seperated from other check because it needs to be in this order
+        if (_isNew)
+            Global.RefreshPrograms();
         
         if (Application.Current.MainWindow is MainWindow mainWindow)
             mainWindow.Focus();
+        
         Close();
         Growl.Success("Successfully saved program!");
     }
@@ -131,6 +140,26 @@ public partial class ProgramDialog : INotifyPropertyChanged
         Program.IconPath = dialog.FileName;
         ResetIconButton.Visibility = Visibility.Visible;
     }
+    
+    private void ShowNewApplicationDialog()
+    {
+        Program ??= new Program();
+        
+        var dialog = new OpenFileDialog
+        {
+            Filter = "Executables (*.exe, *.bat, *.cmd)|*.exe;*.bat;*.cmd",
+            InitialDirectory = Path.GetDirectoryName(Program.FilePath),
+            Multiselect = false,
+            Title = "Please select an application you would like to add"
+        };
+
+        if (dialog.ShowDialog() is not true || dialog.FileName is "")
+            return;
+        
+        Program.FilePath = dialog.FileName;
+        if (Program.UseExecutableIcon)
+            ResetToExecutableIcon();
+    }
 
     private void ResetToExecutableIcon()
     {
@@ -142,6 +171,8 @@ public partial class ProgramDialog : INotifyPropertyChanged
     }
 
     private void SelectNewIcon_OnClick(object sender, RoutedEventArgs e) => ShowNewIconDialog();
+    
+    private void SelectNewApplication_OnClick(object sender, RoutedEventArgs e) => ShowNewApplicationDialog();
 
     private void ResetIconButton_OnClick(object sender, RoutedEventArgs e) => ResetToExecutableIcon();
 }
