@@ -99,7 +99,10 @@
                             <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Name" />
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Name"
+                            VerticalAlignment="Center" />
                         <TextBox
                             Foreground="White"
                             Grid.Column="2"
