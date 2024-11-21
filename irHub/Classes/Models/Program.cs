@@ -80,7 +80,11 @@ public class Program : INotifyPropertyChanged
                 return FilePath;
             return _iconPath;
         }
-        set => _iconPath = value;
+        set
+        {
+            _iconPath = value;
+            OnPropertyChanged();
+        }
     }
     
     public bool UseExecutableIcon { get; set; } = true;
