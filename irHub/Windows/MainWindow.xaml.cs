@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using HandyControl.Controls;
 using HandyControl.Data;
 using irHub.Classes;
 using irHub.Classes.Enums;
@@ -66,12 +67,16 @@ namespace irHub.Windows
             // todo check parallelization performance
             foreach (var program in Global.Programs)
                 await Global.StartProgram(program);
+            if (Global.Programs.Count > 0)
+                Growl.Success("All programs were started successfully.");
         }
         
         private async void StopAll_OnClick(object sender, RoutedEventArgs e)
         {
             foreach (var program in Global.Programs)
                 await Global.StopProgram(program);
+            if (Global.Programs.Count > 0)
+                Growl.Success("All programs were stopped successfully.");
         }
         
         protected override void OnStateChanged(EventArgs e)

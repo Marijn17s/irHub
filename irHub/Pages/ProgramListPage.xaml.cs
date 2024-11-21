@@ -17,6 +17,7 @@ using irHub.Dialogs;
 using iRacingSdkWrapper;
 using MaterialDesignThemes.Wpf;
 using Card = HandyControl.Controls.Card;
+using Window = HandyControl.Controls.Window;
 
 namespace irHub.Pages;
 
@@ -248,9 +249,18 @@ public partial class ProgramListPage
     {
         if (sender is not Button button) return;
         if (button.Tag is not Program program) return;
+
+        // Blur window to avoid distractions and to seperate the windows
+        if (Application.Current.MainWindow is Window mainWindow)
+            mainWindow.Effect = Global.WindowBlurEffect;
         
         var t = new ProgramDialog(ref program);
         t.ShowDialog();
+
+        // Disable window blur
+        if (Application.Current.MainWindow is Window mainWindow2)
+            mainWindow2.Effect = null;
+        
         //CollectionViewSource.GetDefaultView(Global.Programs).Refresh();
     }
     

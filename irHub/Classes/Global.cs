@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
@@ -35,6 +36,11 @@ internal struct Global
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         WriteIndented = true,
+    };
+    
+    internal static readonly BlurEffect WindowBlurEffect = new()
+    {
+        Radius = 10,
     };
 
     private static ObservableCollection<Program>? _programs;

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using HandyControl.Controls;
 using irHub.Classes;
 using irHub.Classes.Models;
 using irHub.Windows;
@@ -66,6 +67,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
         if (Application.Current.MainWindow is MainWindow mainWindow)
             mainWindow.Focus();
         Close();
+        Growl.Success("Successfully saved program!");
     }
     
     private void CancelButton_OnClick(object sender, RoutedEventArgs e)
