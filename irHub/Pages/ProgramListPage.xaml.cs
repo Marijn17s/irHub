@@ -58,7 +58,10 @@ public partial class ProgramListPage
             try
             {
                 if (Global.NeedsProgramRefresh)
+                {
                     LoadPrograms();
+                    Global.NeedsProgramRefresh = false;
+                }
                 
                 if (Process.GetProcesses().Any(process =>
                         process.ProcessName.Contains("iRacingUI", StringComparison.InvariantCultureIgnoreCase)))
@@ -80,6 +83,7 @@ public partial class ProgramListPage
 
     private void LoadPrograms()
     {
+        ProgramsCardPanel.Children.Clear();
         foreach (var program in Global.Programs)
             CreateCard(program);
     }
