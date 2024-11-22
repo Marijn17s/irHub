@@ -70,14 +70,17 @@
             </Grid>
 
             <hc:TabControl Grid.Row="1" Style="{StaticResource TabControlInLine}">
-                <hc:TabItem Foreground="{DynamicResource TextIconBrush}" Header="Program Manager">
+                <hc:TabItem
+                    FontSize="13"
+                    Foreground="{DynamicResource TextIconBrush}"
+                    Header="Program Manager">
                     <Frame
                         Background="White"
                         BorderThickness="0"
                         Source="../Pages/ProgramListPage.xaml" />
                 </hc:TabItem>
-                <hc:TabItem Header="SOON" />
-                <hc:TabItem Header="SOON" />
+                <hc:TabItem FontSize="13" Header="SOON" />
+                <hc:TabItem FontSize="13" Header="Settings" />
             </hc:TabControl>
 
             <hc:ScrollViewer
