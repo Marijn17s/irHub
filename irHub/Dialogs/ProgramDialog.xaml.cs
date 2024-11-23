@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using HandyControl.Controls;
@@ -60,7 +61,15 @@ public partial class ProgramDialog : INotifyPropertyChanged
             ResetIconButton.Visibility = Visibility.Visible;
         
         _isNew = isNew;
-        if (_isNew) return;
+        if (_isNew)
+        {
+            var executableInfo = new FileInfo(program.FilePath);
+            var executableNameWithExtension = executableInfo.Name;
+            var lastDot = executableNameWithExtension.LastIndexOf('.');
+            var executableName = executableNameWithExtension.Substring(0, lastDot);
+            Program.Name = executableName;
+            return;
+        }
 
         OriginalProgram = Global.DeepCloneT(program);
         // Manually copy over properties that can't be parsed to JSON (1/2)
