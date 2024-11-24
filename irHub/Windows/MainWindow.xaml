@@ -63,10 +63,10 @@
             </hc:NotifyIcon>
 
             <Grid
-                Background="Red"
+                Background="#630330"
                 Grid.Row="0"
                 Opacity="0.9">
-                <Image HorizontalAlignment="Left" Source="pack://application:,,,/irHub;component/Resources/iRacingLogo.png" />
+                <Image HorizontalAlignment="Left" Source="pack://application:,,,/irHub;component/Resources/iRacingLogoWhite.png" />
             </Grid>
 
             <hc:TabControl Grid.Row="1" Style="{StaticResource TabControlInLine}">
