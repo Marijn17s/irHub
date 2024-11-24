@@ -106,9 +106,9 @@ public partial class ProgramListPage
     {
         var card = new Card
         {
-            Background = Brushes.LightGray,
+            Background = new SolidColorBrush(Color.FromRgb(55, 58, 62)),
             BorderThickness = new Thickness(0),
-            Effect = (Effect)FindResource("EffectShadow2"), // Assuming you have this effect defined in your resources
+            Effect = (Effect)FindResource("EffectShadow2"),
             Height = 110,
             Margin = new Thickness(5),
             Width = 250
@@ -142,7 +142,6 @@ public partial class ProgramListPage
         var textBlock = new TextBlock
         {
             FontSize = 16,
-            Foreground = Brushes.Black,
             FontWeight = FontWeights.SemiBold,
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Center
@@ -161,8 +160,8 @@ public partial class ProgramListPage
 
         var actionButton = new Button
         {
-            Foreground = Brushes.Black,
-            Background = Brushes.LightGray,
+            Foreground = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
+            Background = new SolidColorBrush(Color.FromRgb(55, 58, 62)),
             BorderThickness = new Thickness(0),
             Content = "START",
             FontSize = 18,
@@ -182,7 +181,7 @@ public partial class ProgramListPage
 
         var editButton = new Button
         {
-            Background = Brushes.LightGray,
+            Background = new SolidColorBrush(Color.FromRgb(55, 58, 62)),
             BorderThickness = new Thickness(0),
             Height = 35,
             HorizontalAlignment = HorizontalAlignment.Right,
@@ -198,7 +197,7 @@ public partial class ProgramListPage
 
         var pencilIcon = new PackIcon
         {
-            Foreground = Brushes.Black,
+            Foreground = new SolidColorBrush(Color.FromRgb(240, 240, 240)),
             Height = 25,
             Kind = PackIconKind.PencilOutline,
             VerticalAlignment = VerticalAlignment.Center,
@@ -274,9 +273,7 @@ public partial class ProgramListPage
         if (button.Tag is not Program program) return;
         
         if (program.State is ProgramState.Stopped)
-        {
-            button.Background = Brushes.Silver;
-        }
+            button.Background = new SolidColorBrush(Color.FromRgb(81, 91, 99));
         if (program.State is ProgramState.Running)
         {
             button.Background = Brushes.IndianRed;
@@ -290,9 +287,7 @@ public partial class ProgramListPage
         if (button.Tag is not Program program) return;
 
         if (program.State is ProgramState.Stopped)
-        {
-            button.Background = Brushes.LightGray;
-        }
+            button.Background = new SolidColorBrush(Color.FromRgb(55, 58, 62));
         if (program.State is ProgramState.Running)
         {
             button.Background = Brushes.LightGreen;
@@ -303,13 +298,13 @@ public partial class ProgramListPage
     private void EditButton_OnMouseEnter(object sender, MouseEventArgs e)
     {
         if (sender is not Button button) return;
-        button.Background = Brushes.Silver;
+        button.Background = new SolidColorBrush(Color.FromRgb(81, 91, 99));
     }
     
     private void EditButton_OnMouseLeave(object sender, MouseEventArgs e)
     {
         if (sender is not Button button) return;
-        button.Background = Brushes.LightGray;
+        button.Background = new SolidColorBrush(Color.FromRgb(55, 58, 62));
     }
     #endregion
 }

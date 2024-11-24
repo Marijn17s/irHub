@@ -143,7 +143,7 @@ public class Program : INotifyPropertyChanged
                     ActionButton.Dispatcher.BeginInvoke(() =>
                     {
                         ActionButton.Content = Start;
-                        ActionButton.Background = Brushes.LightGray;
+                        ActionButton.Background = new SolidColorBrush(Color.FromRgb(81, 91, 99));
                     });
                     break;
                 case ProgramState.NotFound:
@@ -151,7 +151,7 @@ public class Program : INotifyPropertyChanged
                     ActionButton.Dispatcher.BeginInvoke(() =>
                     {
                         ActionButton.Content = Notfound;
-                        ActionButton.Background = Brushes.Gray;
+                        ActionButton.Background = new SolidColorBrush(Color.FromRgb(100, 100, 100));
                     });
                     break;
             }

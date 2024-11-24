@@ -74,13 +74,12 @@
                     FontSize="13"
                     Foreground="{DynamicResource TextIconBrush}"
                     Header="Program Manager">
-                    <Frame
-                        Background="White"
-                        BorderThickness="0"
-                        Source="../Pages/ProgramListPage.xaml" />
+                    <Frame BorderThickness="0" Source="../Pages/ProgramListPage.xaml" />
                 </hc:TabItem>
                 <hc:TabItem FontSize="13" Header="SOON" />
-                <hc:TabItem FontSize="13" Header="Settings" />
+                <hc:TabItem FontSize="13" Header="Settings">
+                    <Frame BorderThickness="0" Source="../Pages/SettingsPage.xaml" />
+                </hc:TabItem>
             </hc:TabControl>
 
             <hc:ScrollViewer

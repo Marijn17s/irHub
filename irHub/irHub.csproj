@@ -42,6 +42,8 @@
       <None Remove="Resources\logo.png" />
       <Resource Include="Resources\logo.png" />
       <None Remove="Resources\iRacingLogo.png" />
+      <None Remove="Resources\iRacingLogoWhite.png" />
+      <Resource Include="Resources\iRacingLogoWhite.png" />
     </ItemGroup>
 
     <ItemGroup>
