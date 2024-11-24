@@ -31,12 +31,12 @@ namespace irHub.Windows
         private void InitialChecks()
         {
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            Global.irHubFolder = Path.Combine(documents, "irHub");
-            if (!Path.Exists(Global.irHubFolder))
-                Directory.CreateDirectory(Global.irHubFolder);
+            Global.irHubDirectoryPath = Path.Combine(documents, "irHub");
+            if (!Path.Exists(Global.irHubDirectoryPath))
+                Directory.CreateDirectory(Global.irHubDirectoryPath);
 
-            if (!File.Exists(Path.Combine(Global.irHubFolder, "programs.json")))
-                File.WriteAllText(Path.Combine(Global.irHubFolder, "programs.json"), "[]");
+            if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "programs.json")))
+                File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "programs.json"), "[]");
         }
 
         private static async Task CheckProgramStateLoop()

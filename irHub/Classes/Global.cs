@@ -26,9 +26,8 @@ internal struct Global
     
     private const int SW_HIDE = 0;
     private const int SW_MINIMIZE = 6;
-
-    internal static string BasePath = ""; // todo ?????????
-    internal static string irHubFolder = "";
+    
+    internal static string irHubDirectoryPath = "";
     internal static bool NeedsProgramRefresh;
     internal const bool CancelStateCheck = false;
 
