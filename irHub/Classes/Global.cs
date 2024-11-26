@@ -70,7 +70,7 @@ internal struct Global
         // todo make list of detected simracing related applications
         var programs = new ObservableCollection<Program>();
         
-        var json = File.ReadAllText(Path.Combine(irHubFolder, "programs.json"));
+        var json = File.ReadAllText(Path.Combine(irHubDirectoryPath, "programs.json"));
         if (!IsValidJson(json))
             return programs;
         programs = JsonSerializer.Deserialize<ObservableCollection<Program>>(json);
