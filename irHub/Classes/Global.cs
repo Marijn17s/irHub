@@ -98,7 +98,7 @@ internal struct Global
     internal static void SavePrograms()
     { 
         var programsJson = JsonSerializer.Serialize(Programs, JsonSerializerOptions);
-        File.WriteAllText(Path.Combine(irHubFolder, "programs.json"), programsJson);
+        File.WriteAllText(Path.Combine(irHubDirectoryPath, "programs.json"), programsJson);
     }
     
     private static bool IsValidJson(string source)
