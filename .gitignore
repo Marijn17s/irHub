@@ -20,11 +20,16 @@ bld/
 
 *.pfx
 
+*.bat
+
 *.DotSettings.user
 *.DotSettings
 
 /.vs
 /.idea
+
+/[Pp]ublish
+/[Rr]eleases
 
 packages/**/*
 !packages/repositories.config
