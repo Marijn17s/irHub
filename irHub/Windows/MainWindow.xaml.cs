@@ -12,6 +12,8 @@ using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using irHub.Dialogs;
 using Microsoft.Win32;
+using Velopack;
+using Velopack.Sources;
 using MessageBox = HandyControl.Controls.MessageBox;
 
 namespace irHub.Windows
@@ -26,6 +28,20 @@ namespace irHub.Windows
             // Open on center of screen
             Left = (SystemParameters.WorkArea.Width - Width) / 2;
             Top = (SystemParameters.WorkArea.Height - Height) / 2;
+        }
+        
+        private static async Task UpdateApplication()
+        {
+            var source = new GithubSource("https://github.com/Marijn17s/irHub", "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", true, new HttpClientFileDownloader());
+            var manager = new UpdateManager(source);
+
+            // check for new version
+            var newVersion = await manager.CheckForUpdatesAsync();
+            if (newVersion is null)
+                return; // no update available
+            
+            await manager.DownloadUpdatesAsync(newVersion);
+            manager.ApplyUpdatesAndRestart(newVersion);
         }
 
         private void InitialChecks()
@@ -141,6 +157,7 @@ namespace irHub.Windows
 
         private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
+            await UpdateApplication();
             await CheckProgramStateLoop();
         }
     }

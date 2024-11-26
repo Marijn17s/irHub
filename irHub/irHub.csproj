@@ -4,13 +4,11 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0-windows</TargetFramework>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        <SelfContained>true</SelfContained>
         <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <LangVersion>12</LangVersion>
-        <PublishAot>false</PublishAot>
         <IsPackable>false</IsPackable>
         <ApplicationIcon>Resources\logo.ico</ApplicationIcon>
     </PropertyGroup>
@@ -20,6 +18,7 @@
       <PackageReference Include="Material.Icons.WPF" Version="2.1.10" />
       <PackageReference Include="MaterialDesignThemes.Wpf" Version="1.0.1" />
       <PackageReference Include="System.Drawing.Common" Version="9.0.0-preview.6.24327.6" />
+      <PackageReference Include="Velopack" Version="0.0.942" />
     </ItemGroup>
 
     <ItemGroup>
