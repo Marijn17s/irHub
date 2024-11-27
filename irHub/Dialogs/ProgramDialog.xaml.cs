@@ -66,7 +66,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
             var executableInfo = new FileInfo(program.FilePath);
             var executableNameWithExtension = executableInfo.Name;
             var lastDot = executableNameWithExtension.LastIndexOf('.');
-            var executableName = executableNameWithExtension.Substring(0, lastDot);
+            var executableName = executableNameWithExtension[..lastDot];
             Program.Name = executableName;
             return;
         }
