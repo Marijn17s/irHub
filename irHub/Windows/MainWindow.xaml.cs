@@ -30,7 +30,7 @@ namespace irHub.Windows
             Top = (SystemParameters.WorkArea.Height - Height) / 2;
         }
         
-        private static async Task UpdateApplication()
+        private async Task UpdateApplication()
         {
             var source = new GithubSource("https://github.com/Marijn17s/irHub", "", true, new HttpClientFileDownloader());
             var manager = new UpdateManager(source);
@@ -43,8 +43,11 @@ namespace irHub.Windows
             if (newVersion is null)
                 return; // no update available
 
-            var result = MessageBox.Ask($"There is an update available! Do you want to update {currentVersion} > {newVersion}?");
-            if (result is not MessageBoxResult.Yes) return;
+            Effect = Global.WindowBlurEffect;
+            var result = MessageBox.Ask($"Do you want to update {currentVersion} > {newVersion.TargetFullRelease.Version}?", "Update Available");
+            Effect = null;
+            
+            if (result is not MessageBoxResult.OK) return;
             
             await manager.DownloadUpdatesAsync(newVersion);
             manager.ApplyUpdatesAndRestart(newVersion);
