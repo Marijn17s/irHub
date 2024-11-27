@@ -37,10 +37,14 @@ namespace irHub.Windows
             
             // prevents error while debugging
             if (!manager.IsInstalled) return;
-            
+
+            var currentVersion = manager.CurrentVersion;
             var newVersion = await manager.CheckForUpdatesAsync();
             if (newVersion is null)
                 return; // no update available
+
+            var result = MessageBox.Ask($"There is an update available! Do you want to update {currentVersion} > {newVersion}?");
+            if (result is not MessageBoxResult.Yes) return;
             
             await manager.DownloadUpdatesAsync(newVersion);
             manager.ApplyUpdatesAndRestart(newVersion);
