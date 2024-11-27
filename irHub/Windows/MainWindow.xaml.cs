@@ -69,12 +69,12 @@ namespace irHub.Windows
                 foreach (var program in Global.Programs)
                 {
                     var running = Global.IsProgramRunning(program);
-                    if (running && program.State == ProgramState.Stopped)
+                    if (running && program.State is ProgramState.Stopped)
                         await program.ChangeState(ProgramState.Running);
-                    if (!running && program.State == ProgramState.Running)
+                    if (!running && program.State is ProgramState.Running)
                         await program.ChangeState(ProgramState.Stopped);
                 }
-                await Task.Delay(500);
+                await Task.Delay(2000);
             }
         }
 
