@@ -32,10 +32,12 @@ namespace irHub.Windows
         
         private static async Task UpdateApplication()
         {
-            var source = new GithubSource("https://github.com/Marijn17s/irHub", "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", true, new HttpClientFileDownloader());
+            var source = new GithubSource("https://github.com/Marijn17s/irHub", "", true, new HttpClientFileDownloader());
             var manager = new UpdateManager(source);
-
-            // check for new version
+            
+            // prevents error while debugging
+            if (!manager.IsInstalled) return;
+            
             var newVersion = await manager.CheckForUpdatesAsync();
             if (newVersion is null)
                 return; // no update available
