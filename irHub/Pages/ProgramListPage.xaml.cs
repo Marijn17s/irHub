@@ -98,7 +98,7 @@ public partial class ProgramListPage
                 await program.ChangeState(ProgramState.NotFound);
                 continue;
             } 
-            Global.IsProgramRunning(program);
+            await Global.IsProgramRunning(program);
         }
     }
     
