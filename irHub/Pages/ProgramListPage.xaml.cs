@@ -34,9 +34,7 @@ public partial class ProgramListPage
 
         Loaded += OnLoaded;
         
-        Global.iRacingClient = new SdkWrapper();
         Global.iRacingClient.Start();
-
         Global.iRacingClient.ConnectSleepTime = 200;
         
         Global.iRacingClient.Connected += async (_, _) =>
