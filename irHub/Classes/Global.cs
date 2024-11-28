@@ -12,6 +12,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
+using iRacingSdkWrapper;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using Image = System.Windows.Controls.Image;
@@ -30,6 +31,8 @@ internal struct Global
     internal static string irHubDirectoryPath = "";
     internal static bool NeedsProgramRefresh;
     internal const bool CancelStateCheck = false;
+
+    internal static SdkWrapper iRacingClient;
 
     internal static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {

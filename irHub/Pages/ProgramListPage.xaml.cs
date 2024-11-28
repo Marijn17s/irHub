@@ -38,12 +38,18 @@ public partial class ProgramListPage
         client.Start();
         
         client.Connected += async (_, _) =>
+        Global.iRacingClient = new SdkWrapper();
+        Global.iRacingClient.Start();
+
+        Global.iRacingClient.ConnectSleepTime = 200;
+        
+        Global.iRacingClient.Connected += async (_, _) =>
         {
             foreach (var program in Global.Programs.Where(program => program is { StartWithIracingSim: true, State: ProgramState.Stopped }))
                 await Global.StartProgram(program);
         };
 
-        client.Disconnected += async (_, _) =>
+        Global.iRacingClient.Disconnected += async (_, _) =>
         {
             foreach (var program in Global.Programs.Where(program => program is { StopWithIracingSim: true, State: ProgramState.Running }))
                 await Global.StopProgram(program);
