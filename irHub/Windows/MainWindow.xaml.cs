@@ -66,17 +66,17 @@ namespace irHub.Windows
 
         private static async Task CheckProgramStateLoop()
         {
-            // todo optimize
             while (!Global.CancelStateCheck)
             {
-                foreach (var program in Global.Programs)
+                await Global.CheckProgramsRunning();
+                /*foreach (var program in Global.Programs)
                 {
-                    var running = Global.IsProgramRunning(program);
+                    var running = await Global.IsProgramRunning(program);
                     if (running && program.State is ProgramState.Stopped)
                         await program.ChangeState(ProgramState.Running);
                     if (!running && program.State is ProgramState.Running)
                         await program.ChangeState(ProgramState.Stopped);
-                }
+                }*/
                 await Task.Delay(2000);
             }
         }
