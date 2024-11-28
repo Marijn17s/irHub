@@ -14,7 +14,6 @@ using irHub.Classes;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using irHub.Dialogs;
-using iRacingSdkWrapper;
 using MaterialDesignThemes.Wpf;
 using Card = HandyControl.Controls.Card;
 using Window = HandyControl.Controls.Window;
