@@ -34,10 +34,6 @@ public partial class ProgramListPage
 
         Loaded += OnLoaded;
         
-        var client = new SdkWrapper();
-        client.Start();
-        
-        client.Connected += async (_, _) =>
         Global.iRacingClient = new SdkWrapper();
         Global.iRacingClient.Start();
 
