@@ -387,7 +387,22 @@ internal struct Global
 
         return new Image { Source = bitmapImage };
     }
-
+    
+    #region Processes
+    internal static Process? FindProcess()
+    {
+        var currentProcess = Process.GetCurrentProcess();
+        Process[] procs = Process.GetProcessesByName(currentProcess.ProcessName);
+        return procs.FirstOrDefault(process => process.Id != currentProcess.Id);
+    }
+    
+    internal static void FocusProcess(Process process)
+    {
+        var hWnd = process.MainWindowHandle;
+        ShowWindow(hWnd, 0x09); // 0x09 = restore window state
+        SetForegroundWindow(hWnd);
+    }
+    
     internal static List<Process> GetProcessesByPartialName(string name)
     {
         return Process.GetProcesses()
@@ -402,6 +417,7 @@ internal struct Global
             .ToList()
             .ForEach(x => x.Kill());
     }
+    #endregion
     
     #region DLLImports
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
@@ -411,5 +427,7 @@ internal struct Global
     private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     [DllImport("user32.dll")]
     private static extern bool IsWindowVisible(IntPtr hWnd);
+    [DllImport("user32.dll")]
+    private static extern IntPtr SetForegroundWindow(IntPtr hWnd);
     #endregion
 }
