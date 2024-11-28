@@ -128,8 +128,26 @@ internal struct Global
             if (property.CanWrite)
                 property.SetValue(destination, property.GetValue(source));
     }
+    
+    internal static async Task CheckProgramsRunning()
+    {
+        // Check all programs if they're running
+        var processes = Process.GetProcesses();
 
-    internal static bool IsProgramRunning(Program program)
+        foreach (var program in Programs)
+        {
+            var existingProcess = processes.FirstOrDefault(process => process.ProcessName == program.ExecutableName);
+            if (existingProcess is null || existingProcess.HasExited) continue;
+            
+            program.Process = existingProcess;
+            if (program.ExecutableName != existingProcess.ProcessName)
+                program.ExecutableName = existingProcess.ProcessName;
+            
+            await AddProcessEventHandlers(program, program.Process);
+        }
+    }
+
+    internal static async Task<bool> IsProgramRunning(Program program)
     {
         // Check if program is running
         var existingProcess = Process.GetProcesses().FirstOrDefault(process => process.ProcessName == program.ExecutableName);
@@ -139,11 +157,11 @@ internal struct Global
         if (program.ExecutableName != existingProcess.ProcessName)
             program.ExecutableName = existingProcess.ProcessName;
 
-        AddProcessEventHandlers(program, program.Process);
+        await AddProcessEventHandlers(program, program.Process);
         return true;
     }
 
-    private static void AddProcessEventHandlers(Program program, Process process)
+    private static async Task AddProcessEventHandlers(Program program, Process process)
     {
         // Add event handlers like the process exiting
         if (process is null || process.HasExited) return;
@@ -162,7 +180,7 @@ internal struct Global
     internal static async Task<bool> StartProgram(Program program)
     {
         // Check if the program is already running
-        if (IsProgramRunning(program))
+        if (await IsProgramRunning(program))
         {
             await program.ChangeState(ProgramState.Running);
             return true;
@@ -192,7 +210,7 @@ internal struct Global
         if (program.ExecutableName != process.ProcessName)
             program.ExecutableName = process.ProcessName;
         
-        AddProcessEventHandlers(program, process);
+        await AddProcessEventHandlers(program, process);
         
         PostApplicationStartLogic(process);
 
