@@ -54,8 +54,7 @@ public partial class ProgramListPage
 
     private async void OnLoaded(object o, RoutedEventArgs routedEventArgs)
     {
-        var cancel = false;
-        while (!cancel)
+        while (!Global.CancelIracingUiStateCheck)
         {
             try
             {
@@ -79,7 +78,7 @@ public partial class ProgramListPage
 
                 await Task.Delay(1000);
             }
-            catch { cancel = true; }
+            catch { Global.CancelIracingUiStateCheck = true; }
         }
     }
 

@@ -30,7 +30,8 @@ internal struct Global
     
     internal static string irHubDirectoryPath = "";
     internal static bool NeedsProgramRefresh;
-    internal const bool CancelStateCheck = false;
+    internal static bool CancelStateCheck = false;
+    internal static bool CancelIracingUiStateCheck = false;
 
     internal static SdkWrapper iRacingClient;
 
