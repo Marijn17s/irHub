@@ -76,6 +76,7 @@
                                 Name="ResetIconButton"
                                 Padding="0"
                                 Style="{StaticResource ButtonIcon}"
+                                ToolTip="Delete custom icon and reset it to use the executable icon"
                                 VerticalAlignment="Bottom"
                                 Visibility="Hidden"
                                 Width="15"
@@ -84,6 +85,7 @@
                                 Click="SelectNewIcon_OnClick"
                                 Content="Select"
                                 Grid.Column="1"
+                                ToolTip="Select a new icon to use for this application in the overview"
                                 Width="80" />
                             <TextBox
                                 Grid.Column="2"
@@ -127,6 +129,7 @@
                             Grid.Column="1"
                             HorizontalAlignment="Left"
                             Margin="2,0,0,0"
+                            ToolTip="Select a new application"
                             Width="80" />
                         <TextBox
                             Grid.Column="2"
@@ -153,7 +156,8 @@
                             Grid.Row="0"
                             Height="20"
                             Margin="2"
-                            Text="{Binding StartArguments, UpdateSourceTrigger=PropertyChanged}" />
+                            Text="{Binding StartArguments, UpdateSourceTrigger=PropertyChanged}"
+                            ToolTip="Startup arguments for the selected app" />
                         <TextBlock
                             Grid.Column="3"
                             Margin="5,0,0,0"
@@ -162,7 +166,8 @@
                         <CheckBox
                             Grid.Column="4"
                             HorizontalAlignment="Center"
-                            IsChecked="{Binding StartHidden}" />
+                            IsChecked="{Binding StartHidden}"
+                            ToolTip="Whether to hide the application when it starts up. Especially useful for apps like telemetry loggers" />
                     </Grid>
                     <Grid Grid.Column="0" Grid.Row="4">
                         <Grid.ColumnDefinitions>
@@ -179,7 +184,8 @@
                         <CheckBox
                             Grid.Column="1"
                             HorizontalAlignment="Center"
-                            IsChecked="{Binding StartWithIracingUi}" />
+                            IsChecked="{Binding StartWithIracingUi}"
+                            ToolTip="Whether to start this application when the iRacing UI opens" />
                         <TextBlock
                             Grid.Column="2"
                             Margin="5,0,0,0"
@@ -188,7 +194,8 @@
                         <CheckBox
                             Grid.Column="3"
                             HorizontalAlignment="Center"
-                            IsChecked="{Binding StopWithIracingUi}" />
+                            IsChecked="{Binding StopWithIracingUi}"
+                            ToolTip="Whether to stop this application when the iRacing UI closes" />
                         <TextBlock
                             Grid.Column="4"
                             Text=" with iRacing UI"
@@ -209,7 +216,8 @@
                         <CheckBox
                             Grid.Column="1"
                             HorizontalAlignment="Center"
-                            IsChecked="{Binding StartWithIracingSim}" />
+                            IsChecked="{Binding StartWithIracingSim}"
+                            ToolTip="Whether to start this application when the iRacing Sim opens" />
                         <TextBlock
                             Grid.Column="2"
                             Margin="5,0,0,0"
@@ -218,7 +226,8 @@
                         <CheckBox
                             Grid.Column="3"
                             HorizontalAlignment="Center"
-                            IsChecked="{Binding StopWithIracingSim}" />
+                            IsChecked="{Binding StopWithIracingSim}"
+                            ToolTip="Whether to stop this application when the iRacing Sim closes" />
                         <TextBlock
                             Grid.Column="4"
                             Text=" with iRacing Sim"
