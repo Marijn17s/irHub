@@ -15,7 +15,6 @@
     x:Class="irHub.Dialogs.ProgramDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:fa="http://schemas.fontawesome.io/icons/"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mat="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
