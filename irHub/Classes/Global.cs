@@ -146,7 +146,8 @@ internal struct Global
             program.Process = existingProcess;
             if (program.ExecutableName != existingProcess.ProcessName)
                 program.ExecutableName = existingProcess.ProcessName;
-            
+
+            await program.ChangeState(ProgramState.Running);
             await AddProcessEventHandlers(program, program.Process);
         }
     }
