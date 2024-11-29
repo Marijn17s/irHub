@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using HandyControl.Controls;
 using irHub.Classes;
@@ -207,4 +209,15 @@ public partial class ProgramDialog : INotifyPropertyChanged
     private void SelectNewApplication_OnClick(object sender, RoutedEventArgs e) => ShowNewApplicationDialog();
 
     private void ResetIconButton_OnClick(object sender, RoutedEventArgs e) => ResetToExecutableIcon();
+
+    private async void ProgramDialog_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        while (true)
+        {
+            var changedProgram = JsonSerializer.Serialize(Program);
+            var originalProgram = JsonSerializer.Serialize(OriginalProgram);
+            SaveButton.Visibility = changedProgram != originalProgram ? Visibility.Visible : Visibility.Hidden;
+            await Task.Delay(50);
+        }
+    }
 }
