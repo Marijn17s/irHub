@@ -206,7 +206,7 @@ internal struct Global
             var processes = Process.GetProcessesByName(program.ExecutableName);
             if (processes.Length < 1)
             {
-                MessageBox.Show("Failed to start " + program.ExecutableName); // todo
+                MessageBox.Show("Failed to start " + program.ExecutableName);
                 return false;
             }
             process = processes[0];

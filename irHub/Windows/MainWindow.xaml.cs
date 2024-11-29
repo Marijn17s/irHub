@@ -69,14 +69,6 @@ namespace irHub.Windows
             while (!Global.CancelStateCheck)
             {
                 await Global.CheckProgramsRunning();
-                /*foreach (var program in Global.Programs)
-                {
-                    var running = await Global.IsProgramRunning(program);
-                    if (running && program.State is ProgramState.Stopped)
-                        await program.ChangeState(ProgramState.Running);
-                    if (!running && program.State is ProgramState.Running)
-                        await program.ChangeState(ProgramState.Stopped);
-                }*/
                 await Task.Delay(2000);
             }
         }
