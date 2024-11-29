@@ -235,7 +235,16 @@ public partial class ProgramListPage
             return;
         }
 
-        if (program.Process is null || program.Process.HasExited)
+        try
+        {
+            if (program.Process is null || program.Process.HasExited)
+            {
+                await program.ChangeState(ProgramState.Stopped);
+                Global.KillProcessesByPartialName(program.ExecutableName);
+                return;
+            }
+        }
+        catch (InvalidOperationException ex)
         {
             await program.ChangeState(ProgramState.Stopped);
             Global.KillProcessesByPartialName(program.ExecutableName);
