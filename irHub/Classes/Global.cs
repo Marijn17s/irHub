@@ -346,12 +346,11 @@ internal struct Global
         if (!File.Exists(path) || !IsFile(path))
             return DefaultIcon;
         
-        var info = new FileInfo(path);
-        var fileExtension = info.Extension;
-        if (fileExtension == ".exe")
+        var fileExtension = Path.GetExtension(path);
+        if (fileExtension is ".exe")
             return GetIconFromExe(path);
         
-        var bitmap = new Bitmap(path);
+        using var bitmap = new Bitmap(path);
         if (bitmap is { Height: 0, Width: 0 })
             return DefaultIcon;
         
