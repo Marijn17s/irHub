@@ -59,6 +59,10 @@ namespace irHub.Windows
             Global.irHubDirectoryPath = Path.Combine(documents, "irHub");
             if (!Path.Exists(Global.irHubDirectoryPath))
                 Directory.CreateDirectory(Global.irHubDirectoryPath);
+            
+            var logPath = Path.Combine(Global.irHubDirectoryPath, "logs");
+            if (!Path.Exists(logPath))
+                Directory.CreateDirectory(logPath);
 
             if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "programs.json")))
                 File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "programs.json"), "[]");
