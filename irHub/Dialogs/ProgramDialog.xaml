@@ -61,38 +61,42 @@
                                 <ColumnDefinition Width="90" />
                                 <ColumnDefinition Width="220" />
                             </Grid.ColumnDefinitions>
-                            <Image
-                                Grid.Column="0"
-                                Height="60"
-                                Margin="5,0,5,5"
-                                Source="{Binding Icon.Source}"
-                                Width="60" />
-                            <Button
-                                Click="ResetIconButton_OnClick"
-                                Foreground="{DynamicResource DarkDangerBrush}"
-                                Grid.Column="0"
-                                Height="15"
-                                HorizontalAlignment="Right"
-                                Margin="0,0,10,5"
-                                Name="ResetIconButton"
-                                Padding="0"
-                                Style="{StaticResource ButtonIcon}"
-                                ToolTip="Delete custom icon and reset it to use the executable icon"
-                                VerticalAlignment="Bottom"
-                                Visibility="Hidden"
-                                Width="15"
-                                hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}" />
-                            <Button
-                                Click="SelectNewIcon_OnClick"
-                                Content="Select"
-                                Grid.Column="1"
-                                ToolTip="Select a new icon to use for this application in the overview"
-                                Width="80" />
-                            <TextBox
-                                Grid.Column="2"
-                                Height="20"
-                                IsReadOnly="True"
-                                Text="{Binding IconPath}" />
+                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                                <Image
+                                    Height="60"
+                                    Margin="5,0,5,5"
+                                    Source="{Binding Icon.Source}"
+                                    Width="60" />
+                            </hc:TransitioningContentControl>
+                            <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                                <Button
+                                    Click="ResetIconButton_OnClick"
+                                    Foreground="{DynamicResource DarkDangerBrush}"
+                                    Height="15"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,0,10,5"
+                                    Name="ResetIconButton"
+                                    Padding="0"
+                                    Style="{StaticResource ButtonIcon}"
+                                    ToolTip="Delete custom icon and reset it to use the executable icon"
+                                    VerticalAlignment="Bottom"
+                                    Visibility="Hidden"
+                                    Width="15"
+                                    hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}" />
+                            </hc:TransitioningContentControl>
+                            <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                                <Button
+                                    Click="SelectNewIcon_OnClick"
+                                    Content="Select"
+                                    ToolTip="Select a new icon to use for this application in the overview"
+                                    Width="80" />
+                            </hc:TransitioningContentControl>
+                            <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Right2LeftWithFade">
+                                <TextBox
+                                    Height="20"
+                                    IsReadOnly="True"
+                                    Text="{Binding IconPath}" />
+                            </hc:TransitioningContentControl>
                         </Grid>
                     </Grid>
                     <Grid Grid.Column="0" Grid.Row="1">
@@ -101,17 +105,19 @@
                             <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Grid.Column="0"
-                            Text="Name"
-                            VerticalAlignment="Center" />
-                        <TextBox
-                            Foreground="White"
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <TextBlock Text="Name" VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl
                             Grid.Column="2"
                             Grid.Row="0"
-                            Height="20"
-                            Margin="2"
-                            Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                            TransitionMode="Left2RightWithFade">
+                            <TextBox
+                                Foreground="White"
+                                Height="20"
+                                Margin="2"
+                                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                        </hc:TransitioningContentControl>
                     </Grid>
                     <Grid Grid.Column="0" Grid.Row="2">
                         <Grid.ColumnDefinitions>
@@ -119,25 +125,28 @@
                             <ColumnDefinition Width="85" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Grid.Column="0"
-                            Margin="0,0,2,0"
-                            Text="Application"
-                            VerticalAlignment="Center" />
-                        <Button
-                            Click="SelectNewApplication_OnClick"
-                            Content="Select"
-                            Grid.Column="1"
-                            HorizontalAlignment="Left"
-                            Margin="2,0,0,0"
-                            ToolTip="Select a new application"
-                            Width="80" />
-                        <TextBox
-                            Grid.Column="2"
-                            Height="20"
-                            IsReadOnly="True"
-                            Margin="2"
-                            Text="{Binding FilePath}" />
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <TextBlock
+                                Margin="0,0,2,0"
+                                Text="Application"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <Button
+                                Click="SelectNewApplication_OnClick"
+                                Content="Select"
+                                HorizontalAlignment="Left"
+                                Margin="2,0,0,0"
+                                ToolTip="Select a new application"
+                                Width="80" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Right2LeftWithFade">
+                            <TextBox
+                                Height="20"
+                                IsReadOnly="True"
+                                Margin="2"
+                                Text="{Binding FilePath}" />
+                        </hc:TransitioningContentControl>
                     </Grid>
                     <Grid Grid.Column="0" Grid.Row="3">
                         <Grid.ColumnDefinitions>
@@ -147,28 +156,32 @@
                             <ColumnDefinition Width="80" />
                             <ColumnDefinition Width="20" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Grid.Column="0"
-                            Text="Arguments"
-                            VerticalAlignment="Center" />
-                        <TextBox
-                            Foreground="White"
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <TextBlock Text="Arguments" VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl
                             Grid.Column="2"
                             Grid.Row="0"
-                            Height="20"
-                            Margin="2"
-                            Text="{Binding StartArguments, UpdateSourceTrigger=PropertyChanged}"
-                            ToolTip="Startup arguments for the selected app" />
-                        <TextBlock
-                            Grid.Column="3"
-                            Margin="5,0,0,0"
-                            Text="Start Hidden:"
-                            VerticalAlignment="Center" />
-                        <CheckBox
-                            Grid.Column="4"
-                            HorizontalAlignment="Center"
-                            IsChecked="{Binding StartHidden}"
-                            ToolTip="Whether to hide the application when it starts up. Especially useful for apps like telemetry loggers" />
+                            TransitionMode="Left2RightWithFade">
+                            <TextBox
+                                Foreground="White"
+                                Height="20"
+                                Margin="2"
+                                Text="{Binding StartArguments, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="Startup arguments for the selected app" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Right2LeftWithFade">
+                            <TextBlock
+                                Margin="5,0,0,0"
+                                Text="Start Hidden:"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Right2LeftWithFade">
+                            <CheckBox
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding StartHidden}"
+                                ToolTip="Whether to hide the application when it starts up. Especially useful for apps like telemetry loggers" />
+                        </hc:TransitioningContentControl>
                     </Grid>
                     <Grid Grid.Column="0" Grid.Row="4">
                         <Grid.ColumnDefinitions>
@@ -178,29 +191,30 @@
                             <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="100" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Grid.Column="0"
-                            Text="Start:"
-                            VerticalAlignment="Center" />
-                        <CheckBox
-                            Grid.Column="1"
-                            HorizontalAlignment="Center"
-                            IsChecked="{Binding StartWithIracingUi}"
-                            ToolTip="Whether to start this application when the iRacing UI opens" />
-                        <TextBlock
-                            Grid.Column="2"
-                            Margin="5,0,0,0"
-                            Text="Stop:"
-                            VerticalAlignment="Center" />
-                        <CheckBox
-                            Grid.Column="3"
-                            HorizontalAlignment="Center"
-                            IsChecked="{Binding StopWithIracingUi}"
-                            ToolTip="Whether to stop this application when the iRacing UI closes" />
-                        <TextBlock
-                            Grid.Column="4"
-                            Text=" with iRacing UI"
-                            VerticalAlignment="Center" />
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <TextBlock Text="Start:" VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <CheckBox
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding StartWithIracingUi}"
+                                ToolTip="Whether to start this application when the iRacing UI opens" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Left2RightWithFade">
+                            <TextBlock
+                                Margin="5,0,0,0"
+                                Text="Stop:"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Left2RightWithFade">
+                            <CheckBox
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding StopWithIracingUi}"
+                                ToolTip="Whether to stop this application when the iRacing UI closes" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Left2RightWithFade">
+                            <TextBlock Text=" with iRacing UI" VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
                     </Grid>
                     <Grid Grid.Column="0" Grid.Row="5">
                         <Grid.ColumnDefinitions>
@@ -210,29 +224,30 @@
                             <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="100" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Grid.Column="0"
-                            Text="Start:"
-                            VerticalAlignment="Center" />
-                        <CheckBox
-                            Grid.Column="1"
-                            HorizontalAlignment="Center"
-                            IsChecked="{Binding StartWithIracingSim}"
-                            ToolTip="Whether to start this application when the iRacing Sim opens" />
-                        <TextBlock
-                            Grid.Column="2"
-                            Margin="5,0,0,0"
-                            Text="Stop:"
-                            VerticalAlignment="Center" />
-                        <CheckBox
-                            Grid.Column="3"
-                            HorizontalAlignment="Center"
-                            IsChecked="{Binding StopWithIracingSim}"
-                            ToolTip="Whether to stop this application when the iRacing Sim closes" />
-                        <TextBlock
-                            Grid.Column="4"
-                            Text=" with iRacing Sim"
-                            VerticalAlignment="Center" />
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <TextBlock Text="Start:" VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <CheckBox
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding StartWithIracingSim}"
+                                ToolTip="Whether to start this application when the iRacing Sim opens" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Left2RightWithFade">
+                            <TextBlock
+                                Margin="5,0,0,0"
+                                Text="Stop:"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Left2RightWithFade">
+                            <CheckBox
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding StopWithIracingSim}"
+                                ToolTip="Whether to stop this application when the iRacing Sim closes" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Left2RightWithFade">
+                            <TextBlock Text=" with iRacing Sim" VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
                     </Grid>
                 </Grid>
             </Grid>
@@ -249,30 +264,34 @@
                 VerticalAlignment="Top"
                 Width="22"
                 hc:IconElement.Geometry="{StaticResource SuccessGeometry}" />
-            <Button
-                Click="CancelButton_OnClick"
-                Foreground="{DynamicResource WarningBrush}"
-                Height="22"
-                HorizontalAlignment="Right"
-                IsCancel="True"
-                Margin="0,4,4,0"
-                Padding="0"
-                Style="{StaticResource ButtonIcon}"
-                VerticalAlignment="Top"
-                Width="22"
-                hc:IconElement.Geometry="{StaticResource ErrorGeometry}" />
-            <Button
-                Background="Transparent"
-                BorderThickness="0"
-                Click="DeleteButton_OnClick"
-                Height="28"
-                HorizontalAlignment="Right"
-                Margin="0,0,5,6"
-                Padding="0"
-                VerticalAlignment="Bottom"
-                Width="28">
-                <mat:MaterialIcon Foreground="{DynamicResource DarkDangerBrush}" Kind="DeleteForever" />
-            </Button>
+            <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+                <Button
+                    Click="CancelButton_OnClick"
+                    Foreground="{DynamicResource WarningBrush}"
+                    Height="22"
+                    HorizontalAlignment="Right"
+                    IsCancel="True"
+                    Margin="0,4,4,0"
+                    Padding="0"
+                    Style="{StaticResource ButtonIcon}"
+                    VerticalAlignment="Top"
+                    Width="22"
+                    hc:IconElement.Geometry="{StaticResource ErrorGeometry}" />
+            </hc:TransitioningContentControl>
+            <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+                <Button
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="DeleteButton_OnClick"
+                    Height="28"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,5,6"
+                    Padding="0"
+                    VerticalAlignment="Bottom"
+                    Width="28">
+                    <mat:MaterialIcon Foreground="{DynamicResource DarkDangerBrush}" Kind="DeleteForever" />
+                </Button>
+            </hc:TransitioningContentControl>
         </Grid>
     </Border>
 </hc:Window>
