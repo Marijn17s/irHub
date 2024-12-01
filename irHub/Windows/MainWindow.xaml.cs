@@ -121,16 +121,20 @@ namespace irHub.Windows
             if (WindowState is WindowState.Minimized)
             {
                 TrayIcon.Visibility = Visibility.Visible;
-                TrayIcon.Click += (_, _) =>
-                {
-                    Show();
-                    WindowState = WindowState.Normal;
-                    TrayIcon.Visibility = Visibility.Hidden;
-                };
+                TrayIcon.Click += (_, _) => RecoverFromTray();
                 Hide();
             }
 
             base.OnStateChanged(e);
+        }
+
+        internal void RecoverFromTray()
+        {
+            Show();
+            Focus();
+            Activate();
+            WindowState = WindowState.Normal;
+            TrayIcon.Visibility = Visibility.Hidden;
         }
 
         private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)
