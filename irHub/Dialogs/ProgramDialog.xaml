@@ -61,14 +61,14 @@
                                 <ColumnDefinition Width="90" />
                                 <ColumnDefinition Width="220" />
                             </Grid.ColumnDefinitions>
-                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                            <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
                                 <Image
                                     Height="60"
                                     Margin="5,0,5,5"
                                     Source="{Binding Icon.Source}"
                                     Width="60" />
                             </hc:TransitioningContentControl>
-                            <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Right2LeftWithFade">
                                 <Button
                                     Click="ResetIconButton_OnClick"
                                     Foreground="{DynamicResource DarkDangerBrush}"
@@ -84,14 +84,14 @@
                                     Width="15"
                                     hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}" />
                             </hc:TransitioningContentControl>
-                            <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Right2LeftWithFade">
                                 <Button
                                     Click="SelectNewIcon_OnClick"
                                     Content="Select"
                                     ToolTip="Select a new icon to use for this application in the overview"
                                     Width="80" />
                             </hc:TransitioningContentControl>
-                            <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Right2LeftWithFade">
+                            <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Left2RightWithFade">
                                 <TextBox
                                     Height="20"
                                     IsReadOnly="True"
@@ -105,13 +105,13 @@
                             <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Right2LeftWithFade">
                             <TextBlock Text="Name" VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
                         <hc:TransitioningContentControl
                             Grid.Column="2"
                             Grid.Row="0"
-                            TransitionMode="Left2RightWithFade">
+                            TransitionMode="Right2LeftWithFade">
                             <TextBox
                                 Foreground="White"
                                 Height="20"
@@ -125,13 +125,13 @@
                             <ColumnDefinition Width="85" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Right2LeftWithFade">
                             <TextBlock
                                 Margin="0,0,2,0"
                                 Text="Application"
                                 VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Right2LeftWithFade">
                             <Button
                                 Click="SelectNewApplication_OnClick"
                                 Content="Select"
@@ -140,7 +140,7 @@
                                 ToolTip="Select a new application"
                                 Width="80" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Right2LeftWithFade">
+                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Left2RightWithFade">
                             <TextBox
                                 Height="20"
                                 IsReadOnly="True"
@@ -156,13 +156,13 @@
                             <ColumnDefinition Width="80" />
                             <ColumnDefinition Width="20" />
                         </Grid.ColumnDefinitions>
-                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Right2LeftWithFade">
                             <TextBlock Text="Arguments" VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
                         <hc:TransitioningContentControl
                             Grid.Column="2"
                             Grid.Row="0"
-                            TransitionMode="Left2RightWithFade">
+                            TransitionMode="Right2LeftWithFade">
                             <TextBox
                                 Foreground="White"
                                 Height="20"
@@ -170,13 +170,13 @@
                                 Text="{Binding StartArguments, UpdateSourceTrigger=PropertyChanged}"
                                 ToolTip="Startup arguments for the selected app" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Right2LeftWithFade">
+                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Left2RightWithFade">
                             <TextBlock
                                 Margin="5,0,0,0"
                                 Text="Start Hidden:"
                                 VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Right2LeftWithFade">
+                        <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Left2RightWithFade">
                             <CheckBox
                                 HorizontalAlignment="Center"
                                 IsChecked="{Binding StartHidden}"
@@ -191,28 +191,28 @@
                             <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="100" />
                         </Grid.ColumnDefinitions>
-                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Right2LeftWithFade">
                             <TextBlock Text="Start:" VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Right2LeftWithFade">
                             <CheckBox
                                 HorizontalAlignment="Center"
                                 IsChecked="{Binding StartWithIracingUi}"
                                 ToolTip="Whether to start this application when the iRacing UI opens" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Right2LeftWithFade">
                             <TextBlock
                                 Margin="5,0,0,0"
                                 Text="Stop:"
                                 VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Right2LeftWithFade">
                             <CheckBox
                                 HorizontalAlignment="Center"
                                 IsChecked="{Binding StopWithIracingUi}"
                                 ToolTip="Whether to stop this application when the iRacing UI closes" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Right2LeftWithFade">
                             <TextBlock Text=" with iRacing UI" VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
                     </Grid>
@@ -224,28 +224,28 @@
                             <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="100" />
                         </Grid.ColumnDefinitions>
-                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Right2LeftWithFade">
                             <TextBlock Text="Start:" VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Right2LeftWithFade">
                             <CheckBox
                                 HorizontalAlignment="Center"
                                 IsChecked="{Binding StartWithIracingSim}"
                                 ToolTip="Whether to start this application when the iRacing Sim opens" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Right2LeftWithFade">
                             <TextBlock
                                 Margin="5,0,0,0"
                                 Text="Stop:"
                                 VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Right2LeftWithFade">
                             <CheckBox
                                 HorizontalAlignment="Center"
                                 IsChecked="{Binding StopWithIracingSim}"
                                 ToolTip="Whether to stop this application when the iRacing Sim closes" />
                         </hc:TransitioningContentControl>
-                        <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Left2RightWithFade">
+                        <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Right2LeftWithFade">
                             <TextBlock Text=" with iRacing Sim" VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
                     </Grid>
@@ -264,7 +264,7 @@
                 VerticalAlignment="Top"
                 Width="22"
                 hc:IconElement.Geometry="{StaticResource SuccessGeometry}" />
-            <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
                 <Button
                     Click="CancelButton_OnClick"
                     Foreground="{DynamicResource WarningBrush}"
@@ -278,7 +278,7 @@
                     Width="22"
                     hc:IconElement.Geometry="{StaticResource ErrorGeometry}" />
             </hc:TransitioningContentControl>
-            <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
                 <Button
                     Background="Transparent"
                     BorderThickness="0"
