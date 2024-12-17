@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using HandyControl.Controls;
 using irHub.Classes;
+using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using irHub.Windows;
 using Microsoft.Win32;
@@ -106,7 +107,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
         Growl.Success("Successfully saved program!");
     }
     
-    private void CancelButton_OnClick(object sender, RoutedEventArgs e)
+    private async void CancelButton_OnClick(object sender, RoutedEventArgs e)
     {
         // Cancel changes
 
@@ -122,6 +123,8 @@ public partial class ProgramDialog : INotifyPropertyChanged
             Program.Icon = OriginalProgram.Icon;
             Program.Process = OriginalProgram.Process;
             Program.ActionButton = OriginalProgram.ActionButton;
+            if (Program.State is not ProgramState.NotFound && !File.Exists(Program.FilePath))
+                await Program.ChangeState(ProgramState.NotFound);
         }
         
         if (Application.Current.MainWindow is MainWindow mainWindow)

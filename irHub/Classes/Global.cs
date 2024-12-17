@@ -163,6 +163,9 @@ internal struct Global
 
         foreach (var program in Programs)
         {
+            if (program.State is ProgramState.NotFound && File.Exists(program.FilePath))
+                await program.ChangeState(ProgramState.Stopped);
+            
             var existingProcess = processes.FirstOrDefault(process => process.ProcessName == program.ExecutableName);
             if (existingProcess is null || existingProcess.HasExited) continue;
             
