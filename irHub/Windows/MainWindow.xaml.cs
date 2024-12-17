@@ -69,7 +69,7 @@ namespace irHub.Windows
                 File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "programs.json"), "[]");
             
             if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "settings.json")))
-                File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "settings.json"), "[]");
+                File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "settings.json"), "{}");
         }
 
         private static async Task CheckProgramStateLoop()
