@@ -24,6 +24,7 @@ namespace irHub.Windows
         {
             InitializeComponent();
             InitialChecks();
+            Global.LoadSettings();
             
             // Open on center of screen
             Left = (SystemParameters.WorkArea.Width - Width) / 2;
@@ -66,6 +67,9 @@ namespace irHub.Windows
 
             if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "programs.json")))
                 File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "programs.json"), "[]");
+            
+            if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "settings.json")))
+                File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "settings.json"), "[]");
         }
 
         private static async Task CheckProgramStateLoop()
