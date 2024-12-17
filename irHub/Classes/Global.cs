@@ -111,7 +111,6 @@ internal struct Global
     
     internal static void LoadSettings()
     {
-        Settings = new Settings();
         var json = File.ReadAllText(Path.Combine(irHubDirectoryPath, "settings.json"));
         if (json is "{}")
         {
