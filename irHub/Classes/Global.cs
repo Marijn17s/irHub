@@ -34,6 +34,7 @@ internal struct Global
     internal static bool CancelIracingUiStateCheck = false;
 
     internal static SdkWrapper iRacingClient = new();
+    internal static Settings Settings;
 
     internal static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -103,6 +104,28 @@ internal struct Global
     { 
         var programsJson = JsonSerializer.Serialize(Programs, JsonSerializerOptions);
         File.WriteAllText(Path.Combine(irHubDirectoryPath, "programs.json"), programsJson);
+    }
+    
+    internal static void LoadSettings()
+    {
+        Settings = new Settings();
+        var json = File.ReadAllText(Path.Combine(irHubDirectoryPath, "settings.json"));
+        if (json is "{}")
+        {
+            SaveSettings();
+            return;
+        }
+        
+        if (!IsValidJson(json))
+            return;
+        
+        Settings = JsonSerializer.Deserialize<Settings>(json) ?? Settings;
+    }
+
+    internal static void SaveSettings()
+    {
+        var json = JsonSerializer.Serialize(Settings, JsonSerializerOptions);
+        File.WriteAllText(Path.Combine(irHubDirectoryPath, "settings.json"), json);
     }
     
     private static bool IsValidJson(string source)
