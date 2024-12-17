@@ -36,8 +36,8 @@ internal struct Global
     internal static bool CancelStateCheck = false;
     internal static bool CancelIracingUiStateCheck = false;
 
-    internal static SdkWrapper iRacingClient = new();
-    internal static Settings Settings;
+    internal static readonly SdkWrapper iRacingClient = new();
+    internal static Settings Settings = new();
 
     internal static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
