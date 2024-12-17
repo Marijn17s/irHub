@@ -96,7 +96,7 @@ public partial class ProgramListPage
                 await program.ChangeState(ProgramState.NotFound);
                 continue;
             } 
-            await Global.IsProgramRunning(program);
+            Global.IsProgramRunning(program);
         }
     }
     
@@ -244,7 +244,7 @@ public partial class ProgramListPage
                 return;
             }
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException)
         {
             await program.ChangeState(ProgramState.Stopped);
             Global.KillProcessesByPartialName(program.ExecutableName);

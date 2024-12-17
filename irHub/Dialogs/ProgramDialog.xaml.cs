@@ -77,6 +77,8 @@ public partial class ProgramDialog : INotifyPropertyChanged
         OriginalProgram = Global.DeepCloneT(program);
         // Manually copy over properties that can't be parsed to JSON (1/2)
         // todo make it possible to convert these properties to JSON (maybe base64 encoding it?) 
+        if (OriginalProgram is null) return;
+        
         OriginalProgram.Icon = program.Icon;
         OriginalProgram.Process = program.Process;
         OriginalProgram.ActionButton = program.ActionButton;
@@ -215,7 +217,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
 
     private async void ProgramDialog_OnLoaded(object sender, RoutedEventArgs e)
     {
-        while (true)
+        while (Program is not null)
         {
             var changedProgram = JsonSerializer.Serialize(Program);
             var originalProgram = JsonSerializer.Serialize(OriginalProgram);

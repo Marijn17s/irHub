@@ -17,6 +17,9 @@ using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using Image = System.Windows.Controls.Image;
 using MessageBox = HandyControl.Controls.MessageBox;
+// ReSharper disable InconsistentNaming
+// ReSharper disable EventUnsubscriptionViaAnonymousDelegate
+// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 
 namespace irHub.Classes;
 
@@ -102,8 +105,8 @@ internal struct Global
 
     internal static void SavePrograms()
     { 
-        var programsJson = JsonSerializer.Serialize(Programs, JsonSerializerOptions);
-        File.WriteAllText(Path.Combine(irHubDirectoryPath, "programs.json"), programsJson);
+        var json = JsonSerializer.Serialize(Programs, JsonSerializerOptions);
+        File.WriteAllText(Path.Combine(irHubDirectoryPath, "programs.json"), json);
     }
     
     internal static void LoadSettings()
@@ -141,7 +144,7 @@ internal struct Global
         }
     }
     
-    public static T DeepCloneT<T>(T obj)
+    public static T? DeepCloneT<T>(T obj)
     {
         // Deep clone any type of object
         string json = JsonSerializer.Serialize(obj, JsonSerializerOptions);
@@ -174,11 +177,11 @@ internal struct Global
                 program.ExecutableName = existingProcess.ProcessName;
 
             await program.ChangeState(ProgramState.Running);
-            await AddProcessEventHandlers(program, program.Process);
+            AddProcessEventHandlers(program, program.Process);
         }
     }
 
-    internal static async Task<bool> IsProgramRunning(Program program)
+    internal static bool IsProgramRunning(Program program)
     {
         // Check if program is running
         var existingProcess = Process.GetProcesses().FirstOrDefault(process => process.ProcessName == program.ExecutableName);
@@ -188,11 +191,11 @@ internal struct Global
         if (program.ExecutableName != existingProcess.ProcessName)
             program.ExecutableName = existingProcess.ProcessName;
 
-        await AddProcessEventHandlers(program, program.Process);
+        AddProcessEventHandlers(program, program.Process);
         return true;
     }
 
-    private static async Task AddProcessEventHandlers(Program program, Process process)
+    private static void AddProcessEventHandlers(Program program, Process? process)
     {
         // Add event handlers like the process exiting
         if (process is null || process.HasExited) return;
@@ -211,7 +214,7 @@ internal struct Global
     internal static async Task<bool> StartProgram(Program program)
     {
         // Check if the program is already running
-        if (await IsProgramRunning(program))
+        if (IsProgramRunning(program))
         {
             await program.ChangeState(ProgramState.Running);
             return true;
@@ -241,7 +244,7 @@ internal struct Global
         if (program.ExecutableName != process.ProcessName)
             program.ExecutableName = process.ProcessName;
         
-        await AddProcessEventHandlers(program, process);
+        AddProcessEventHandlers(program, process);
         
         PostApplicationStartLogic(process);
 

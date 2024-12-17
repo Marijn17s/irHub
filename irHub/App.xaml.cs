@@ -9,8 +9,8 @@ namespace irHub;
 
 public partial class App
 {
-    private static string _signalFilePath;
-    private FileSystemWatcher _fileWatcher;
+    private static string? _signalFilePath;
+    private FileSystemWatcher? _fileWatcher;
     
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -40,7 +40,7 @@ public partial class App
         _fileWatcher = new FileSystemWatcher
         {
             Path = Path.GetDirectoryName(_signalFilePath) ?? Directory.GetCurrentDirectory(),
-            Filter = Path.GetFileName(_signalFilePath),
+            Filter = Path.GetFileName(_signalFilePath) ?? "",
             NotifyFilter = NotifyFilters.FileName
         };
 
@@ -51,7 +51,8 @@ public partial class App
                 if (MainWindow is not MainWindow mainWindow) return;
                 
                 mainWindow.RecoverFromTray();
-                File.Delete(_signalFilePath);
+                if (File.Exists(_signalFilePath))
+                    File.Delete(_signalFilePath);
             });
         };
 
@@ -60,6 +61,7 @@ public partial class App
 
     private static void NotifyExistingInstance()
     {
+        if (string.IsNullOrEmpty(_signalFilePath)) return;
         File.WriteAllText(_signalFilePath, string.Empty);
     }
 
@@ -67,7 +69,7 @@ public partial class App
     {
         base.OnExit(e);
         
-        _fileWatcher.Dispose();
+        _fileWatcher?.Dispose();
         if (File.Exists(_signalFilePath))
             File.Delete(_signalFilePath);
     }
