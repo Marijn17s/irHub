@@ -46,7 +46,7 @@ public partial class ProgramListPage
         
         Global.iRacingClient.Connected += async (_, _) =>
         {
-            await Task.Run(async () => await ServeGarageCover());
+            _ = Task.Run(async () => await ServeGarageCover());
             
             foreach (var program in Global.Programs.Where(program => program is { StartWithIracingSim: true, State: ProgramState.Stopped }))
                 await Global.StartProgram(program);
