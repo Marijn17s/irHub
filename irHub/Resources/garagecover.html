@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>irHub Garage Cover</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #image {
+            display: none;
+            width: 100%;
+            height: 100%;
+            object-fit:cover;
+        }
+    </style>
+</head>
+<body>
+    <img id="image" src="/image" alt="Garage Cover">
+    <script>
+        async function updateVisibility() {
+            fetch('/state', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(function(response){
+                response => response.json();
+                const showImage = response.ShouldShowGarageCover;
+                const img = document.getElementById('image');
+                img.style.display = showImage ? 'block' : 'none';
+            })
+        }
+
+        setInterval(updateVisibility, 15);
+    </script>
+</body>
+</html>

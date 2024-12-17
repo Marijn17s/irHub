@@ -11,6 +11,7 @@ using irHub.Classes;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using irHub.Dialogs;
+using irHub.Helpers;
 using Microsoft.Win32;
 using Velopack;
 using Velopack.Sources;
@@ -70,6 +71,12 @@ namespace irHub.Windows
             
             if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "settings.json")))
                 File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "settings.json"), "{}");
+
+            if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "garagecover.html")))
+            {
+                var html = EmbeddedResourceHelper.GetEmbeddedResource("irHub.Resources.garagecover.html");
+                File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "garagecover.html"), html);
+            }
         }
 
         private static async Task CheckProgramStateLoop()
