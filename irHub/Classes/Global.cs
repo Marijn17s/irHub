@@ -32,6 +32,7 @@ internal struct Global
     private const int SW_MINIMIZE = 6;
     
     internal static string irHubDirectoryPath = "";
+    internal static bool ShouldShowGarageCover = false;
     internal static bool NeedsProgramRefresh;
     internal static bool CancelStateCheck = false;
     internal static bool CancelIracingUiStateCheck = false;
