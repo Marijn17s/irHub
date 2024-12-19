@@ -90,5 +90,5 @@ public partial class SettingsPage
         Growl.Info("No new programs were imported.");
     }
 
-    private void ButtonBase_OnClick(object sender, RoutedEventArgs e) => ImportPrograms();
+    private void ImportPrograms_OnClick(object sender, RoutedEventArgs e) => ImportPrograms();
 }
