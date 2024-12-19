@@ -178,6 +178,14 @@ namespace irHub.Windows
         private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
             await UpdateApplication();
+            
+            // Minimize if set in settings
+            if (Global.Settings.StartMinimized)
+            {
+                WindowState = WindowState.Minimized;
+                Hide();
+            }
+            
             await CheckProgramStateLoop();
         }
     }
