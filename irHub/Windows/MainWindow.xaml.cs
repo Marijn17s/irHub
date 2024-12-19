@@ -13,6 +13,7 @@ using irHub.Classes.Models;
 using irHub.Dialogs;
 using irHub.Helpers;
 using Microsoft.Win32;
+using Serilog;
 using Velopack;
 using Velopack.Sources;
 using MessageBox = HandyControl.Controls.MessageBox;
@@ -26,6 +27,17 @@ namespace irHub.Windows
             InitializeComponent();
             InitialChecks();
             Global.LoadSettings();
+            
+            var logPath = Path.Combine(Global.irHubDirectoryPath, "logs");
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
+            
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File($"{logPath}\\log-{timestamp}.txt")
+                .CreateLogger();
+            
+            Log.Information("Application started");
             
             // Open on center of screen
             Left = (SystemParameters.WorkArea.Width - Width) / 2;
@@ -134,6 +146,8 @@ namespace irHub.Windows
                 TrayIcon.Visibility = Visibility.Visible;
                 TrayIcon.Click += (_, _) => RecoverFromTray();
                 Hide();
+                
+                Log.Information("Minimized to system tray");
             }
 
             base.OnStateChanged(e);
@@ -146,6 +160,8 @@ namespace irHub.Windows
             Activate();
             WindowState = WindowState.Normal;
             TrayIcon.Visibility = Visibility.Hidden;
+            
+            Log.Information("Recovered from system tray");
         }
 
         private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)
@@ -163,13 +179,13 @@ namespace irHub.Windows
             };
             
             var dialog = MessageBox.Show(info);
-            if (dialog == MessageBoxResult.Yes)
+            if (dialog is MessageBoxResult.Yes)
             {
                 foreach (var program in Global.Programs)
                     await Global.StopProgram(program);
                 Process.GetCurrentProcess().Kill();
             }
-            if (dialog == MessageBoxResult.No)
+            if (dialog is MessageBoxResult.No)
                 Process.GetCurrentProcess().Kill();
             if (dialog is MessageBoxResult.Cancel)
                 e.Cancel = true;
@@ -184,7 +200,9 @@ namespace irHub.Windows
             {
                 WindowState = WindowState.Minimized;
                 Hide();
+                Log.Information("Minimized to system tray");
             }
+            Log.Information("MainWindow loaded");
             
             await CheckProgramStateLoop();
         }

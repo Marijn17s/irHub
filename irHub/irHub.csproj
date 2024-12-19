@@ -19,6 +19,8 @@
       <PackageReference Include="MaterialDesignColors" Version="3.1.1-ci795" />
       <PackageReference Include="MaterialDesignThemes.Wpf" Version="1.0.1" />
       <PackageReference Include="Serilog" Version="4.2.0-dev-02330" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+      <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
       <PackageReference Include="System.Drawing.Common" Version="9.0.0-preview.6.24327.6" />
       <PackageReference Include="Velopack" Version="0.0.942" />
     </ItemGroup>
