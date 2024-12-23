@@ -6,6 +6,7 @@ using System.Xml;
 using HandyControl.Controls;
 using irHub.Classes;
 using irHub.Classes.Models;
+using irHub.Helpers;
 
 namespace irHub.Pages;
 
@@ -67,13 +68,13 @@ public partial class SettingsPage
             if (customIconPath is null || customIconPath is "")
             {
                 program.UseExecutableIcon = true;
-                program.Icon = Global.GetIconFromFile(program.FilePath);
+                program.Icon = IconHelper.GetIconFromFile(program.FilePath);
                 Global.Programs.Add(program);
                 continue;
             }
             
             program.UseExecutableIcon = false;
-            program.Icon = Global.GetIconFromFile(program.IconPath);
+            program.Icon = IconHelper.GetIconFromFile(program.IconPath);
             Global.Programs.Add(program);
         }
         

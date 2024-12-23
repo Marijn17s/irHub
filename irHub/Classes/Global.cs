@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using iRacingSdkWrapper;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
+using irHub.Helpers;
 using Image = System.Windows.Controls.Image;
 using MessageBox = HandyControl.Controls.MessageBox;
 // ReSharper disable InconsistentNaming
@@ -26,7 +27,7 @@ namespace irHub.Classes;
 internal struct Global
 {
     private const int MaxRetries = 50;
-    private static readonly Image DefaultIcon = new();
+    internal static readonly Image DefaultIcon = new();
     
     private const int SW_HIDE = 0;
     private const int SW_MINIMIZE = 6;
@@ -90,10 +91,10 @@ internal struct Global
         {
             if (!program.UseExecutableIcon)
             {
-                program.Icon = GetIconFromFile(program.IconPath);
+                program.Icon = IconHelper.GetIconFromFile(program.IconPath);
                 continue;
             }
-            program.Icon = GetIconFromExe(program.FilePath);
+            program.Icon = IconHelper.GetIconFromFile(program.FilePath);
         }
         return programs;
     }

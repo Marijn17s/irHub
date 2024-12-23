@@ -8,6 +8,7 @@ using HandyControl.Controls;
 using irHub.Classes;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
+using irHub.Helpers;
 using irHub.Windows;
 using Microsoft.Win32;
 using MessageBox = HandyControl.Controls.MessageBox;
@@ -174,7 +175,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
             return;
         }
         
-        Program.Icon = Global.GetIconFromFile(dialog.FileName);
+        Program.Icon = IconHelper.GetIconFromFile(dialog.FileName);
         Program.UseExecutableIcon = false;
         Program.IconPath = dialog.FileName;
         ResetIconButton.Visibility = Visibility.Visible;
@@ -203,7 +204,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
     private void ResetToExecutableIcon()
     {
         Program ??= new Program();
-        Program.Icon = Global.GetIconFromFile(Program.FilePath);
+        Program.Icon = IconHelper.GetIconFromFile(Program.FilePath);
         Program.UseExecutableIcon = true;
         Program.IconPath = "";
         ResetIconButton.Visibility = Visibility.Hidden;

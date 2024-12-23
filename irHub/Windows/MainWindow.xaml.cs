@@ -116,7 +116,7 @@ namespace irHub.Windows
             var program = new Program
             {
                 FilePath = dialog.FileName,
-                Icon = Global.GetIconFromFile(dialog.FileName)
+                Icon = IconHelper.GetIconFromFile(dialog.FileName)
             };
             var t = new ProgramDialog(ref program, true);
             t.ShowDialog();
