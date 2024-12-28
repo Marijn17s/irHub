@@ -104,6 +104,13 @@ namespace irHub.Windows
             if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "garagecover.html")))
             {
                 var html = EmbeddedResourceHelper.GetEmbeddedResource("irHub.Resources.garagecover.html");
+                if (html is "")
+                {
+                    Global.Settings.ShowGarageCover = false;
+                    Global.SaveSettings();
+                    Growl.Error("Failed to construct garage cover! Garage cover is now disabled.");
+                    return;
+                }
                 File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "garagecover.html"), html);
             }
         }
