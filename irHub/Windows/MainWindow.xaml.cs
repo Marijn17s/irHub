@@ -29,7 +29,7 @@ namespace irHub.Windows
             Global.LoadSettings();
             
             var logPath = Path.Combine(Global.irHubDirectoryPath, "logs");
-            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss");
             
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
