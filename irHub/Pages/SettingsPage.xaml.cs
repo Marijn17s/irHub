@@ -70,8 +70,8 @@ public partial class SettingsPage
                 StopWithIracingSim = stopWithSim,
                 StartHidden = startHidden
             };
-
-            if (customIconPath is null || customIconPath is "")
+            
+            if (customIconPath is null or "")
             {
                 Log.Warning("Custom icon path is invalid");
                 program.UseExecutableIcon = true;
