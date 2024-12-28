@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using irHub.Classes;
 using irHub.Windows;
+using Serilog;
 using Velopack;
 
 namespace irHub;
@@ -21,9 +22,9 @@ public partial class App
         var irHubDirectory = Path.Combine(documents, "irHub");
         _signalFilePath = Path.Combine(irHubDirectory, "irHub.signal");
         
-        
         if (Global.FindProcess() is { } alreadyRunningProcess)
         {
+            Log.Debug($"Another instance is already running with process id: {alreadyRunningProcess.Id}");
             NotifyExistingInstance();
             Current.Shutdown();
             return;
@@ -34,6 +35,8 @@ public partial class App
     
     private void StartAsPrimaryInstance()
     {
+        Log.Debug("Starting as primary instance..");
+        
         if (File.Exists(_signalFilePath))
             File.Delete(_signalFilePath);
         
@@ -61,6 +64,8 @@ public partial class App
 
     private static void NotifyExistingInstance()
     {
+        Log.Debug("Notifying existing instance..");
+        
         if (string.IsNullOrEmpty(_signalFilePath)) return;
         File.WriteAllText(_signalFilePath, string.Empty);
     }
@@ -68,6 +73,9 @@ public partial class App
     protected override void OnExit(ExitEventArgs e)
     {
         base.OnExit(e);
+        
+        Log.Debug("Closing application..");
+        Log.CloseAndFlush();
         
         _fileWatcher?.Dispose();
         if (File.Exists(_signalFilePath))

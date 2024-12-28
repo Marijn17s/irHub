@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using irHub.Classes.Enums;
+using Serilog;
 
 namespace irHub.Classes.Models;
 
@@ -126,6 +127,7 @@ public class Program : INotifyPropertyChanged
 
     internal async Task ChangeState(ProgramState state)
     {
+        Log.Information($"{Process?.ProcessName} changing state from {State} to {state}");
         State = state;
         
         await Task.Run(() =>

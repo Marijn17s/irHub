@@ -7,6 +7,7 @@ using HandyControl.Controls;
 using irHub.Classes;
 using irHub.Classes.Models;
 using irHub.Helpers;
+using Serilog;
 
 namespace irHub.Pages;
 
@@ -15,16 +16,20 @@ public partial class SettingsPage
     public SettingsPage()
     {
         InitializeComponent();
+        Log.Information("Settings page loaded");
     }
 
     private void ImportPrograms()
     {
+        Log.Information("Importing programs..");
+        
         var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         var xmlFile = Path.Combine(documents, "iRacingManager\\settings.xml");
 
         if (!File.Exists(xmlFile) || !Global.IsFile(xmlFile))
         {
-            Growl.Warning("No programs could be imported.");
+            Log.Warning("No programs could be imported. File does not exist");
+            Growl.Warning("No programs could be imported. File does not exist");
             return;
         }
         
@@ -34,7 +39,8 @@ public partial class SettingsPage
         var nodes = doc.SelectNodes("//Programs/Program");
         if (nodes is null)
         {
-            Growl.Warning("No programs could be imported.");
+            Log.Warning("No programs could be imported. File might be corrupted");
+            Growl.Warning("No programs could be imported. File might be corrupted");
             return;
         }
 
@@ -67,6 +73,7 @@ public partial class SettingsPage
 
             if (customIconPath is null || customIconPath is "")
             {
+                Log.Warning("Custom icon path is invalid");
                 program.UseExecutableIcon = true;
                 program.Icon = IconHelper.GetIconFromFile(program.FilePath);
                 Global.Programs.Add(program);
@@ -85,9 +92,11 @@ public partial class SettingsPage
         var newPrograms = programsAfter - programsBefore;
         if (newPrograms > 0)
         {
+            Log.Information($"Successfully imported {newPrograms} programs");
             Growl.Success($"Successfully imported {newPrograms} programs");
             return;
         }
+        Log.Information("No new programs were imported.");
         Growl.Info("No new programs were imported.");
     }
 

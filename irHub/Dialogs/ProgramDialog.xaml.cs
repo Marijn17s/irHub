@@ -11,6 +11,7 @@ using irHub.Classes.Models;
 using irHub.Helpers;
 using irHub.Windows;
 using Microsoft.Win32;
+using Serilog;
 using MessageBox = HandyControl.Controls.MessageBox;
 using Path = System.IO.Path;
 
@@ -55,6 +56,8 @@ public partial class ProgramDialog : INotifyPropertyChanged
     internal ProgramDialog(ref Program program, bool isNew = false)
     {
         InitializeComponent();
+        
+        Log.Information($"Opening program dialog. New: {isNew}");
         if (Application.Current.MainWindow is MainWindow mainWindow)
             Owner = mainWindow;
         
@@ -78,7 +81,11 @@ public partial class ProgramDialog : INotifyPropertyChanged
         OriginalProgram = Global.DeepCloneT(program);
         // Manually copy over properties that can't be parsed to JSON (1/2)
         // todo make it possible to convert these properties to JSON (maybe base64 encoding it?) 
-        if (OriginalProgram is null) return;
+        if (OriginalProgram is null)
+        {
+            Log.Warning("Original program could not be loaded.");
+            return;
+        }
         
         OriginalProgram.Icon = program.Icon;
         OriginalProgram.Process = program.Process;
@@ -88,6 +95,8 @@ public partial class ProgramDialog : INotifyPropertyChanged
     private void SaveButton_OnClick(object sender, RoutedEventArgs e)
     {
         // Save changes
+        Log.Information($"Saving program.. New: {_isNew} - ProgramDialog");
+        
         if (Program?.Name is "" || Program?.Name?.Length > 20)
         {
             MessageBox.Warning("The program must have a name with a maximum length of 20 characters.");
@@ -107,13 +116,16 @@ public partial class ProgramDialog : INotifyPropertyChanged
             mainWindow.Focus();
         
         Close();
+        
+        Log.Information($"Successfully saved program {Program?.Name}");
         Growl.Success("Successfully saved program!");
     }
     
     private async void CancelButton_OnClick(object sender, RoutedEventArgs e)
     {
         // Cancel changes
-
+        Log.Information($"Canceling program dialog. New: {_isNew} - ProgramDialog");
+        
         if (_isNew)
         {
             // todo handle new
@@ -138,9 +150,12 @@ public partial class ProgramDialog : INotifyPropertyChanged
     private void DeleteButton_OnClick(object sender, RoutedEventArgs e)
     {
         // Delete program
+        Log.Information($"Deleting {Program?.Name}..");
+        
         if (!_isNew && OriginalProgram is not null && Program is not null)
             Global.Programs.Remove(Program);
         
+        var name = Program?.Name ?? OriginalProgram?.Name;
         Program = null;
         OriginalProgram = null;
         Global.SavePrograms();
@@ -149,11 +164,15 @@ public partial class ProgramDialog : INotifyPropertyChanged
         if (Application.Current.MainWindow is MainWindow mainWindow)
             mainWindow.Focus();
         Close();
+        
+        Log.Information($"Successfully deleted program {name}");
         Growl.Success("Successfully removed program!");
     }
 
     private void ShowNewIconDialog()
     {
+        Log.Information("Opening new icon dialog");
+        
         Program ??= new Program();
         
         var dialog = new OpenFileDialog
@@ -166,6 +185,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
 
         if (dialog.ShowDialog() is not true || dialog.FileName is "")
         {
+            Log.Warning("No new icon was selected");
             ResetToExecutableIcon();
             return;
         }
@@ -183,6 +203,8 @@ public partial class ProgramDialog : INotifyPropertyChanged
     
     private void ShowNewApplicationDialog()
     {
+        Log.Information("Opening new executable dialog");
+        
         Program ??= new Program();
         
         var dialog = new OpenFileDialog
@@ -194,15 +216,21 @@ public partial class ProgramDialog : INotifyPropertyChanged
         };
 
         if (dialog.ShowDialog() is not true || dialog.FileName is "")
+        {
+            Log.Warning("No new executable was selected");
             return;
+        }
         
         Program.FilePath = dialog.FileName;
-        if (Program.UseExecutableIcon)
-            ResetToExecutableIcon();
+        if (!Program.UseExecutableIcon) return;
+        
+        ResetToExecutableIcon();
     }
 
     private void ResetToExecutableIcon()
     {
+        Log.Information($"Resetting icon of {Program?.Name} to executable icon..");
+        
         Program ??= new Program();
         Program.Icon = IconHelper.GetIconFromFile(Program.FilePath);
         Program.UseExecutableIcon = true;
@@ -218,6 +246,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
 
     private async void ProgramDialog_OnLoaded(object sender, RoutedEventArgs e)
     {
+        Log.Information("Initializing program difference checking..");
         while (Program is not null)
         {
             var changedProgram = JsonSerializer.Serialize(Program);

@@ -13,17 +13,17 @@ internal struct IconHelper
 {
     internal static Image GetIconFromFile(string path)
     {
-        Log.Information("Getting icon from file...");
+        Log.Information($"Loading icon from {path}");
         if (!File.Exists(path) || !Global.IsFile(path))
         {
-            Log.Warning("File does not exist - GetIconFromFile");
+            Log.Warning("File does not exist or access to file is denied - GetIconFromFile");
             return Global.DefaultIcon;
         }
         
         var fileExtension = Path.GetExtension(path);
         if (fileExtension is ".exe")
         {
-            Log.Information("Getting icon from exe...");
+            Log.Information("Loading icon from exe..");
             return GetIconFromExe(path);
         }
         

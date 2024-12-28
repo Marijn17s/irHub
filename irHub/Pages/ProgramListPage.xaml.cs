@@ -17,6 +17,7 @@ using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using irHub.Dialogs;
 using MaterialDesignThemes.Wpf;
+using Serilog;
 using Card = HandyControl.Controls.Card;
 using Window = HandyControl.Controls.Window;
 
@@ -46,6 +47,8 @@ public partial class ProgramListPage
         
         Global.iRacingClient.Connected += async (_, _) =>
         {
+            Log.Information("Connected to iRacing SDK");
+            
             _ = Task.Run(async () => await ServeGarageCover());
             
             foreach (var program in Global.Programs.Where(program => program is { StartWithIracingSim: true, State: ProgramState.Stopped }))
@@ -54,6 +57,8 @@ public partial class ProgramListPage
 
         Global.iRacingClient.Disconnected += async (_, _) =>
         {
+            Log.Information("Disconnected from iRacing SDK");
+            
             foreach (var program in Global.Programs.Where(program => program is { StopWithIracingSim: true, State: ProgramState.Running }))
                 await Global.StopProgram(program);
         };
@@ -61,16 +66,19 @@ public partial class ProgramListPage
 
     private async void OnLoaded(object o, RoutedEventArgs routedEventArgs)
     {
+        Log.Information("Program list page loaded");
+        
         while (!Global.CancelIracingUiStateCheck)
         {
             try
             {
                 if (Global.NeedsProgramRefresh)
                 {
+                    Log.Information("Programs need a refresh. Refreshing now..");
                     LoadPrograms();
                     Global.NeedsProgramRefresh = false;
                 }
-                
+
                 if (Process.GetProcesses().Any(process =>
                         process.ProcessName.Contains("iRacingUI", StringComparison.InvariantCultureIgnoreCase)))
                     foreach (var program in Global.Programs.Where(program =>
@@ -85,12 +93,18 @@ public partial class ProgramListPage
 
                 await Task.Delay(1000);
             }
-            catch { Global.CancelIracingUiStateCheck = true; }
+            catch (Exception ex)
+            {
+                Log.Error($"Program list page threw the following error: {ex.Message} {ex.StackTrace} {ex.InnerException} {ex.Source}");
+                Global.CancelIracingUiStateCheck = true;
+            }
         }
     }
 
     private void LoadPrograms()
     {
+        Log.Information("Creating cards for programs");
+        
         ProgramsCardPanel.Children.Clear();
         foreach (var program in Global.Programs)
             CreateCard(program);
@@ -98,11 +112,13 @@ public partial class ProgramListPage
 
     private static async Task CheckProgramsRunning()
     {
+        Log.Information("Checking if programs still exist and are running..");
         foreach (var program in Global.Programs)
         {
             var exists = File.Exists(program.FilePath);
             if (!exists)
             {
+                Log.Warning($"Program {program.FilePath} doesn't exist (anymore)");
                 await program.ChangeState(ProgramState.NotFound);
                 continue;
             } 
@@ -112,10 +128,12 @@ public partial class ProgramListPage
 
     private async Task ServeGarageCover()
     {
+        Log.Information("Initializing garage cover server..");
+        
         var listener = new HttpListener();
         listener.Prefixes.Add("http://localhost:8081/");
         listener.Start();
-        Console.WriteLine("Server started. Serving on http://localhost:8081/");
+        Log.Information("Server started. Serving on http://localhost:8081/");
         
         while (Global.iRacingClient.IsConnected)
         {
@@ -125,6 +143,8 @@ public partial class ProgramListPage
             
             if (requestUrl is "/irhub")
             {
+                Log.Debug("Garage cover was requested");
+                
                 // Serve the HTML file
                 response.ContentType = "text/html";
                 var html = await File.ReadAllTextAsync("C:\\Users\\marij\\Documents\\irHub\\garagecover.html");
@@ -133,6 +153,8 @@ public partial class ProgramListPage
             }
             else if (requestUrl is "/state")
             {
+                Log.Debug("Garage cover state was requested");
+                
                 // Serve the current visibility state as JSON
                 response.ContentType = "application/json";
                 var json = JsonSerializer.Serialize(new { Global.ShouldShowGarageCover });
@@ -141,6 +163,9 @@ public partial class ProgramListPage
             }
             else if (requestUrl is "/image")
             {
+                Log.Debug("Garage cover image was requested");
+                
+                // Serve the garage cover image
                 var imagePath = "C:\\Users\\marij\\Downloads\\garagecover.jpg";
                 if (File.Exists(imagePath))
                 {
@@ -156,6 +181,8 @@ public partial class ProgramListPage
     
     private void CreateCard(Program program)
     {
+        Log.Information($"Creating program card for {program.Name}..");
+        
         var card = new Card
         {
             Background = new SolidColorBrush(Color.FromRgb(55, 58, 62)),
@@ -298,8 +325,10 @@ public partial class ProgramListPage
                 return;
             }
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex)
         {
+            Log.Error($"Program list page threw the following error: {ex.Message} {ex.StackTrace} {ex.InnerException} {ex.Source}");
+            
             await program.ChangeState(ProgramState.Stopped);
             Global.KillProcessesByPartialName(program.ExecutableName);
             return;

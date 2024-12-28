@@ -50,12 +50,22 @@ namespace irHub.Windows
             var manager = new UpdateManager(source);
             
             // prevents error while debugging
-            if (!manager.IsInstalled) return;
+            if (!manager.IsInstalled)
+            {
+                Log.Debug("Installation is not installed. Aborting update check");
+                return;
+            }
 
+            Log.Debug("Checking for updates..");
             var currentVersion = manager.CurrentVersion;
             var newVersion = await manager.CheckForUpdatesAsync();
             if (newVersion is null)
+            {
+                Log.Debug("Latest application version is installed");
                 return; // no update available
+            }
+            
+            Log.Debug($"An update is available. Currently installed version: {currentVersion}. New version: {newVersion}");
 
             Effect = Global.WindowBlurEffect;
             var result = MessageBox.Ask($"Do you want to update {currentVersion} > {newVersion.TargetFullRelease.Version}?", "Update Available");
@@ -63,16 +73,23 @@ namespace irHub.Windows
             
             if (result is not MessageBoxResult.OK) return;
             
+            Log.Debug($"Downloading {newVersion} update..");
+            
             await manager.DownloadUpdatesAsync(newVersion);
             manager.ApplyUpdatesAndRestart(newVersion);
         }
 
         private void InitialChecks()
         {
+            Log.Information("Performing initial checks..");
+            Log.Debug("Resolving application directory path..");
+            
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Global.irHubDirectoryPath = Path.Combine(documents, "irHub");
             if (!Directory.Exists(Global.irHubDirectoryPath))
                 Directory.CreateDirectory(Global.irHubDirectoryPath);
+            
+            Log.Debug("Resolved application directory path!");
             
             var logPath = Path.Combine(Global.irHubDirectoryPath, "logs");
             if (!Directory.Exists(logPath))
@@ -93,6 +110,7 @@ namespace irHub.Windows
 
         private static async Task CheckProgramStateLoop()
         {
+            Log.Information("Starting programs state check..");
             while (!Global.CancelStateCheck)
             {
                 await Global.CheckProgramsRunning();
@@ -102,6 +120,8 @@ namespace irHub.Windows
 
         private void AddProgram_OnClick(object sender, RoutedEventArgs e)
         {
+            Log.Information("Opening new program dialog");
+            
             var dialog = new OpenFileDialog
             {
                 Filter = "Executables (*.exe, *.bat, *.cmd)|*.exe;*.bat;*.cmd",
@@ -111,7 +131,10 @@ namespace irHub.Windows
             };
 
             if (dialog.ShowDialog() is not true || dialog.FileName is "")
+            {
+                Log.Warning("No executable selected");
                 return;
+            }
 
             var program = new Program
             {
@@ -125,6 +148,7 @@ namespace irHub.Windows
         private async void StartAll_OnClick(object sender, RoutedEventArgs e)
         {
             // todo check parallelization performance
+            Log.Information("Starting all programs");
             foreach (var program in Global.Programs)
                 await Global.StartProgram(program);
             if (Global.Programs.Count > 0)
@@ -133,6 +157,7 @@ namespace irHub.Windows
         
         private async void StopAll_OnClick(object sender, RoutedEventArgs e)
         {
+            Log.Information("Stopping all programs");
             foreach (var program in Global.Programs)
                 await Global.StopProgram(program);
             if (Global.Programs.Count > 0)
@@ -166,7 +191,8 @@ namespace irHub.Windows
 
         private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)
         {
-            if (!Global.Programs.Any(program => program.State is ProgramState.Running)) Process.GetCurrentProcess().Kill();
+            if (!Global.Programs.Any(program => program.State is ProgramState.Running))
+                Process.GetCurrentProcess().Kill();
             
             var info = new MessageBoxInfo
             {
