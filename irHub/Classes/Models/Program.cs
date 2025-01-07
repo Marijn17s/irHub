@@ -127,7 +127,7 @@ public class Program : INotifyPropertyChanged
 
     internal async Task ChangeState(ProgramState state)
     {
-        Log.Information($"{Process?.ProcessName} changing state from {State} to {state}");
+        Log.Information($"{Name} changing state from {State} to {state}");
         State = state;
         
         await Task.Run(() =>
