@@ -200,6 +200,10 @@ internal struct Global
         {
             if (program.State is ProgramState.NotFound && File.Exists(program.FilePath))
                 await program.ChangeState(ProgramState.Stopped);
+            if (program.State is ProgramState.NotFound && !File.Exists(program.FilePath))
+                continue;
+            if (program.State is ProgramState.Running && program.Process is not null && !program.Process.HasExited)
+                continue;
             
             var existingProcess = processes.FirstOrDefault(process => process.ProcessName == program.ExecutableName);
             if (existingProcess is null || existingProcess.HasExited)
@@ -324,7 +328,6 @@ internal struct Global
         
         Log.Information($"Disassociating process for {program.Name}..");
         var processName = program.Process.ProcessName;
-        program.Process.Exited -= (_, _) => {};
         program.Process.Close();
 
         KillProcessesByPartialName(processName);
