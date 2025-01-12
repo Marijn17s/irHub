@@ -84,15 +84,16 @@ public partial class SettingsPage
             program.Icon = IconHelper.GetIconFromFile(program.IconPath);
             Global.Programs.Add(program);
         }
-        
-        Global.SavePrograms();
-        Global.RefreshPrograms();
 
         var programsAfter = Global.Programs.Count;
         var newPrograms = programsAfter - programsBefore;
         if (newPrograms > 0)
         {
             Log.Information($"Successfully imported {newPrograms} programs");
+            
+            Global.SavePrograms();
+            Global.RefreshPrograms();
+            
             Growl.Success($"Successfully imported {newPrograms} programs");
             return;
         }
