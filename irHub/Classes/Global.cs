@@ -111,7 +111,9 @@ internal struct Global
     }
 
     internal static void SavePrograms()
-    { 
+    {
+        Log.Information("Saving application settings..");
+        
         var json = JsonSerializer.Serialize(Programs, JsonSerializerOptions);
         File.WriteAllText(Path.Combine(irHubDirectoryPath, "programs.json"), json);
         
@@ -142,6 +144,8 @@ internal struct Global
     internal static void SaveSettings()
     {
         // Save application settings
+        Log.Information("Saving application settings..");
+        
         var json = JsonSerializer.Serialize(Settings, JsonSerializerOptions);
         File.WriteAllText(Path.Combine(irHubDirectoryPath, "settings.json"), json);
         
