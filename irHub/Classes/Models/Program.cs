@@ -40,6 +40,7 @@ public class Program : INotifyPropertyChanged
         }
     }
     
+    // ReSharper disable once InconsistentNaming - resharper for some reason thinks this is incorrect
     private string? _executableName { get; set; }
     internal string ExecutableName {
         get => _executableName ?? Path.GetFileNameWithoutExtension(FilePath);
@@ -107,7 +108,7 @@ public class Program : INotifyPropertyChanged
     public bool StopWithIracingSim { get; set; } = true;
     
     [JsonIgnore]
-    public Button ActionButton { get; set; } = null!;
+    public Button? ActionButton { get; set; }
 
     internal Process? GetProcess()
     {
@@ -128,6 +129,12 @@ public class Program : INotifyPropertyChanged
     internal async Task ChangeState(ProgramState state)
     {
         Log.Information($"{Name} changing state from {State} to {state}");
+        if (ActionButton is null)
+        {
+            Log.Warning($"{Name} action button was null");
+            return;
+        }
+        
         State = state;
         
         await Task.Run(() =>
