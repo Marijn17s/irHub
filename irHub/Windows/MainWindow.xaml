@@ -73,6 +73,21 @@
                 </Grid.Background>
 
                 <Image HorizontalAlignment="Left" Source="pack://application:,,,/irHub;component/Resources/iRacingLogoWhite.png" />
+                <StackPanel
+                    HorizontalAlignment="Right"
+                    Margin="0,0,10,0"
+                    Orientation="Horizontal">
+                    <Button
+                        Click="StartAll_OnClick"
+                        Content="Start all"
+                        Margin="0,0,2,0"
+                        Width="90" />
+                    <Button
+                        Click="StopAll_OnClick"
+                        Content="Stop all"
+                        Margin="2,0,0,0"
+                        Width="90" />
+                </StackPanel>
             </Grid>
 
             <hc:TabControl Grid.Row="1" Style="{StaticResource TabControlInLine}">
