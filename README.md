@@ -12,6 +12,7 @@
 
 ### Planned features:
 * Automatic application detection - detecting tools like overlays and adding them with the push of a button
+* Endurance Planner - plan every aspect of your upcoming endurance races
 * P2P setup sharing - quickly exchange setups with your team without digging through folders
 * Settings import/export
 * Many more!
