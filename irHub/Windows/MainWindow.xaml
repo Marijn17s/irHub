@@ -62,10 +62,16 @@
                 </hc:NotifyIcon.ContextContent>
             </hc:NotifyIcon>
 
-            <Grid
-                Background="#630330"
-                Grid.Row="0"
-                Opacity="0.9">
+            <Grid Grid.Row="0" Opacity="0.9">
+                <Grid.Background>
+                    <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#893ADF" Offset="0.1" />
+                            <GradientStop Color="#C7409E" Offset="1.0" />
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </Grid.Background>
+
                 <Image HorizontalAlignment="Left" Source="pack://application:,,,/irHub;component/Resources/iRacingLogoWhite.png" />
             </Grid>
 
