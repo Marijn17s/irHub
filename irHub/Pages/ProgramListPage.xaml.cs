@@ -252,9 +252,66 @@ public partial class ProgramListPage
         };
         program.ActionButton = actionButton;
         BorderElement.SetCornerRadius(actionButton, new CornerRadius(8));
-        actionButton.Click += ActionButton_OnClick;
-        actionButton.MouseEnter += ActionButton_OnMouseEnter;
-        actionButton.MouseLeave += ActionButton_OnMouseLeave;
+        actionButton.Click += async (_, _) =>
+        {
+            if (program.State is ProgramState.Stopped)
+            {
+                await Global.StartProgram(program);
+                return;
+            }
+
+            if (program.State is ProgramState.NotFound)
+            {
+                var exists = File.Exists(program.FilePath);
+                if (exists)
+                {
+                    await program.ChangeState(ProgramState.Stopped);
+                    await Global.StartProgram(program);
+                }
+                return;
+            }
+
+            try
+            {
+                if (program.Process is null || program.Process.HasExited)
+                {
+                    await program.ChangeState(ProgramState.Stopped);
+                    Global.KillProcessesByPartialName(program.ExecutableName);
+                    return;
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log.Error($"Program list page threw the following error: {ex.Message} {ex.StackTrace} {ex.InnerException} {ex.Source}");
+            
+                await program.ChangeState(ProgramState.Stopped);
+                Global.KillProcessesByPartialName(program.ExecutableName);
+                return;
+            }
+        
+            if (program.State is ProgramState.Running)
+                await Global.StopProgram(program);
+        };
+        actionButton.MouseEnter += (_, _) =>
+        {
+            if (program.State is ProgramState.Stopped)
+                actionButton.Background = new SolidColorBrush(Color.FromRgb(81, 91, 99));
+            if (program.State is ProgramState.Running)
+            {
+                actionButton.Background = Brushes.IndianRed;
+                actionButton.Content = "STOP";
+            }
+        };
+        actionButton.MouseLeave += (_, _) =>
+        {
+            if (program.State is ProgramState.Stopped)
+                actionButton.Background = new SolidColorBrush(Color.FromRgb(55, 58, 62));
+            if (program.State is ProgramState.Running)
+            {
+                actionButton.Background = Brushes.LightGreen;
+                actionButton.Content = "RUNNING";
+            }
+        };
         Grid.SetColumn(actionButton, 0);
         footerGrid.Children.Add(actionButton);
 
@@ -269,9 +326,21 @@ public partial class ProgramListPage
             Tag = program
         };
         BorderElement.SetCornerRadius(editButton, new CornerRadius(8));
-        editButton.Click += EditButton_OnClick;
-        editButton.MouseEnter += EditButton_OnMouseEnter;
-        editButton.MouseLeave += EditButton_OnMouseLeave;
+        editButton.Click += (_, _) =>
+        {
+            // Blur window to avoid distractions and to seperate the windows
+            if (Application.Current.MainWindow is Window mainWindow)
+                mainWindow.Effect = Global.WindowBlurEffect;
+
+            var t = new ProgramDialog(ref program);
+            t.ShowDialog();
+
+            // Disable window blur
+            if (Application.Current.MainWindow is Window mainWindow2)
+                mainWindow2.Effect = null;
+        };
+        editButton.MouseEnter += (_, _) => editButton.Background = new SolidColorBrush(Color.FromRgb(81, 91, 99));
+        editButton.MouseLeave += (_, _) => editButton.Background = new SolidColorBrush(Color.FromRgb(55, 58, 62));
         Grid.SetColumn(editButton, 1);
 
         var pencilIcon = new PackIcon
@@ -292,109 +361,4 @@ public partial class ProgramListPage
 
         ProgramsCardPanel.Children.Add(card);
     }
-
-    #region Events
-    private static async void ActionButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is not Button button) return;
-        if (button.Tag is not Program program) return;
-        
-        if (program.State is ProgramState.Stopped)
-        {
-            await Global.StartProgram(program);
-            return;
-        }
-
-        if (program.State is ProgramState.NotFound)
-        {
-            var exists = File.Exists(program.FilePath);
-            if (exists)
-            {
-                await program.ChangeState(ProgramState.Stopped);
-                await Global.StartProgram(program);
-            }
-            return;
-        }
-
-        try
-        {
-            if (program.Process is null || program.Process.HasExited)
-            {
-                await program.ChangeState(ProgramState.Stopped);
-                Global.KillProcessesByPartialName(program.ExecutableName);
-                return;
-            }
-        }
-        catch (InvalidOperationException ex)
-        {
-            Log.Error($"Program list page threw the following error: {ex.Message} {ex.StackTrace} {ex.InnerException} {ex.Source}");
-            
-            await program.ChangeState(ProgramState.Stopped);
-            Global.KillProcessesByPartialName(program.ExecutableName);
-            return;
-        }
-        
-        if (program.State is ProgramState.Running)
-            await Global.StopProgram(program);
-    }
-    
-    private void EditButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is not Button button) return;
-        if (button.Tag is not Program program) return;
-
-        // Blur window to avoid distractions and to seperate the windows
-        if (Application.Current.MainWindow is Window mainWindow)
-            mainWindow.Effect = Global.WindowBlurEffect;
-        
-        var t = new ProgramDialog(ref program);
-        t.ShowDialog();
-
-        // Disable window blur
-        if (Application.Current.MainWindow is Window mainWindow2)
-            mainWindow2.Effect = null;
-        
-        //CollectionViewSource.GetDefaultView(Global.Programs).Refresh();
-    }
-    
-    private void ActionButton_OnMouseEnter(object sender, MouseEventArgs e)
-    {
-        if (sender is not Button button) return;
-        if (button.Tag is not Program program) return;
-        
-        if (program.State is ProgramState.Stopped)
-            button.Background = new SolidColorBrush(Color.FromRgb(81, 91, 99));
-        if (program.State is ProgramState.Running)
-        {
-            button.Background = Brushes.IndianRed;
-            button.Content = "STOP";
-        }
-    }
-    
-    private void ActionButton_OnMouseLeave(object sender, MouseEventArgs e)
-    {
-        if (sender is not Button button) return;
-        if (button.Tag is not Program program) return;
-
-        if (program.State is ProgramState.Stopped)
-            button.Background = new SolidColorBrush(Color.FromRgb(55, 58, 62));
-        if (program.State is ProgramState.Running)
-        {
-            button.Background = Brushes.LightGreen;
-            button.Content = "RUNNING";
-        }
-    }
-    
-    private void EditButton_OnMouseEnter(object sender, MouseEventArgs e)
-    {
-        if (sender is not Button button) return;
-        button.Background = new SolidColorBrush(Color.FromRgb(81, 91, 99));
-    }
-    
-    private void EditButton_OnMouseLeave(object sender, MouseEventArgs e)
-    {
-        if (sender is not Button button) return;
-        button.Background = new SolidColorBrush(Color.FromRgb(55, 58, 62));
-    }
-    #endregion
 }
