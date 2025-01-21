@@ -30,10 +30,7 @@
                         CommandParameter="https://paypal.me/marijn17s"
                         Header="Buy me a drink 🍹" />
                 </MenuItem>
-                <MenuItem Click="StartAll_OnClick" Header="START ALL" />
-                <!--  click start all above and other menu's below  -->
-                <MenuItem Click="StopAll_OnClick" Header="STOP ALL" />
-                <MenuItem Click="AddProgram_OnClick" Header="Add program" />
+                <MenuItem Click="AddProgram_OnClick" Header="New application" />
             </Menu>
         </StackPanel>
     </hc:Window.NonClientAreaContent>
@@ -94,7 +91,7 @@
                 <hc:TabItem
                     FontSize="13"
                     Foreground="{DynamicResource TextIconBrush}"
-                    Header="Program Manager">
+                    Header="Application Manager">
                     <Frame BorderThickness="0" Source="../Pages/ProgramListPage.xaml" />
                 </hc:TabItem>
                 <hc:TabItem FontSize="13" Header="SOON" />
