@@ -22,7 +22,7 @@ internal struct ReleaseNotesHelper
                     color: #c9d1d9;
                     display: flex;
                     justify-content: center;
-                    padding: 20px;
+                    padding: 18px;
                     overflow-x: hidden;
                     overflow-y: auto;
                 }}
