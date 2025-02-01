@@ -69,10 +69,10 @@ namespace irHub.Windows
             Log.Debug($"An update is available. Currently installed version: {currentVersion}. New version: {newVersion.TargetFullRelease.Version}");
 
             Effect = Global.WindowBlurEffect;
-            var result = MessageBox.Ask($"Do you want to update {currentVersion} > {newVersion.TargetFullRelease.Version}?", "Update Available");
+            var result = new UpdateDialog(currentVersion, newVersion).ShowDialog();
             Effect = null;
             
-            if (result is not MessageBoxResult.OK) return;
+            if (result is not true) return;
             
             Log.Debug($"Downloading {newVersion} update..");
             
