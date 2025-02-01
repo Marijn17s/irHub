@@ -11,5 +11,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <hc:ScrollViewer HorizontalContentAlignment="Left">
         <Button Click="ButtonBase_OnClick" Content="Auto-import programs" />
+                                <Button Click="ImportPrograms_OnClick" Content="Auto-import" />
     </hc:ScrollViewer>
 </Page>
