@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using irHub.Helpers;
+using irHub.Windows;
 using Microsoft.Web.WebView2.Core;
 using NuGet.Versioning;
 using Velopack;
@@ -14,6 +15,9 @@ public partial class UpdateDialog
     public UpdateDialog(SemanticVersion? currentVersion, UpdateInfo newVersion)
     {
         InitializeComponent();
+        
+        if (Application.Current.MainWindow is MainWindow mainWindow)
+            Owner = mainWindow;
         
         var releaseNotes = newVersion.TargetFullRelease.NotesHTML;
         string html = ReleaseNotesHelper.GenerateReleaseNotes(releaseNotes);
