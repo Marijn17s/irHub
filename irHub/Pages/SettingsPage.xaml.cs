@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Xml;
 using HandyControl.Controls;
 using irHub.Classes;
 using irHub.Classes.Models;
 using irHub.Helpers;
+using Material.Icons;
 using Serilog;
 
 namespace irHub.Pages;
@@ -16,6 +18,8 @@ public partial class SettingsPage
     public SettingsPage()
     {
         InitializeComponent();
+        DataContext = Global.Settings;
+        
         Log.Information("Settings page loaded");
     }
 
@@ -102,4 +106,13 @@ public partial class SettingsPage
     }
 
     private void ImportPrograms_OnClick(object sender, RoutedEventArgs e) => ImportPrograms();
+
+    private async void CopyGarageCoverUrl_OnClick(object sender, RoutedEventArgs e)
+    {
+        Clipboard.SetText(Global.Settings.GarageCoverUrl);
+        CopyButtonIcon.Kind = MaterialIconKind.Check;
+        
+        await Task.Delay(1500);
+        CopyButtonIcon.Kind = MaterialIconKind.ContentCopy;
+    }
 }

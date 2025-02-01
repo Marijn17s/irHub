@@ -5,12 +5,154 @@
     mc:Ignorable="d"
     x:Class="irHub.Pages.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:classes="clr-namespace:irHub.Classes"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:ico="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <hc:ScrollViewer HorizontalContentAlignment="Left">
-        <Button Click="ButtonBase_OnClick" Content="Auto-import programs" />
+        <Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="5" />
+                </Grid.ColumnDefinitions>
+
+                <Grid
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
+                    Margin="20,20,20,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="40" />
+                        </Grid.ColumnDefinitions>
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <TextBlock
+                                Foreground="White"
+                                Text="Start Hidden:"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <ToggleButton
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding Source={x:Static classes:Global.Settings}, Path=StartMinimized, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{StaticResource ToggleButtonSwitch}"
+                                ToolTip="Whether to hide the application when it starts up. Especially useful because you most likely don't need to change settings often" />
+                        </hc:TransitioningContentControl>
+                    </Grid>
+                    <Grid
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="40" />
+                        </Grid.ColumnDefinitions>
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <TextBlock
+                                Foreground="White"
+                                Text="Show garage cover:"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <ToggleButton
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding Source={x:Static classes:Global.Settings}, Path=ShowGarageCover, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{StaticResource ToggleButtonSwitch}"
+                                ToolTip="Whether to serve the garage cover. Useful for streamers that don't want to give away their setups" />
+                        </hc:TransitioningContentControl>
+                    </Grid>
+                    <Grid
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="25" />
+                        </Grid.ColumnDefinitions>
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <TextBlock
+                                Foreground="White"
+                                Text="Garage cover url:"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <TextBox
+                                IsReadOnly="True"
+                                Text="{Binding Source={x:Static classes:Global.Settings}, Path=GarageCoverUrl, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"
+                                ToolTip="Add it to your favourite streaming software as a browser source with this url" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Left2RightWithFade">
+                            <!--<Button Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource DownloadGeometry}" />-->
+                            <Button
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="0"
+                                Click="CopyGarageCoverUrl_OnClick"
+                                Height="20"
+                                HorizontalAlignment="Right"
+                                Padding="0"
+                                VerticalAlignment="Center"
+                                Width="20">
+                                <ico:MaterialIcon
+                                    Foreground="{DynamicResource PrimaryBrush}"
+                                    Kind="ContentCopy"
+                                    Name="CopyButtonIcon" />
+                            </Button>
+                        </hc:TransitioningContentControl>
+                    </Grid>
+                    <Grid
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="3">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" />
+                                <ColumnDefinition Width="90" />
+                                <ColumnDefinition Width="220" />
+                            </Grid.ColumnDefinitions>
+                            <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                                <TextBlock
+                                    Foreground="White"
+                                    Text="Import programs:"
+                                    VerticalAlignment="Center" />
+                            </hc:TransitioningContentControl>
+                            <hc:TransitioningContentControl
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                HorizontalAlignment="Left"
+                                TransitionMode="Right2LeftWithFade">
                                 <Button Click="ImportPrograms_OnClick" Content="Auto-import" />
+                            </hc:TransitioningContentControl>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
     </hc:ScrollViewer>
 </Page>

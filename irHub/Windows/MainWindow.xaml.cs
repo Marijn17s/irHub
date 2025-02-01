@@ -235,7 +235,9 @@ namespace irHub.Windows
                 Hide();
                 Log.Information("Minimized to system tray");
             }
+            
             Log.Information("MainWindow loaded");
+            Global.MainWindowLoaded = true;
             
             await CheckProgramStateLoop();
         }

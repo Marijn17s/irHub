@@ -32,13 +32,14 @@ internal struct Global
     private const int SW_MINIMIZE = 6;
     
     internal static string irHubDirectoryPath = "";
+    internal static bool MainWindowLoaded = false;
     internal static bool ShouldShowGarageCover = false;
     internal static bool NeedsProgramRefresh;
     internal static bool CancelStateCheck = false;
     internal static bool CancelIracingUiStateCheck = false;
 
     internal static readonly SdkWrapper iRacingClient = new();
-    internal static Settings Settings = new();
+    public static Settings Settings = new();
 
     internal static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
