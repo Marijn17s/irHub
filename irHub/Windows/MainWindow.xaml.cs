@@ -65,7 +65,6 @@ namespace irHub.Windows
                 return; // no update available
             }
             
-            Log.Debug($"An update is available. Currently installed version: {currentVersion}. New version: {newVersion}");
             Log.Debug($"An update is available. Currently installed version: {currentVersion}. New version: {newVersion.TargetFullRelease.Version}");
 
             Effect = Global.WindowBlurEffect;
