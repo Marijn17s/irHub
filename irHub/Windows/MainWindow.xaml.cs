@@ -14,6 +14,7 @@ using irHub.Dialogs;
 using irHub.Helpers;
 using Microsoft.Win32;
 using Serilog;
+using Serilog.Events;
 using Velopack;
 using Velopack.Sources;
 using MessageBox = HandyControl.Controls.MessageBox;
@@ -34,7 +35,7 @@ namespace irHub.Windows
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
-                .WriteTo.File($"{logPath}\\log-{timestamp}.txt")
+                .WriteTo.File($"{logPath}\\log-{timestamp}.txt", LogEventLevel.Verbose, "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
             
             Log.Information("Application started");
