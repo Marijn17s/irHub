@@ -91,12 +91,9 @@ internal struct Global
         
         foreach (var program in programs)
         {
-            if (!program.UseExecutableIcon)
-            {
-                program.Icon = IconHelper.GetIconFromFile(program.IconPath);
-                continue;
-            }
-            program.Icon = IconHelper.GetIconFromFile(program.FilePath);
+            program.Icon = IconHelper.GetIconFromFile(program.IconPath);
+            if (program.Icon == DefaultIcon && File.Exists(program.FilePath))
+                program.SetExecutableIcon();
         }
         
         Log.Information("Loaded initial programs settings");

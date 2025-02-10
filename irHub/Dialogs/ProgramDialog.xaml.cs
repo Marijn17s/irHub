@@ -8,7 +8,6 @@ using HandyControl.Controls;
 using irHub.Classes;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
-using irHub.Helpers;
 using irHub.Windows;
 using Microsoft.Win32;
 using Serilog;
@@ -195,9 +194,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
             return;
         }
         
-        Program.Icon = IconHelper.GetIconFromFile(dialog.FileName);
-        Program.UseExecutableIcon = false;
-        Program.IconPath = dialog.FileName;
+        Program.SetIcon(dialog.FileName);
         ResetIconButton.Visibility = Visibility.Visible;
     }
     
@@ -232,9 +229,7 @@ public partial class ProgramDialog : INotifyPropertyChanged
         Log.Information($"Resetting icon of {Program?.Name} to executable icon..");
         
         Program ??= new Program();
-        Program.Icon = IconHelper.GetIconFromFile(Program.FilePath);
-        Program.UseExecutableIcon = true;
-        Program.IconPath = "";
+        Program.SetExecutableIcon();
         ResetIconButton.Visibility = Visibility.Hidden;
     }
 

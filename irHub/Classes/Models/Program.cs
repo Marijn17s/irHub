@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using irHub.Classes.Enums;
+using irHub.Helpers;
 using Serilog;
 
 namespace irHub.Classes.Models;
@@ -165,5 +166,23 @@ public class Program : INotifyPropertyChanged
                     break;
             }
         });
+    }
+
+    internal void SetIcon(string sourcePath)
+    {
+        // Set custom icon
+        string path = FileCopyHelper.CopyImage(sourcePath);
+        
+        Icon = IconHelper.GetIconFromFile(path);
+        UseExecutableIcon = false;
+        IconPath = path;
+    }
+
+    internal void SetExecutableIcon()
+    {
+        // (re)set icon to use executable
+        Icon = IconHelper.GetIconFromFile(FilePath);
+        UseExecutableIcon = true;
+        IconPath = "";
     }
 }

@@ -7,7 +7,6 @@ using System.Xml;
 using HandyControl.Controls;
 using irHub.Classes;
 using irHub.Classes.Models;
-using irHub.Helpers;
 using Material.Icons;
 using Serilog;
 
@@ -78,14 +77,12 @@ public partial class SettingsPage
             if (customIconPath is null or "")
             {
                 Log.Warning("Custom icon path is invalid");
-                program.UseExecutableIcon = true;
-                program.Icon = IconHelper.GetIconFromFile(program.FilePath);
+                program.SetExecutableIcon();
                 Global.Programs.Add(program);
                 continue;
             }
             
-            program.UseExecutableIcon = false;
-            program.Icon = IconHelper.GetIconFromFile(program.IconPath);
+            program.SetIcon(program.IconPath);
             Global.Programs.Add(program);
         }
 
