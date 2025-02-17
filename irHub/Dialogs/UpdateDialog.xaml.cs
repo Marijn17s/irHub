@@ -2,8 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Interop;
 using irHub.Helpers;
-using irHub.Windows;
 using Microsoft.Web.WebView2.Core;
 using NuGet.Versioning;
 using Velopack;
@@ -34,6 +34,25 @@ public partial class UpdateDialog
         var screen = SystemParameters.WorkArea;
         Left = screen.Left + (screen.Width - Width) / 2;
         Top = screen.Top + (screen.Height - Height) / 2;
+    }
+    
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        var source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+        source?.AddHook(WndProc);
+    }
+
+    private static IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        // Prevent moving of the dialog
+        const int wmNchittest = 0x0084;
+        const int htClient = 1;
+
+        if (msg != wmNchittest) return IntPtr.Zero;
+        
+        handled = true;
+        return htClient;
     }
 
     private void WebView_OnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
