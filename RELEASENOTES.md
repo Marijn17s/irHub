@@ -1,5 +1,11 @@
 # irHub changelogs
 
+## Version 1.0.1
+This version brings a small bugfix
+
+Changes:
+- Fixed an issue where update dialog wouldn't show in the center of the screen
+
 ## Version 1.0.0
 This version brings a lot of bugfixes, new features, quality of life improvements, UI updates and performance improvements.
 
