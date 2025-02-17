@@ -5,7 +5,7 @@
     ShowMaxButton="False"
     ShowMinButton="False"
     Width="800"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="Manual"
     hc:WindowAttach.SystemBackdropType="Auto"
     mc:Ignorable="d"
     x:Class="irHub.Dialogs.UpdateDialog"
