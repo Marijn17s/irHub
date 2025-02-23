@@ -26,17 +26,23 @@
     <hc:Window.NonClientAreaContent>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
             <Menu Margin="5,0,0,0">
-                <MenuItem Header="Project">
+                <MenuItem Focusable="False" Header="Project">
                     <MenuItem
                         Command="hc:ControlCommands.OpenLink"
                         CommandParameter="https://github.com/Marijn17s/irHub"
+                        Focusable="False"
                         Header="GitHub Repository" />
                     <MenuItem
                         Command="hc:ControlCommands.OpenLink"
                         CommandParameter="https://paypal.me/marijn17s"
+                        Focusable="False"
                         Header="Buy me a drink 🍹" />
                 </MenuItem>
                 <MenuItem Click="AddProgram_OnClick" Header="New application" />
+                <MenuItem
+                    Click="AddProgram_OnClick"
+                    Focusable="False"
+                    Header="New application" />
             </Menu>
         </StackPanel>
     </hc:Window.NonClientAreaContent>
@@ -83,11 +89,13 @@
                     <Button
                         Click="StartAll_OnClick"
                         Content="Start all"
+                        Focusable="False"
                         Margin="0,0,2,0"
                         Width="90" />
                     <Button
                         Click="StopAll_OnClick"
                         Content="Stop all"
+                        Focusable="False"
                         Margin="2,0,0,0"
                         Width="90" />
                 </StackPanel>

@@ -247,6 +247,7 @@ public partial class ProgramListPage
             Height = 35,
             Width = 200,
             VerticalAlignment = VerticalAlignment.Center,
+            Focusable = false,
             Tag = program
         };
         program.ActionButton = actionButton;
@@ -322,6 +323,7 @@ public partial class ProgramListPage
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center,
             Width = 40,
+            Focusable = false,
             Tag = program
         };
         BorderElement.SetCornerRadius(editButton, new CornerRadius(8));
