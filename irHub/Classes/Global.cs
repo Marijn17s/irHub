@@ -14,6 +14,7 @@ using HandyControl.Controls;
 using iRacingSdkWrapper;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
+using irHub.Dialogs;
 using irHub.Helpers;
 using Serilog;
 using Image = System.Windows.Controls.Image;
@@ -40,6 +41,7 @@ internal struct Global
 
     internal static readonly SdkWrapper iRacingClient = new();
     public static Settings Settings = new();
+    public static QuickActionsDialog? QuickActionsDialog;
 
     internal static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {

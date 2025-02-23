@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using HandyControl.Controls;
 using HandyControl.Data;
 using irHub.Classes;
@@ -101,6 +102,43 @@ namespace irHub.Windows
             
             if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "settings.json")))
                 File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "settings.json"), "{}");
+        }
+
+        private void SetUpKeyBinding()
+        {
+            var keyBinding = InputBindings.OfType<KeyBinding>()
+                .FirstOrDefault(kb => kb is { Key: Key.Space, Modifiers: ModifierKeys.Control });
+
+            if (keyBinding == null) return;
+
+            var quickActionsCommand = new RoutedCommand();
+            keyBinding.Command = quickActionsCommand;
+
+            var commandBinding = new CommandBinding(quickActionsCommand);
+            commandBinding.Executed += OnQuickActionsShortcut;
+            CommandBindings.Add(commandBinding);
+        }
+
+        private void OnQuickActionsShortcut(object sender, ExecutedRoutedEventArgs e)
+        {
+            IsHitTestVisible = false;
+            Effect = Global.WindowBlurEffect;
+
+            if (Global.QuickActionsDialog is null || !Global.QuickActionsDialog.IsActive)
+                Global.QuickActionsDialog = new QuickActionsDialog();
+            Global.QuickActionsDialog.Show();
+
+            Global.QuickActionsDialog.Deactivated += (_, _) =>
+            {
+                if (Global.QuickActionsDialog.IsActive)
+                    Global.QuickActionsDialog.Close();
+            };
+            Global.QuickActionsDialog.Closed += (_, _) =>
+            {
+                IsHitTestVisible = true;
+                Effect = null;
+                Focus();
+            };
         }
 
         private static async Task CheckProgramStateLoop()
@@ -240,7 +278,8 @@ namespace irHub.Windows
                 }
                 await File.WriteAllTextAsync(Path.Combine(Global.irHubDirectoryPath, "garagecover.html"), html);
             }
-            
+            SetUpKeyBinding();
+
             await CheckProgramStateLoop();
         }
     }

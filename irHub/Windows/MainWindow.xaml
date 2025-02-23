@@ -17,6 +17,12 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <hc:Window.InputBindings>
+        <KeyBinding
+            Key="Space"
+            Modifiers="Control"
+            x:Name="ShortcutKeyBinding" />
+    </hc:Window.InputBindings>
     <hc:Window.NonClientAreaContent>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
             <Menu Margin="5,0,0,0">
