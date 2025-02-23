@@ -184,69 +184,6 @@
                     </ControlTemplate>
                 </ListView.Template>
             </ListView>
-
-            <!--  werkend maar verkeerde kleuren  -->
-            <!--<ListBox
-                Background="Transparent"
-                BorderThickness="0"
-                DisplayMemberPath="Name"
-                Foreground="White"
-                Height="{Binding ResultsHeight, Mode=TwoWay}"
-                ItemsSource="{Binding FilteredResults}"
-                Margin="10"
-                SelectedItem="{Binding SelectedResult}"
-                x:Name="ResultsList">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Foreground" Value="White" />
-                        <Setter Property="Background" Value="Transparent" />
-                        <Setter Property="BorderBrush" Value="Transparent" />
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Padding" Value="5" />
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#333" />
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#444" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-            </ListBox>-->
-
-            <!--  oud en troep? todo checken  -->
-            <!--<ListBox
-                Background="Transparent"
-                BorderThickness="0"
-                DisplayMemberPath="Name"
-                Foreground="White"
-                Height="{Binding ResultsHeight, Mode=TwoWay}"
-                ItemsSource="{Binding FilteredResults}"
-                Margin="10"
-                x:Name="ResultsList">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Foreground" Value="White" />
-                        ~1~  Text color  @1@
-                        <Setter Property="Background" Value="Transparent" />
-                        ~1~  Prevent blue selection  @1@
-                        <Setter Property="BorderBrush" Value="Transparent" />
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Padding" Value="5" />
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#333" />
-                                ~1~  Dark hover effect  @1@
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#444" />
-                                ~1~  Darker selected item  @1@
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-            </ListBox>-->
         </StackPanel>
     </Border>
 </hc:Window>
