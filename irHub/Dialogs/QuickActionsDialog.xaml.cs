@@ -9,7 +9,6 @@ using System.Windows.Input;
 using irHub.Classes;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
-using irHub.Helpers;
 using irHub.Windows;
 using Serilog;
 
@@ -76,7 +75,6 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
             Owner = mainWindow;
 
         AdjustWindowHeight();
-        WindowAttributesHelper.SetRoundedCorners(this);
     }
 
     private void AdjustWindowHeight()
@@ -90,6 +88,13 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
 
     private async void SearchBox_KeyUp(object sender, KeyEventArgs e)
     {
+        if (e.Key is Key.Tab)
+        {
+            Keyboard.Focus(SearchTextBox);
+            e.Handled = true;
+            return;
+        }
+        
         string query = SearchTextBox?.Text.Trim() ?? "";
         var selectedResult = SelectedResult;
         FilteredResults.Clear();

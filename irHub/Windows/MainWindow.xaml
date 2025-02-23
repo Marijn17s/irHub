@@ -38,7 +38,6 @@
                         Focusable="False"
                         Header="Buy me a drink 🍹" />
                 </MenuItem>
-                <MenuItem Click="AddProgram_OnClick" Header="New application" />
                 <MenuItem
                     Click="AddProgram_OnClick"
                     Focusable="False"

@@ -129,6 +129,8 @@
                 </ListView.View>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
+                        <Setter Property="Focusable" Value="False" />
+                        <Setter Property="IsTabStop" Value="False" />
                         <Setter Property="FontWeight" Value="Bold" />
                         <Setter Property="FontSize" Value="14" />
                         <Setter Property="Foreground" Value="White" />
