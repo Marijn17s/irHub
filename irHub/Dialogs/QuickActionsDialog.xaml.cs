@@ -3,12 +3,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using irHub.Classes;
 using irHub.Classes.Models;
+using irHub.Helpers;
 using irHub.Windows;
 using Serilog;
 
@@ -75,21 +75,8 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
             Owner = mainWindow;
 
         AdjustWindowHeight();
-        SetRoundedCorners(this); // todo make a new helper
+        WindowAttributesHelper.SetRoundedCorners(this);
     }
-    
-    private void SetRoundedCorners(Window window)
-    {
-        var hwnd = new System.Windows.Interop.WindowInteropHelper(window).Handle;
-        const int dwmwaWindowCornerPreference = 33;
-        int dwmWindowCornerRound = 2; // 2 = Rounded, 1 = Default, 0 = No Rounding
-
-        _ = DwmSetWindowAttribute(hwnd, dwmwaWindowCornerPreference, ref dwmWindowCornerRound, sizeof(int));
-    }
-    
-    // todo
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
 
     private void AdjustWindowHeight()
     {
