@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using irHub.Classes;
+using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using irHub.Helpers;
 using irHub.Windows;
@@ -87,7 +88,7 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
         Height = Math.Min(newHeight, MaxWindowHeight);
     }
 
-    private void SearchBox_KeyUp(object sender, KeyEventArgs e)
+    private async void SearchBox_KeyUp(object sender, KeyEventArgs e)
     {
         string query = SearchTextBox?.Text.Trim() ?? "";
         var selectedResult = SelectedResult;
@@ -124,8 +125,18 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
         {
             if (selectedResult is not null)
             {
-                var t = new ProgramDialog(ref selectedResult);
-                t.ShowDialog();
+                if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift))
+                {
+                    var t = new ProgramDialog(ref selectedResult);
+                    t.ShowDialog();
+                    e.Handled = true;
+                    Close();
+                    return;
+                }
+                if (selectedResult.State is ProgramState.Running)
+                    await Global.StopProgram(selectedResult);
+                else if (selectedResult.State is ProgramState.Stopped)
+                    await Global.StartProgram(selectedResult);
                 Close();
             }
             e.Handled = true;
