@@ -34,7 +34,7 @@
                         Header="GitHub Repository" />
                     <MenuItem
                         Command="hc:ControlCommands.OpenLink"
-                        CommandParameter="https://paypal.me/marijn17s"
+                        CommandParameter="https://bunq.me/csdev"
                         Focusable="False"
                         Header="Buy me a drink 🍹" />
                 </MenuItem>
