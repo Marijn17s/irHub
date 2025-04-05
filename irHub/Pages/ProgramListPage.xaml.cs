@@ -48,8 +48,6 @@ public partial class ProgramListPage
         {
             Log.Information("Connected to iRacing SDK");
             
-            _ = Task.Run(async () => await ServeGarageCover());
-            
             foreach (var program in Global.Programs.Where(program => program is { StartWithIracingSim: true, State: ProgramState.Stopped }))
                 await Global.StartProgram(program);
         };

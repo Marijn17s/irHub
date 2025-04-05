@@ -265,19 +265,6 @@ namespace irHub.Windows
             Log.Information("MainWindow loaded");
             Global.MainWindowLoaded = true;
             
-            // Checks for garagecover
-            if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "garagecover.html")))
-            {
-                var html = EmbeddedResourceHelper.GetEmbeddedResource("irHub.Resources.garagecover.html");
-                if (html is "")
-                {
-                    Global.Settings.ShowGarageCover = false;
-                    Global.SaveSettings();
-                    Growl.Error("Failed to construct garage cover! Garage cover is now disabled.");
-                    return;
-                }
-                await File.WriteAllTextAsync(Path.Combine(Global.irHubDirectoryPath, "garagecover.html"), html);
-            }
             SetUpKeyBinding();
 
             await CheckProgramStateLoop();
