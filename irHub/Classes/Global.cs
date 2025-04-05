@@ -33,7 +33,6 @@ internal struct Global
     
     internal static string irHubDirectoryPath = "";
     internal static bool MainWindowLoaded = false;
-    internal static bool ShouldShowGarageCover = false;
     internal static bool NeedsProgramRefresh;
     internal static bool CancelStateCheck = false;
     internal static bool CancelIracingUiStateCheck = false;
