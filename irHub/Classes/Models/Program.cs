@@ -102,7 +102,6 @@ public class Program : INotifyPropertyChanged
     
     public string StartArguments { get; set; } = "";
     public bool StartHidden { get; set; }
-    public bool IsOverlay { get; set; } // todo Make behaviour different with start hidden etc
     public bool StartWithIracingUi { get; set; }
     public bool StopWithIracingUi { get; set; }
     public bool StartWithIracingSim { get; set; } = true;
