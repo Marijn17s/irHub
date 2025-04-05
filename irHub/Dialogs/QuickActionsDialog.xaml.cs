@@ -21,6 +21,7 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
     private double _resultsHeight;
     private const double MaxWindowHeight = 360;
     private const double BaseHeight = 80;
+    private const double SuggestionsHeight = 42;
     private TextBox? SearchTextBox { get; set; }
 
     public ObservableCollection<Program> FilteredResults
@@ -70,10 +71,10 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
         DataContext = this;
 
         Log.Information("Opening quick actions dialog..");
-
+        
         if (Application.Current.MainWindow is MainWindow mainWindow)
             Owner = mainWindow;
-
+        
         AdjustWindowHeight();
     }
 
@@ -81,8 +82,17 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
     {
         // Update the list height dynamically with max 5 entries of 40 pixel height each with fixed extra of 20 pixels
         ResultsHeight = 20 + Math.Min(FilteredResults.Count, 5) * 40;
+
+        double newHeight = 0;
+        SuggestionsBox.Visibility = Visibility.Collapsed;
         
-        double newHeight = BaseHeight + ResultsHeight;
+        if (FilteredResults.Count > 0)
+        {
+            newHeight = SuggestionsHeight;
+            SuggestionsBox.Visibility = Visibility.Visible;
+        }
+        
+        newHeight += BaseHeight + ResultsHeight;
         Height = Math.Min(newHeight, MaxWindowHeight);
     }
 
@@ -119,6 +129,8 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
                 SelectedResult = FilteredResults[selectedIndex - 1];
             if (e.Key is Key.Down && selectedIndex < FilteredResults.Count - 1)
                 SelectedResult = FilteredResults[selectedIndex + 1];
+            else if (e.Key is Key.Up && selectedIndex is 0)
+                SelectedResult = FilteredResults[^1];
 
             OnPropertyChanged(nameof(SelectedResult));
             if (SelectedResult is not null)
@@ -153,6 +165,8 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
         if (SelectedResult is not null)
             ResultsList.ScrollIntoView(SelectedResult);
     }
+    
+    private void ClearButton_Click(object sender, RoutedEventArgs e) => SearchTextBox?.Clear();
 
     private void Dialog_OnLoaded(object sender, RoutedEventArgs e)
     {
@@ -160,14 +174,13 @@ public partial class QuickActionsDialog : INotifyPropertyChanged
         if (SearchBox.Template.FindName("PART_TextBox", SearchBox) is not TextBox textBox) return;
         
         SearchTextBox = textBox;
-        SearchTextBox.Focus();
+        Keyboard.Focus(SearchTextBox);
     }
-    
-    // todo idea: add actionbar to bottom like 1password shortcuts
 
     private void QuickActionsDialog_OnKeyUp(object sender, KeyEventArgs e)
     {
-        if (e.Key is Key.Escape) Close();
+        if (e.Key is Key.Escape)
+            Owner.Focus();
     }
 
     private void SearchBox_OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)

@@ -37,6 +37,7 @@
                                 Height="40"
                                 KeyUp="SearchBox_KeyUp"
                                 LostKeyboardFocus="SearchBox_OnLostKeyboardFocus"
+                                Padding="8,0,80,0"
                                 x:Name="PART_TextBox" />
                             <TextBlock
                                 Background="Transparent"
@@ -48,10 +49,34 @@
                                 Text="Search..."
                                 Visibility="Collapsed"
                                 x:Name="PART_Watermark" />
+                            <Button
+                                Click="ClearButton_Click"
+                                Focusable="False"
+                                Foreground="#B3B3B3"
+                                Height="24"
+                                HorizontalAlignment="Right"
+                                Margin="0,0,55,0"
+                                Padding="0"
+                                Style="{StaticResource ButtonIcon}"
+                                VerticalAlignment="Center"
+                                Visibility="Visible"
+                                Width="18"
+                                hc:IconElement.Geometry="{StaticResource ErrorGeometry}"
+                                x:Name="ClearButton" />
+                            <Image
+                                Height="26"
+                                HorizontalAlignment="Right"
+                                Margin="0,0,8,0"
+                                Source="pack://application:,,,/irHub;component/Resources/logoround.png"
+                                VerticalAlignment="Center"
+                                Width="26" />
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="Text" SourceName="PART_TextBox" Value="">
                                 <Setter Property="Visibility" TargetName="PART_Watermark" Value="Visible" />
+                            </Trigger>
+                            <Trigger Property="Text" SourceName="PART_TextBox" Value="">
+                                <Setter Property="Visibility" TargetName="ClearButton" Value="Collapsed" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -64,15 +89,14 @@
         CornerRadius="10"
         Effect="{DynamicResource Shadow}"
         HorizontalAlignment="Center"
-        Padding="10"
         VerticalAlignment="Center"
         Width="550">
-
         <StackPanel>
             <Border
                 Background="#242424"
                 BorderBrush="#335E8F"
                 CornerRadius="10"
+                Margin="5"
                 Name="SearchBorder">
                 <Grid Height="45">
                     <Grid.ColumnDefinitions>
@@ -99,14 +123,13 @@
                         x:Name="SearchBox" />
                 </Grid>
             </Border>
-
             <ListView
                 Background="Transparent"
                 BorderThickness="0"
                 Foreground="White"
                 Height="{Binding ResultsHeight, Mode=TwoWay}"
                 ItemsSource="{Binding FilteredResults}"
-                Margin="10"
+                Margin="0,5"
                 SelectedItem="{Binding SelectedResult}"
                 x:Name="ResultsList">
                 <ListView.View>
@@ -181,6 +204,74 @@
                     </ControlTemplate>
                 </ListView.Template>
             </ListView>
+            <Border
+                Background="#434343"
+                BorderBrush="#333333"
+                BorderThickness="0,1,0,0"
+                Height="42"
+                Name="SuggestionsBox"
+                Padding="10">
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                    <Border
+                        Background="#515151"
+                        BorderBrush="#2F2F2F"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        Margin="0,0,5,0"
+                        Padding="5,2">
+                        <TextBlock
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="#A5A5A5"
+                            Padding="2"
+                            Text="Enter"
+                            VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Foreground="White"
+                        Margin="0,0,15,0"
+                        Text="Start/Stop"
+                        VerticalAlignment="Center" />
+                    <Border
+                        Background="#515151"
+                        BorderBrush="#2F2F2F"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        Margin="0,0,1,0"
+                        Padding="5,2">
+                        <TextBlock
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="#A5A5A5"
+                            Padding="2"
+                            Text="Shift"
+                            VerticalAlignment="Center" />
+                    </Border>
+                    <Border
+                        Background="#515151"
+                        BorderBrush="#2F2F2F"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        Margin="0,0,5,0"
+                        Padding="5,2">
+                        <TextBlock
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="#A5A5A5"
+                            Padding="2"
+                            Text="Enter"
+                            VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Foreground="White"
+                        Text="Edit application"
+                        VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Border>
 </hc:Window>

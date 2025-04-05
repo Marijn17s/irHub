@@ -130,14 +130,16 @@ namespace irHub.Windows
 
             Global.QuickActionsDialog.Deactivated += (_, _) =>
             {
-                if (Global.QuickActionsDialog.IsActive)
-                    Global.QuickActionsDialog.Close();
+                Global.QuickActionsDialog.Close();
             };
-            Global.QuickActionsDialog.Closed += (_, _) =>
+            Global.QuickActionsDialog.Closed += async (_, _) =>
             {
+                overlayWindow.Close();
                 IsHitTestVisible = true;
                 Effect = null;
-                Focus();
+                
+                await Task.Delay(1);
+                Activate();
             };
         }
 
@@ -234,7 +236,6 @@ namespace irHub.Windows
                 Message = "Do you want to shut down all managed applications?",
                 IconKey = ResourceToken.AskGeometry,
                 IconBrushKey = ResourceToken.WarningBrush,
-                    
             };
             
             var dialog = MessageBox.Show(info);
@@ -244,6 +245,7 @@ namespace irHub.Windows
                     await Global.StopProgram(program);
                 Process.GetCurrentProcess().Kill();
             }
+
             if (dialog is MessageBoxResult.No)
                 Process.GetCurrentProcess().Kill();
             if (dialog is MessageBoxResult.Cancel)
@@ -276,11 +278,20 @@ namespace irHub.Windows
                     Growl.Error("Failed to construct garage cover! Garage cover is now disabled.");
                     return;
                 }
+
                 await File.WriteAllTextAsync(Path.Combine(Global.irHubDirectoryPath, "garagecover.html"), html);
             }
             SetUpKeyBinding();
 
             await CheckProgramStateLoop();
+        }
+
+        private void MainWindow_OnDeactivated(object? sender, EventArgs e)
+        {
+            if (Global.QuickActionsDialog is null) return;
+            
+            if (Global.QuickActionsDialog.IsActive)
+                Global.QuickActionsDialog.Close();
         }
     }
 }

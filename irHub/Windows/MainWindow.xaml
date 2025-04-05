@@ -1,5 +1,6 @@
 ﻿<hc:Window
     Closing="MainWindow_OnClosing"
+    Deactivated="MainWindow_OnDeactivated"
     Height="550"
     Loaded="MainWindow_OnLoaded"
     MinHeight="500"
