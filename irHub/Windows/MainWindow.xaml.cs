@@ -121,6 +121,21 @@ namespace irHub.Windows
 
         private void OnQuickActionsShortcut(object sender, ExecutedRoutedEventArgs e)
         {
+            var overlayWindow = new Window
+            {
+                AllowsTransparency = true,
+                Background = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0)),
+                Left = Left,
+                Top = Top,
+                Width = Width,
+                Height = Height,
+                ShowInTaskbar = false,
+                ShowActivated = false,
+                ShowIcon = false,
+                WindowStyle = WindowStyle.None
+            };
+            overlayWindow.Show();
+            
             IsHitTestVisible = false;
             Effect = Global.WindowBlurEffect;
 
