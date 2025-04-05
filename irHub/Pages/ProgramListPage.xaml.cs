@@ -41,14 +41,11 @@ public partial class ProgramListPage
         Global.iRacingClient.TelemetryUpdated += (_, args) =>
         {
             var isGarageMenuOpen = args.TelemetryInfo.IsInGarage;
-            Global.ShouldShowGarageCover = isGarageMenuOpen.Value;
         };
         
         Global.iRacingClient.Connected += async (_, _) =>
         {
             Log.Information("Connected to iRacing SDK");
-            
-            _ = Task.Run(async () => await ServeGarageCover());
             
             foreach (var program in Global.Programs.Where(program => program is { StartWithIracingSim: true, State: ProgramState.Stopped }))
                 await Global.StartProgram(program);
@@ -122,59 +119,6 @@ public partial class ProgramListPage
                 continue;
             } 
             Global.IsProgramRunning(program);
-        }
-    }
-
-    private async Task ServeGarageCover()
-    {
-        Log.Information("Initializing garage cover server..");
-        
-        var listener = new HttpListener();
-        listener.Prefixes.Add("http://localhost:8081/");
-        listener.Start();
-        Log.Information("Server started. Serving on http://localhost:8081/");
-        
-        while (Global.iRacingClient.IsConnected)
-        {
-            var context = await listener.GetContextAsync();
-            var response = context.Response;
-            var requestUrl = context.Request.RawUrl;
-            
-            if (requestUrl is "/irhub")
-            {
-                Log.Debug("Garage cover was requested");
-                
-                // Serve the HTML file
-                response.ContentType = "text/html";
-                var html = await File.ReadAllTextAsync("C:\\Users\\marij\\Documents\\irHub\\garagecover.html");
-                await using var writer = new StreamWriter(response.OutputStream);
-                await writer.WriteAsync(html);
-            }
-            else if (requestUrl is "/state")
-            {
-                Log.Debug("Garage cover state was requested");
-                
-                // Serve the current visibility state as JSON
-                response.ContentType = "application/json";
-                var json = JsonSerializer.Serialize(new { Global.ShouldShowGarageCover });
-                await using var writer = new StreamWriter(response.OutputStream);
-                await writer.WriteAsync(json);
-            }
-            else if (requestUrl is "/image")
-            {
-                Log.Debug("Garage cover image was requested");
-                
-                // Serve the garage cover image
-                var imagePath = "C:\\Users\\marij\\Downloads\\garagecover.jpg";
-                if (File.Exists(imagePath))
-                {
-                    byte[] imageBytes = await File.ReadAllBytesAsync(imagePath);
-                    response.ContentType = "image/jpeg";
-                    response.ContentLength64 = imageBytes.Length;
-                    await response.OutputStream.WriteAsync(imageBytes);
-                }
-            }
-            response.Close();
         }
     }
     
