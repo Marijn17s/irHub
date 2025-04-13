@@ -284,6 +284,23 @@ internal struct Global
         
         Log.Information($"Starting process for {program.Name}..");
         var process = Process.Start(startInfo);
+        if (program.MinimizeToTray)
+        {
+            await Task.Delay(program.MinimizeToTrayDelay);
+            
+            var minimized = ApplicationWindowHelper.MinimizeWindowInterop(process);
+        }
+        else if (program.CloseToTray)
+        {
+            await Task.Delay(program.CloseToTrayDelay);
+            
+            var closed = ApplicationWindowHelper.CloseWindow(process);
+            if (!closed)
+            {
+                closed = ApplicationWindowHelper.CloseWindowInterop(process);
+            }
+        }
+        
         await Task.Delay(200);
         
         if (process is null || process.HasExited)

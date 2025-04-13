@@ -100,12 +100,20 @@ public class Program : INotifyPropertyChanged
     
     // todo maybe list of processes
     
+    #region Start / Stop behaviour
     public string StartArguments { get; set; } = "";
     public bool StartHidden { get; set; }
     public bool StartWithIracingUi { get; set; }
     public bool StopWithIracingUi { get; set; }
     public bool StartWithIracingSim { get; set; } = true;
     public bool StopWithIracingSim { get; set; } = true;
+    public bool IncludeInStartAll { get; set; } = true;
+    public bool IncludeInStopAll { get; set; } = true;
+    public bool MinimizeToTray { get; set; }
+    public int MinimizeToTrayDelay { get; set; } = 1000;
+    public bool CloseToTray { get; set; }
+    public int CloseToTrayDelay { get; set; } = 1000;
+    #endregion
     
     [JsonIgnore]
     public Button? ActionButton { get; set; }
