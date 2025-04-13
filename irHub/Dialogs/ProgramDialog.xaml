@@ -1,7 +1,7 @@
 ﻿<hc:Window
     Background="{DynamicResource RegionBrush}"
     BorderThickness="0"
-    Height="360"
+    Height="400"
     Loaded="ProgramDialog_OnLoaded"
     ResizeMode="NoResize"
     ShowCloseButton="False"
@@ -41,6 +41,7 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="70" />
+                        <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -122,7 +123,7 @@
                     <Grid Grid.Column="0" Grid.Row="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80" />
-                            <ColumnDefinition Width="85" />
+                            <ColumnDefinition Width="70" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Right2LeftWithFade">
@@ -138,7 +139,7 @@
                                 HorizontalAlignment="Left"
                                 Margin="2,0,0,0"
                                 ToolTip="Select a new application"
-                                Width="80" />
+                                Width="65" />
                         </hc:TransitioningContentControl>
                         <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Left2RightWithFade">
                             <TextBox
@@ -174,13 +175,17 @@
                             <TextBlock
                                 Margin="5,0,0,0"
                                 Text="Start Hidden:"
+                                ToolTip="Whether to hide the application when it starts up. Especially useful for apps like telemetry loggers"
                                 VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
                         <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Left2RightWithFade">
                             <CheckBox
+                                Checked="StartHiddenCheckbox_OnChecked"
                                 HorizontalAlignment="Center"
                                 IsChecked="{Binding StartHidden}"
-                                ToolTip="Whether to hide the application when it starts up. Especially useful for apps like telemetry loggers" />
+                                Name="StartHiddenCheckbox"
+                                ToolTip="Whether to hide the application when it starts up. Especially useful for apps like telemetry loggers"
+                                Unchecked="StartHiddenCheckbox_OnUnchecked" />
                         </hc:TransitioningContentControl>
                     </Grid>
                     <Grid Grid.Column="0" Grid.Row="4">
@@ -247,6 +252,130 @@
                         </hc:TransitioningContentControl>
                         <hc:TransitioningContentControl Grid.Column="4" TransitionMode="Right2LeftWithFade">
                             <TextBlock Text=" with iRacing Sim" VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="75" />
+                            <ColumnDefinition Width="50" />
+                            <ColumnDefinition Width="15" />
+                        </Grid.ColumnDefinitions>
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <CheckBox
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding IncludeInStartAll}"
+                                ToolTip="Whether to start this application when clicking the Start All button" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <TextBlock
+                                Margin="4,0,0,0"
+                                Text="Include in Start All"
+                                ToolTip="Whether to start this application when clicking the Start All button"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="7">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="75" />
+                            <ColumnDefinition Width="50" />
+                            <ColumnDefinition Width="15" />
+                        </Grid.ColumnDefinitions>
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <CheckBox
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding IncludeInStopAll}"
+                                ToolTip="Whether to stop this application when clicking the Stop All button" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <TextBlock
+                                Margin="4,0,0,0"
+                                Text="Include in Stop All"
+                                ToolTip="Whether to stop this application when clicking the Stop All button"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="165" />
+                            <ColumnDefinition Width="50" />
+                            <ColumnDefinition Width="15" />
+                        </Grid.ColumnDefinitions>
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <CheckBox
+                                Checked="MinimizeToTrayCheckbox_OnChecked"
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding MinimizeToTray}"
+                                Name="MinimizeToTrayCheckbox"
+                                ToolTip="Delay for minimizing the application after it has started"
+                                Unchecked="MinimizeToTrayCheckbox_OnUnchecked" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <TextBlock
+                                Margin="4,0,0,0"
+                                Text="Minimize to tray with delay of"
+                                ToolTip="Delay for minimizing the application after it has started"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Right2LeftWithFade">
+                            <TextBox
+                                Foreground="White"
+                                Height="20"
+                                HorizontalContentAlignment="Center"
+                                Margin="2"
+                                MaxLength="4"
+                                Text="{Binding MinimizeToTrayDelay, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="Delay for minimizing the application after it has started" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Right2LeftWithFade">
+                            <TextBlock
+                                Margin="1,0,0,0"
+                                Text="ms"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="9">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="165" />
+                            <ColumnDefinition Width="50" />
+                            <ColumnDefinition Width="15" />
+                        </Grid.ColumnDefinitions>
+                        <hc:TransitioningContentControl Grid.Column="0" TransitionMode="Left2RightWithFade">
+                            <CheckBox
+                                Checked="CloseToTrayCheckbox_OnChecked"
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding CloseToTray}"
+                                Name="CloseToTrayCheckbox"
+                                ToolTip="Delay for closing the application window after it has started"
+                                Unchecked="CloseToTrayCheckbox_OnUnchecked" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="1" TransitionMode="Left2RightWithFade">
+                            <TextBlock
+                                Margin="4,0,0,0"
+                                Text="Close to tray with delay of"
+                                ToolTip="Delay for closing the application window after it has started"
+                                VerticalAlignment="Center" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="2" TransitionMode="Right2LeftWithFade">
+                            <TextBox
+                                Foreground="White"
+                                Height="20"
+                                HorizontalContentAlignment="Center"
+                                Margin="2"
+                                MaxLength="4"
+                                Text="{Binding CloseToTrayDelay, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="Delay for closing the application window after it has started" />
+                        </hc:TransitioningContentControl>
+                        <hc:TransitioningContentControl Grid.Column="3" TransitionMode="Right2LeftWithFade">
+                            <TextBlock
+                                Margin="1,0,0,0"
+                                Text="ms"
+                                VerticalAlignment="Center" />
                         </hc:TransitioningContentControl>
                     </Grid>
                 </Grid>

@@ -250,4 +250,61 @@ public partial class ProgramDialog : INotifyPropertyChanged
             await Task.Delay(50);
         }
     }
+
+    private void StartHiddenCheckbox_OnChecked(object sender, RoutedEventArgs e)
+    {
+        if (Program is null) return;
+        Log.Information($"Enabling StartHidden for {Program.Name}");
+
+        MinimizeToTrayCheckbox.IsEnabled = false;
+        Program.MinimizeToTray = false;
+
+        CloseToTrayCheckbox.IsEnabled = false;
+        Program.CloseToTray = false;
+    }
+    
+    private void StartHiddenCheckbox_OnUnchecked(object sender, RoutedEventArgs e)
+    {
+        if (Program is null) return;
+        Log.Information($"Disabling StartHidden for {Program.Name}");
+
+        MinimizeToTrayCheckbox.IsEnabled = true;
+        CloseToTrayCheckbox.IsEnabled = true;
+    }
+
+    private void MinimizeToTrayCheckbox_OnChecked(object sender, RoutedEventArgs e)
+    {
+        if (Program is null) return;
+        Log.Information($"Enabling MinimizeToTray for {Program.Name}");
+
+        StartHiddenCheckbox.IsEnabled = false;
+        CloseToTrayCheckbox.IsEnabled = false;
+    }
+
+    private void MinimizeToTrayCheckbox_OnUnchecked(object sender, RoutedEventArgs e)
+    {
+        if (Program is null) return;
+        Log.Information($"Disabling MinimizeToTray for {Program.Name}");
+
+        StartHiddenCheckbox.IsEnabled = true;
+        CloseToTrayCheckbox.IsEnabled = true;
+    }
+
+    private void CloseToTrayCheckbox_OnChecked(object sender, RoutedEventArgs e)
+    {
+        if (Program is null) return;
+        Log.Information($"Enabling CloseToTray for {Program.Name}");
+
+        StartHiddenCheckbox.IsEnabled = false;
+        MinimizeToTrayCheckbox.IsEnabled = false;
+    }
+
+    private void CloseToTrayCheckbox_OnUnchecked(object sender, RoutedEventArgs e)
+    {
+        if (Program is null) return;
+        Log.Information($"Disabling CloseToTray for {Program.Name}");
+
+        StartHiddenCheckbox.IsEnabled = true;
+        MinimizeToTrayCheckbox.IsEnabled = true;
+    }
 }

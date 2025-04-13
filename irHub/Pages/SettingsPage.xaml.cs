@@ -103,13 +103,4 @@ public partial class SettingsPage
     }
 
     private void ImportPrograms_OnClick(object sender, RoutedEventArgs e) => ImportPrograms();
-
-    private async void CopyGarageCoverUrl_OnClick(object sender, RoutedEventArgs e)
-    {
-        Clipboard.SetText(Global.Settings.GarageCoverUrl);
-        CopyButtonIcon.Kind = MaterialIconKind.Check;
-        
-        await Task.Delay(1500);
-        CopyButtonIcon.Kind = MaterialIconKind.ContentCopy;
-    }
 }

@@ -59,8 +59,6 @@
       <None Remove="Resources\iRacingLogo.png" />
       <None Remove="Resources\iRacingLogoWhite.png" />
       <Resource Include="Resources\iRacingLogoWhite.png" />
-      <None Remove="Resources\garagecover.html" />
-      <EmbeddedResource Include="Resources\garagecover.html" />
     </ItemGroup>
 
     <ItemGroup>
