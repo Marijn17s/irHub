@@ -145,7 +145,10 @@ namespace irHub.Windows
             // todo check parallelization performance
             Log.Information("Starting all programs");
             foreach (var program in Global.Programs)
+            {
+                if (!program.IncludeInStartAll) continue;
                 await Global.StartProgram(program);
+            }
             if (Global.Programs.Count > 0)
                 Growl.Success("All programs were started successfully.");
         }
@@ -154,7 +157,10 @@ namespace irHub.Windows
         {
             Log.Information("Stopping all programs");
             foreach (var program in Global.Programs)
+            {
+                if (!program.IncludeInStopAll) continue;
                 await Global.StopProgram(program);
+            }
             if (Global.Programs.Count > 0)
                 Growl.Success("All programs were stopped successfully.");
         }
@@ -196,14 +202,16 @@ namespace irHub.Windows
                 Message = "Do you want to shut down all managed applications?",
                 IconKey = ResourceToken.AskGeometry,
                 IconBrushKey = ResourceToken.WarningBrush,
-                    
             };
             
             var dialog = MessageBox.Show(info);
             if (dialog is MessageBoxResult.Yes)
             {
                 foreach (var program in Global.Programs)
+                {
+                    if (!program.IncludeInStopAll) continue;
                     await Global.StopProgram(program);
+                }
                 Process.GetCurrentProcess().Kill();
             }
             if (dialog is MessageBoxResult.No)
