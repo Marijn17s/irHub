@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -283,7 +284,28 @@ internal struct Global
         }
         
         Log.Information($"Starting process for {program.Name}..");
-        var process = Process.Start(startInfo);
+
+        Process? process;
+        try
+        {
+            process = Process.Start(startInfo);
+        }
+        catch (Win32Exception)
+        {
+            Log.Information($"Could not start process for {program.Name}. Likely requires administrator privileges. Attempting to start with administrator privileges..");
+            
+            startInfo = GetApplicationStartInfo(program, true);
+            if (startInfo is null)
+            {
+                Log.Information($"Could not get start info for {program.Name}");
+                await program.ChangeState(ProgramState.NotFound);
+                return false;
+            }
+            
+            Log.Information($"Starting admin process for {program.Name}..");
+            process = Process.Start(startInfo);
+        }
+      
         if (program.MinimizeToTray)
         {
             await Task.Delay(program.MinimizeToTrayDelay);
@@ -358,7 +380,7 @@ internal struct Global
         await program.ChangeState(ProgramState.Stopped);
     }
 
-    private static ProcessStartInfo? GetApplicationStartInfo(Program program)
+    private static ProcessStartInfo? GetApplicationStartInfo(Program program, bool requiresAdmin = false)
     {
         Log.Information($"Getting start info for {program.Name}");
         var startInfo = new ProcessStartInfo();
@@ -392,6 +414,12 @@ internal struct Global
                 startInfo.CreateNoWindow = true;
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             }
+        }
+
+        if (requiresAdmin)
+        {
+            startInfo.Verb = "runas";
+            startInfo.UseShellExecute = true;
         }
         
         startInfo.Arguments = program.StartArguments;
