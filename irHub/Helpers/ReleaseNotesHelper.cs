@@ -10,7 +10,7 @@ internal struct ReleaseNotesHelper
         Log.Information("Generating releasenotes HTML..");
         
         const string css = "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-dark.min.css'>";
-        string html = Markdown.ToHtml(releaseNotes);
+        var html = Markdown.ToHtml(releaseNotes);
         return $@"
         <html>
         <head>

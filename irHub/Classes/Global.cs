@@ -38,6 +38,7 @@ internal struct Global
     internal static bool NeedsProgramRefresh;
     internal static bool CancelStateCheck = false;
     internal static bool CancelIracingUiStateCheck = false;
+    internal static bool StartMinimizedArgument = false;
 
     internal static readonly SdkWrapper iRacingClient = new();
     public static Settings Settings = new();
@@ -137,6 +138,15 @@ internal struct Global
         
         Settings = JsonSerializer.Deserialize<Settings>(json) ?? Settings;
         
+        var startupState = StartupHelper.IsStartupEnabled();
+        if (Settings.StartWithWindows != startupState)
+        {
+            Log.Information($"Synchronizing registry with StartWithWindows setting: setting={Settings.StartWithWindows}, registry={startupState}");
+            if (Settings.StartWithWindows)
+                StartupHelper.EnableStartup();
+            else StartupHelper.DisableStartup();
+        }
+        
         Log.Information("Loaded application settings");
     }
 
@@ -172,7 +182,7 @@ internal struct Global
         // Deep clone any type of object
         Log.Information($"Cloning object of type {obj?.GetType()}");
         
-        string json = JsonSerializer.Serialize(obj, JsonSerializerOptions);
+        var json = JsonSerializer.Serialize(obj, JsonSerializerOptions);
         return JsonSerializer.Deserialize<T>(json, JsonSerializerOptions);
     }
     
@@ -500,7 +510,7 @@ internal struct Global
             if (process.ProcessName.Contains(onesim, StringComparison.InvariantCultureIgnoreCase))
             {
                 var hWnd = IntPtr.Zero;
-                int retries = 0;
+                var retries = 0;
                 
                 while ((hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) && retries <= MaxRetries)
                 {
@@ -559,7 +569,7 @@ internal struct Global
     internal static Process? FindProcess()
     {
         var currentProcess = Process.GetCurrentProcess();
-        Process[] procs = Process.GetProcessesByName(currentProcess.ProcessName);
+        var procs = Process.GetProcessesByName(currentProcess.ProcessName);
         return procs.FirstOrDefault(process => process.Id != currentProcess.Id);
     }
     
