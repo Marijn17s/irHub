@@ -181,7 +181,7 @@ internal struct Global
         // Deep clone any type of object
         Log.Information($"Cloning object of type {obj?.GetType()}");
         
-        string json = JsonSerializer.Serialize(obj, JsonSerializerOptions);
+        var json = JsonSerializer.Serialize(obj, JsonSerializerOptions);
         return JsonSerializer.Deserialize<T>(json, JsonSerializerOptions);
     }
     
@@ -509,7 +509,7 @@ internal struct Global
             if (process.ProcessName.Contains(onesim, StringComparison.InvariantCultureIgnoreCase))
             {
                 var hWnd = IntPtr.Zero;
-                int retries = 0;
+                var retries = 0;
                 
                 while ((hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) && retries <= MaxRetries)
                 {
@@ -568,7 +568,7 @@ internal struct Global
     internal static Process? FindProcess()
     {
         var currentProcess = Process.GetCurrentProcess();
-        Process[] procs = Process.GetProcessesByName(currentProcess.ProcessName);
+        var procs = Process.GetProcessesByName(currentProcess.ProcessName);
         return procs.FirstOrDefault(process => process.Id != currentProcess.Id);
     }
     
