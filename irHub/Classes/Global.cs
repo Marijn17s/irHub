@@ -37,6 +37,7 @@ internal struct Global
     internal static bool NeedsProgramRefresh;
     internal static bool CancelStateCheck = false;
     internal static bool CancelIracingUiStateCheck = false;
+    internal static bool StartMinimizedArgument = false;
 
     internal static readonly SdkWrapper iRacingClient = new();
     public static Settings Settings = new();
@@ -135,6 +136,15 @@ internal struct Global
             return;
         
         Settings = JsonSerializer.Deserialize<Settings>(json) ?? Settings;
+        
+        var startupState = StartupHelper.IsStartupEnabled();
+        if (Settings.StartWithWindows != startupState)
+        {
+            Log.Information($"Synchronizing registry with StartWithWindows setting: setting={Settings.StartWithWindows}, registry={startupState}");
+            if (Settings.StartWithWindows)
+                StartupHelper.EnableStartup();
+            else StartupHelper.DisableStartup();
+        }
         
         Log.Information("Loaded application settings");
     }

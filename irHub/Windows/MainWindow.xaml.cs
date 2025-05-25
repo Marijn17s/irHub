@@ -224,8 +224,8 @@ namespace irHub.Windows
         {
             await UpdateApplication();
             
-            // Minimize if set in settings
-            if (Global.Settings.StartMinimized)
+            // Minimize if set in settings or if set in arguments
+            if (Global.Settings.StartMinimized || Global.StartMinimizedArgument)
             {
                 WindowState = WindowState.Minimized;
                 Hide();
