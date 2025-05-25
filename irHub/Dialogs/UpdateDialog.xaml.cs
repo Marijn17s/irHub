@@ -18,8 +18,8 @@ public partial class UpdateDialog
         MoveToMainScreen();
 
         var releaseNotes = newVersion.TargetFullRelease.NotesHTML;
-        string html = ReleaseNotesHelper.GenerateReleaseNotes(releaseNotes);
-        string tempFile = Path.Combine(Path.GetTempPath(), "irHubTempReleaseNotes.html");
+        var html = ReleaseNotesHelper.GenerateReleaseNotes(releaseNotes);
+        var tempFile = Path.Combine(Path.GetTempPath(), "irHubTempReleaseNotes.html");
         File.WriteAllText(tempFile, html);
 
         Title = $"irHub version {newVersion.TargetFullRelease.Version} is available";

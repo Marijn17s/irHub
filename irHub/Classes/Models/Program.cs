@@ -130,7 +130,7 @@ public class Program : INotifyPropertyChanged
     
     public Program DeepClone()
     {
-        string json = JsonSerializer.Serialize(this, Global.JsonSerializerOptions);
+        var json = JsonSerializer.Serialize(this, Global.JsonSerializerOptions);
         return JsonSerializer.Deserialize<Program>(json, Global.JsonSerializerOptions) ?? new Program();
     }
 
@@ -178,7 +178,7 @@ public class Program : INotifyPropertyChanged
     internal void SetIcon(string sourcePath)
     {
         // Set custom icon
-        string path = FileCopyHelper.CopyImage(sourcePath);
+        var path = FileCopyHelper.CopyImage(sourcePath);
         
         Icon = IconHelper.GetIconFromFile(path);
         UseExecutableIcon = false;
