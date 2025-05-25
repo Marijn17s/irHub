@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using irHub.Classes;
 using irHub.Windows;
@@ -17,6 +18,8 @@ public partial class App
     {
         base.OnStartup(e);
         VelopackApp.Build().Run();
+        
+        Global.StartMinimizedArgument = e.Args.Contains("--minimized");
         
         var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         var irHubDirectory = Path.Combine(documents, "irHub");
