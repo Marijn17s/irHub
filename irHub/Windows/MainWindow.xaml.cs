@@ -101,6 +101,44 @@ namespace irHub.Windows
             
             if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "settings.json")))
                 File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "settings.json"), "{}");
+
+            CleanupOldLogs(logPath);
+        }
+
+        private void CleanupOldLogs(string logPath)
+        {
+            // Cleans up log files older than 2 weeks to prevent disk space accumulation
+            try
+            {
+                Log.Debug("Starting log cleanup process..");
+                
+                var logFiles = Directory.GetFiles(logPath, "*.txt");
+                var cutoffDate = DateTime.Now.AddDays(-14); // 2 weeks ago
+                var deletedCount = 0;
+
+                foreach (var logFile in logFiles)
+                {
+                    var fileInfo = new FileInfo(logFile);
+                    if (fileInfo.CreationTime < cutoffDate)
+                    {
+                        try
+                        {
+                            File.Delete(logFile);
+                            deletedCount++;
+                            Log.Debug($"Deleted old log file: {Path.GetFileName(logFile)}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warning($"Failed to delete log file {Path.GetFileName(logFile)}: {ex.Message}");
+                        }
+                    }
+                }
+                Log.Information($"Cleaned up {deletedCount} old log file(s) older than 2 weeks");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error during log cleanup: {ex.Message}");
+            }
         }
 
         private static async Task CheckProgramStateLoop()
