@@ -191,15 +191,17 @@ public partial class MainWindow
         
     private async void StartAll_OnClick(object sender, RoutedEventArgs e)
     {
-        // todo check parallelization performance
         Log.Information("Starting all programs");
-        foreach (var program in Global.Programs)
+        var (success, failed) = await Global.StartProgramsParallel(Global.Programs.Where(p => p.IncludeInStartAll));
+
+        if (success + failed is 0) return;
+
+        if (failed is not 0)
         {
-            if (!program.IncludeInStartAll) continue;
-            await Global.StartProgram(program);
+            Growl.Error($"Failed to start {failed} programs.");
+            return;
         }
-        if (Global.Programs.Count > 0)
-            Growl.Success("All programs were started successfully.");
+        Growl.Success($"Successfully started {success} programs.");
     }
         
     private async void StopAll_OnClick(object sender, RoutedEventArgs e)

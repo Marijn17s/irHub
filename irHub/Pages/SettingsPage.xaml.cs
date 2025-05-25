@@ -1,13 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Xml;
 using HandyControl.Controls;
 using irHub.Classes;
 using irHub.Classes.Models;
-using Material.Icons;
 using Serilog;
 
 namespace irHub.Pages;

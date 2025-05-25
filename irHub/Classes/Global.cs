@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
@@ -645,6 +646,42 @@ internal struct Global
                 Log.Error($"Error while killing process with partial name {name}: {ex.Message}");
             }
         }
+    }
+    #endregion
+    
+    #region Parallelization
+    internal static async Task<(int success, int failed)> StartProgramsParallel(IEnumerable<Program> programs, int maxConcurrency = -1)
+    {
+        var programList = programs.ToList();
+        if (programList.Count is 0) return (0, 0);
+
+        if (maxConcurrency <= 0)
+            maxConcurrency = Math.Max(2, Environment.ProcessorCount / 2);
+
+        var successCount = 0;
+        var failedCount = 0;
+        var parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = maxConcurrency
+        };
+
+        await Parallel.ForEachAsync(programList, parallelOptions, async (program, _) =>
+        {
+            try
+            {
+                var success = await StartProgram(program);
+                if (success)
+                    Interlocked.Increment(ref successCount);
+                else
+                    Interlocked.Increment(ref failedCount);
+            }
+            catch
+            {
+                Interlocked.Increment(ref failedCount);
+            }
+        });
+
+        return (successCount, failedCount);
     }
     #endregion
     
