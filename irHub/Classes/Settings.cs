@@ -8,7 +8,8 @@ internal class Settings : INotifyPropertyChanged
 {
     private bool _startMinimized;
     private bool _startWithWindows;
-
+    private bool _enableGlobalHotkey = true;
+    
     #region INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -49,6 +50,17 @@ internal class Settings : INotifyPropertyChanged
                 else
                     StartupHelper.DisableStartup();
             }
+        }
+    }
+    
+    public bool EnableGlobalHotkey
+    {
+        get => _enableGlobalHotkey;
+        set
+        {
+            if (value == _enableGlobalHotkey) return;
+            _enableGlobalHotkey = value;
+            OnPropertyChanged();
         }
     }
 }
