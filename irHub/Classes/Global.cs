@@ -259,7 +259,9 @@ internal struct Global
             var processes = Process.GetProcessesByName(program.ExecutableName);
             if (processes.Length is not 0)
                 return;
-            await program.ChangeState(ProgramState.Stopped);
+            
+            if (program.State != ProgramState.Stopped)
+                await program.ChangeState(ProgramState.Stopped);
         };
     }
     
