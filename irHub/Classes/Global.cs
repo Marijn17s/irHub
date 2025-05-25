@@ -281,12 +281,14 @@ internal struct Global
             process.Exited += async (_, _) =>
             {
                 Log.Information($"Program {program.ExecutableName} has exited - checking for ancestor processes");
-            
+              
                 await Task.Delay(1000);
                 var processes = Process.GetProcessesByName(program.ExecutableName);
                 if (processes.Length is not 0)
                     return;
-                await program.ChangeState(ProgramState.Stopped);
+              
+                if (program.State != ProgramState.Stopped)
+                    await program.ChangeState(ProgramState.Stopped);
             };
         }
         catch (InvalidOperationException)
