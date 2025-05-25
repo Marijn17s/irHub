@@ -206,21 +206,32 @@ internal struct Global
                 continue;
             if (program.State is ProgramState.Running && program.Process is not null && !program.Process.HasExited)
                 continue;
-            
-            var existingProcess = processes.FirstOrDefault(process => process.ProcessName == program.ExecutableName);
-            if (existingProcess is null || existingProcess.HasExited)
-            {
-                if (program.State is not ProgramState.Stopped)
-                    Log.Information($"Process {program.ExecutableName} has exited early - CheckProgramsRunning");
-                continue;
-            }
-            
-            program.Process = existingProcess;
-            if (program.ExecutableName != existingProcess.ProcessName)
-                program.ExecutableName = existingProcess.ProcessName;
 
-            await program.ChangeState(ProgramState.Running);
-            AddProcessEventHandlers(program, program.Process);
+            try
+            {
+                var existingProcess = processes.FirstOrDefault(process => process.ProcessName == program.ExecutableName);
+                if (existingProcess is null || existingProcess.HasExited)
+                {
+                    if (program.State is not ProgramState.Stopped)
+                        Log.Information($"Process {program.ExecutableName} has exited early - CheckProgramsRunning");
+                    continue;
+                }
+                
+                program.Process = existingProcess;
+                if (program.ExecutableName != existingProcess.ProcessName)
+                    program.ExecutableName = existingProcess.ProcessName;
+
+                await program.ChangeState(ProgramState.Running);
+                AddProcessEventHandlers(program, program.Process);
+            }
+            catch (InvalidOperationException)
+            {
+                Log.Debug($"Process object is no longer valid when checking {program.ExecutableName}");
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Unexpected error checking process for {program.ExecutableName}: {ex.Message}");
+            }
         }
     }
 
@@ -229,19 +240,32 @@ internal struct Global
         // Check if program is running
         Log.Information($"Checking if {program.Name} is running..");
         
-        var existingProcess = Process.GetProcesses().FirstOrDefault(process => process.ProcessName == program.ExecutableName);
-        if (existingProcess is null || existingProcess.HasExited)
+        try
         {
-            Log.Information($"Process {program.Name} is not running.");
+            var existingProcess = Process.GetProcesses().FirstOrDefault(process => process.ProcessName == program.ExecutableName);
+            if (existingProcess is null || existingProcess.HasExited)
+            {
+                Log.Information($"Process {program.Name} is not running.");
+                return false;
+            }
+            
+            program.Process = existingProcess;
+            if (program.ExecutableName != existingProcess.ProcessName)
+                program.ExecutableName = existingProcess.ProcessName;
+
+            AddProcessEventHandlers(program, program.Process);
+            return true;
+        }
+        catch (InvalidOperationException)
+        {
+            Log.Warning($"Process {program.Name} became invalid while setting up - likely exited during check");
             return false;
         }
-        
-        program.Process = existingProcess;
-        if (program.ExecutableName != existingProcess.ProcessName)
-            program.ExecutableName = existingProcess.ProcessName;
-
-        AddProcessEventHandlers(program, program.Process);
-        return true;
+        catch (Exception ex)
+        {
+            Log.Error($"Unexpected error setting up process {program.Name}: {ex.Message}");
+            return false;
+        }
     }
 
     private static void AddProcessEventHandlers(Program program, Process? process)
@@ -250,19 +274,31 @@ internal struct Global
         if (process is null || process.HasExited) return;
         
         Log.Information($"Adding event handlers for {program.ExecutableName} on process {process.Id}");
-        process.EnableRaisingEvents = true;
-        process.Exited += async (_, _) =>
+
+        try
         {
-            Log.Information($"Program {program.ExecutableName} has exited - checking for ancestor processes");
-            
-            await Task.Delay(1000);
-            var processes = Process.GetProcessesByName(program.ExecutableName);
-            if (processes.Length is not 0)
-                return;
-            
-            if (program.State != ProgramState.Stopped)
-                await program.ChangeState(ProgramState.Stopped);
-        };
+            process.EnableRaisingEvents = true;
+            process.Exited += async (_, _) =>
+            {
+                Log.Information($"Program {program.ExecutableName} has exited - checking for ancestor processes");
+              
+                await Task.Delay(1000);
+                var processes = Process.GetProcessesByName(program.ExecutableName);
+                if (processes.Length is not 0)
+                    return;
+              
+                if (program.State != ProgramState.Stopped)
+                    await program.ChangeState(ProgramState.Stopped);
+            };
+        }
+        catch (InvalidOperationException)
+        {
+            Log.Warning($"Process {program.Name} became invalid while adding exit event handler - likely exited during check");
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Unexpected error adding exit event handler {program.Name}: {ex.Message}");
+        }
     }
     
     internal static async Task<bool> StartProgram(Program program)
@@ -369,8 +405,22 @@ internal struct Global
         }
         
         Log.Information($"Disassociating process for {program.Name}..");
-        var processName = program.Process.ProcessName;
-        program.Process.Close();
+        string processName;
+        try
+        {
+            processName = program.Process.ProcessName;
+            program.Process.Close();
+        }
+        catch (InvalidOperationException)
+        {
+            Log.Warning($"Process for {program.Name} became invalid while stopping - using ExecutableName as fallback");
+            processName = program.ExecutableName;
+        }
+        catch (Exception ex)
+        {
+            Log.Warning($"Error getting process name for {program.Name} while stopping: {ex.Message} - using ExecutableName as fallback");
+            processName = program.ExecutableName;
+        }
 
         KillProcessesByPartialName(processName);
 
@@ -437,29 +487,46 @@ internal struct Global
         }*/
         Log.Information("Starting custom post-application-start logic..");
 
-        const string onesim = "1simracing";
-        if (process.ProcessName.Contains(onesim, StringComparison.InvariantCultureIgnoreCase))
+        try
         {
-            var hWnd = IntPtr.Zero;
-            int retries = 0;
-            
-            while ((hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) && retries <= MaxRetries)
+            if (process.HasExited)
             {
-                hWnd = FindWindow(null, process.ProcessName);
-                await Task.Delay(200);
-
-                retries++;
-            }
-
-            if (hWnd == IntPtr.Zero)
-            {
-                Log.Warning("Could not find window for 1simracing");
+                Log.Information("Process has already exited - skipping post-application-start logic");
                 return;
             }
-            
-            Log.Information($"1simracing window found at {hWnd}");
-            ShowWindow(hWnd, SW_MINIMIZE);
-            ShowWindow(hWnd, SW_HIDE);
+
+            const string onesim = "1simracing";
+            if (process.ProcessName.Contains(onesim, StringComparison.InvariantCultureIgnoreCase))
+            {
+                var hWnd = IntPtr.Zero;
+                int retries = 0;
+                
+                while ((hWnd == IntPtr.Zero || !IsWindowVisible(hWnd)) && retries <= MaxRetries)
+                {
+                    hWnd = FindWindow(null, process.ProcessName);
+                    await Task.Delay(200);
+
+                    retries++;
+                }
+
+                if (hWnd == IntPtr.Zero)
+                {
+                    Log.Warning("Could not find window for 1simracing");
+                    return;
+                }
+                
+                Log.Information($"1simracing window found at {hWnd}");
+                ShowWindow(hWnd, SW_MINIMIZE);
+                ShowWindow(hWnd, SW_HIDE);
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            Log.Warning("Process became invalid during post-application-start logic");
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Error in post-application-start logic: {ex.Message}");
         }
 
         // Use if an application requires closing the window instead of minimizing it to get it to tray
@@ -499,34 +566,74 @@ internal struct Global
     {
         Log.Information($"Focusing process {process.ProcessName}");
         
-        var hWnd = process.MainWindowHandle;
-        ShowWindow(hWnd, 0x09); // 0x09 = restore window state
-        SetForegroundWindow(hWnd);
+        try
+        {
+            if (process.HasExited)
+            {
+                Log.Warning("Cannot focus process - it has already exited");
+                return;
+            }
+            
+            var hWnd = process.MainWindowHandle;
+            ShowWindow(hWnd, 0x09); // 0x09 = restore window state
+            SetForegroundWindow(hWnd);
+        }
+        catch (InvalidOperationException)
+        {
+            Log.Warning("Cannot focus process - it became invalid");
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Error focusing process: {ex.Message}");
+        }
     }
     
     internal static List<Process> GetProcessesByPartialName(string name)
     {
         Log.Information($"Attempting to retrieve processes with partial name: {name}");
-        var processes = Process.GetProcesses()
-            .Where(x => x.ProcessName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
-            .ToList();
+        
+        try
+        {
+            var processes = Process.GetProcesses()
+                .Where(x => x.ProcessName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
 
-        foreach (var process in processes)
-            Log.Information($"Found process {process.Id} with name {process.ProcessName}");
-        return processes;
+            foreach (var process in processes)
+                Log.Information($"Found process {process.Id} with name {process.ProcessName}");
+        }
+        catch (InvalidOperationException)
+        {
+            Log.Debug($"Process object is no longer valid when checking for partial name: {name}");
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Error while retrieving processes with partial name {name}: {ex.Message}");
+        }
+        
+        return [];
     }
-    
+
     internal static void KillProcessesByPartialName(string name)
     {
         Log.Information($"Attempting to kill processes with partial name: {name}..");
-        var processes = Process.GetProcesses()
-            .Where(x => x.ProcessName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
-            .ToList();
-
+        var processes = GetProcessesByPartialName(name);
+        
         foreach (var process in processes)
         {
-            Log.Information($"Killing process: {process.ProcessName}, process id: {process.Id}");
-            process.Kill();
+            try
+            {
+                Log.Information($"Killing process: {process.ProcessName}, process id: {process.Id}");
+                process.Kill();
+            }
+            catch (InvalidOperationException)
+            {
+                // Process is no longer associated with a running process
+                Log.Debug($"Process object is no longer valid when trying to kill processes with partial name: {name}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while killing process with partial name {name}: {ex.Message}");
+            }
         }
     }
     #endregion
