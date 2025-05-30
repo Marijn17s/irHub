@@ -611,6 +611,7 @@ internal struct Global
 
             foreach (var process in processes)
                 Log.Information($"Found process {process.Id} with name {process.ProcessName}");
+            return processes;
         }
         catch (InvalidOperationException)
         {
