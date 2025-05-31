@@ -566,39 +566,6 @@ internal struct Global
     internal static bool IsFile(string path) => !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
     
     #region Processes
-    internal static Process? FindProcess()
-    {
-        var currentProcess = Process.GetCurrentProcess();
-        var procs = Process.GetProcessesByName(currentProcess.ProcessName);
-        return procs.FirstOrDefault(process => process.Id != currentProcess.Id);
-    }
-    
-    internal static void FocusProcess(Process process)
-    {
-        Log.Information($"Focusing process {process.ProcessName}");
-        
-        try
-        {
-            if (process.HasExited)
-            {
-                Log.Warning("Cannot focus process - it has already exited");
-                return;
-            }
-            
-            var hWnd = process.MainWindowHandle;
-            ShowWindow(hWnd, 0x09); // 0x09 = restore window state
-            SetForegroundWindow(hWnd);
-        }
-        catch (InvalidOperationException)
-        {
-            Log.Warning("Cannot focus process - it became invalid");
-        }
-        catch (Exception ex)
-        {
-            Log.Error($"Error focusing process: {ex.Message}");
-        }
-    }
-    
     internal static List<Process> GetProcessesByPartialName(string name)
     {
         Log.Information($"Attempting to retrieve processes with partial name: {name}");
