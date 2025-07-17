@@ -15,6 +15,7 @@ public partial class App
     private static string? _signalFilePath;
     private FileSystemWatcher? _fileWatcher;
     private static Mutex? _applicationMutex;
+    private static bool _ownsMutex;
     private static readonly string MutexName = "Global\\irHub_SingleInstance_Mutex_" + Environment.UserName;
     
     protected override void OnStartup(StartupEventArgs e)
@@ -28,39 +29,33 @@ public partial class App
         var irHubDirectory = Path.Combine(documents, "irHub");
         _signalFilePath = Path.Combine(irHubDirectory, "irHub.signal");
         
-        bool isNewInstance;
         try
         {
-            _applicationMutex = new Mutex(true, MutexName, out isNewInstance);
+            _applicationMutex = new Mutex(true, MutexName, out _ownsMutex);
+            Log.Debug($"Mutex '{MutexName}' created. Owns mutex: {_ownsMutex}");
         }
         catch (AbandonedMutexException)
         {
-            Log.Warning("Detected abandoned mutex from previous instance - taking ownership");
-            isNewInstance = true;
+            Log.Warning($"Mutex '{MutexName}' was abandoned. This instance is taking ownership as the primary instance.");
+            _ownsMutex = true;
         }
         catch (Exception ex)
         {
-            Log.Error($"Failed to create application mutex: {ex.Message}");
-            // Fallback: Clean up any orphaned processes and continue startup
-            Log.Information("Attempting to clean up orphaned processes and continue startup");
-            isNewInstance = true;
+            Log.Error($"Failed to create or acquire mutex '{MutexName}': {ex.Message}");
+            _ownsMutex = false;
         }
         
-        if (!isNewInstance)
+        if (!_ownsMutex)
         {
-            Log.Debug("Another instance is already running (mutex check)");
+            Log.Information("Another instance is already running. Notifying the existing instance and shutting down this one.");
             NotifyExistingInstance();
-            
-            // Release the mutex since we're not the primary instance
-            _applicationMutex?.ReleaseMutex();
             _applicationMutex?.Dispose();
             _applicationMutex = null;
-            
             Current.Shutdown();
             return;
         }
         
-        Log.Debug("Successfully acquired application mutex - starting as primary instance");
+        Log.Information("This is the primary instance. Continuing startup.");
         StartAsPrimaryInstance();
     }
     
@@ -69,7 +64,10 @@ public partial class App
         Log.Debug("Starting as primary instance..");
         
         if (File.Exists(_signalFilePath))
+        {
+            Log.Debug("Signal file from previous session found. Deleting it.");
             File.Delete(_signalFilePath);
+        }
         
         _fileWatcher = new FileSystemWatcher
         {
@@ -84,33 +82,46 @@ public partial class App
             {
                 if (MainWindow is not MainWindow mainWindow) return;
                 
+                Log.Information("Signal file detected. Restoring main window from tray.");
                 mainWindow.RecoverFromTray();
                 if (File.Exists(_signalFilePath))
+                {
+                    Log.Debug("Deleting signal file after restoring window.");
                     File.Delete(_signalFilePath);
+                }
             });
         };
 
         _fileWatcher.EnableRaisingEvents = true;
+        Log.Debug("FileSystemWatcher for signal file enabled.");
     }
 
     private static void NotifyExistingInstance()
     {
-        Log.Debug("Notifying existing instance..");
+        Log.Information("Notifying the already running instance to restore its window.");
         
-        if (string.IsNullOrEmpty(_signalFilePath)) return;
+        if (string.IsNullOrEmpty(_signalFilePath))
+        {
+            Log.Warning("Signal file path is null or empty. Cannot notify existing instance.");
+            return;
+        }
         
         try
         {
             // Ensure the directory exists
             var directory = Path.GetDirectoryName(_signalFilePath);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Log.Debug($"Creating directory for signal file: {directory}");
                 Directory.CreateDirectory(directory);
+            }
 
             File.WriteAllText(_signalFilePath, string.Empty);
+            Log.Debug("Signal file written to notify existing instance.");
         }
         catch (Exception ex)
         {
-            Log.Warning($"Failed to notify existing instance: {ex.Message}");
+            Log.Warning($"Failed to notify existing instance by writing signal file: {ex.Message}");
         }
     }
 
@@ -122,21 +133,31 @@ public partial class App
         
         try
         {
-            if (_applicationMutex is not null)
+            if (_applicationMutex is not null && _ownsMutex)
             {
                 _applicationMutex.ReleaseMutex();
                 _applicationMutex.Dispose();
                 _applicationMutex = null;
-                Log.Debug("Released application mutex");
+                Log.Debug($"Released and disposed mutex '{MutexName}'.");
             }
         }
         catch (Exception ex)
         {
-            Log.Warning($"Error releasing mutex on exit: {ex.Message}");
+            Log.Warning($"Error releasing or disposing mutex '{MutexName}' on exit: {ex.Message}");
         }
         
         _fileWatcher?.Dispose();
         if (File.Exists(_signalFilePath))
-            File.Delete(_signalFilePath);
+        {
+            try
+            {
+                File.Delete(_signalFilePath);
+                Log.Debug("Signal file deleted on application exit.");
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Failed to delete signal file on exit: {ex.Message}");
+            }
+        }
     }
 }
