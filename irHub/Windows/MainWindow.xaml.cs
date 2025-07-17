@@ -243,7 +243,7 @@ public partial class MainWindow
 
     private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)
     {
-        if (!Global.Programs.Any(program => program.State is ProgramState.Running))
+        if (!Global.Programs.Any(program => program.State is ProgramState.Running && program.IncludeInStopAll))
         {
             UnregisterGlobalHotkey();
             Process.GetCurrentProcess().Kill();
