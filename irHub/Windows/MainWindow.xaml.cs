@@ -283,17 +283,17 @@ public partial class MainWindow
     {
         await UpdateApplication();
         
+        // Minimize if set in settings or if set in arguments
+        if (Global.Settings.StartMinimized || Global.StartMinimizedArgument)
+        {
+            WindowState = WindowState.Minimized;
+            Hide();
+            Log.Information("Minimized to system tray");
+        }
+        
         // Register global hotkey if enabled
         if (Global.Settings.EnableGlobalHotkey)
             RegisterGlobalHotkey();
-            
-            // Minimize if set in settings or if set in arguments
-            if (Global.Settings.StartMinimized || Global.StartMinimizedArgument)
-            {
-                WindowState = WindowState.Minimized;
-                Hide();
-                Log.Information("Minimized to system tray");
-            }
             
         Log.Information("MainWindow loaded");
         Global.MainWindowLoaded = true;
