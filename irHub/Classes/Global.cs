@@ -34,11 +34,14 @@ internal struct Global
     private const int SW_MINIMIZE = 6;
     
     internal static string irHubDirectoryPath = "";
+    internal static string ProfilesPath = "";
     internal static bool MainWindowLoaded = false;
     internal static bool NeedsProgramRefresh;
     internal static bool CancelStateCheck = false;
     internal static bool CancelIracingUiStateCheck = false;
     internal static bool StartMinimizedArgument = false;
+    
+    internal static event EventHandler? ProfilesChanged;
 
     internal static readonly SdkWrapper iRacingClient = new();
     public static Settings Settings = new();
@@ -53,6 +56,46 @@ internal struct Global
     {
         Radius = 10,
     };
+
+    private static void OnProfilesChanged()
+    {
+        Log.Debug("Profiles changed event raised, notifying UI");
+        ProfilesChanged?.Invoke(null, EventArgs.Empty);
+    }
+
+    private static void CreateDefaultProfile()
+    {
+        var defaultProfileName = "default profile";
+        var defaultProfilePath = Path.Combine(ProfilesPath, defaultProfileName);
+        Directory.CreateDirectory(defaultProfilePath);
+        File.WriteAllText(Path.Combine(defaultProfilePath, "programs.json"), "[]");
+        
+        RefreshProfiles();
+        SelectedProfile = defaultProfileName;
+        RefreshPrograms();
+        
+        Log.Information($"Created new default profile '{defaultProfileName}'");
+    }
+
+    internal static bool IsValidProfileName(string profileName)
+    {
+        // Validate profile names against filesystem restrictions
+        if (string.IsNullOrWhiteSpace(profileName))
+            return false;
+            
+        // Check for invalid filesystem characters
+        var invalidChars = Path.GetInvalidFileNameChars();
+        if (profileName.Any(c => invalidChars.Contains(c)))
+            return false;
+            
+        // Check for reserved names (Windows filesystem restrictions)
+        var reservedNames = new[] { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+        var nameWithoutExtension = Path.GetFileNameWithoutExtension(profileName);
+        if (reservedNames.Contains(nameWithoutExtension.ToUpperInvariant()))
+            return false;
+            
+        return true;
+    }
 
     private static ObservableCollection<Program>? _programs;
     internal static ObservableCollection<Program> Programs
@@ -69,6 +112,33 @@ internal struct Global
             _programs = value;
         }
     }
+    
+    private static ObservableCollection<string>? _profiles;
+    internal static ObservableCollection<string> Profiles
+    {
+        get
+        {
+            if (_profiles is null || _profiles.Count is 0)
+                _profiles = GetProfiles();
+            return _profiles;
+        }
+        set
+        {
+            if (value is null) return;
+            _profiles = value;
+        }
+    }
+    
+    private static string? _selectedProfile;
+    internal static string SelectedProfile
+    {
+        get => _selectedProfile ?? (Profiles.Count > 0 ? Profiles[0] : "");
+        set
+        {
+            if (value is null) return;
+            _selectedProfile = value.Trim();
+        }
+    }
 
     private static ObservableCollection<Program> GetPrograms()
     {
@@ -82,14 +152,40 @@ internal struct Global
         // todo make list of detected simracing related applications
         var programs = new ObservableCollection<Program>();
         
-        var json = File.ReadAllText(Path.Combine(irHubDirectoryPath, "programs.json"));
-        if (!IsValidJson(json))
+        // Check if the selected profile exists
+        if (string.IsNullOrEmpty(SelectedProfile))
+        {
+            Log.Warning("No profile selected, returning empty programs list");
             return programs;
+        }
+        
+        var profilePath = Path.Combine(ProfilesPath, SelectedProfile);
+        if (!Directory.Exists(profilePath))
+        {
+            Log.Warning($"Selected profile '{SelectedProfile}' does not exist, returning empty programs list");
+            return programs;
+        }
+        
+        var programsJsonPath = Path.Combine(profilePath, "programs.json");
+        if (!File.Exists(programsJsonPath))
+        {
+            Log.Warning($"Programs.json not found for profile '{SelectedProfile}', creating empty file");
+            File.WriteAllText(programsJsonPath, "[]");
+            return programs;
+        }
+        
+        var json = File.ReadAllText(programsJsonPath);
+        if (!IsValidJson(json))
+        {
+            Log.Warning($"Invalid JSON in programs.json for profile '{SelectedProfile}', returning empty programs list");
+            return programs;
+        }
+        
         programs = JsonSerializer.Deserialize<ObservableCollection<Program>>(json);
         if (programs is null || programs.Count is 0)
             return [];
 
-        Log.Information($"{programs.Count} programs loaded.");
+        Log.Information($"{programs.Count} programs loaded from profile '{SelectedProfile}'.");
         
         foreach (var program in programs)
         {
@@ -112,12 +208,245 @@ internal struct Global
 
     internal static void SavePrograms()
     {
-        Log.Information("Saving application settings..");
+        Log.Information($"Saving application settings for profile '{SelectedProfile}'..");
         
         var json = JsonSerializer.Serialize(Programs, JsonSerializerOptions);
-        File.WriteAllText(Path.Combine(irHubDirectoryPath, "programs.json"), json);
+        var profileProgramsPath = Path.Combine(ProfilesPath, SelectedProfile, "programs.json");
+        File.WriteAllText(profileProgramsPath, json);
         
-        Log.Information("Saved all programs settings");
+        Log.Information($"Saved programs for profile '{SelectedProfile}'");
+    }
+
+    private static ObservableCollection<string> GetProfiles()
+    {
+        // Load all profiles
+        if (!Directory.Exists(ProfilesPath))
+        {
+            Log.Debug("Profiles directory does not exist, creating it");
+            Directory.CreateDirectory(ProfilesPath);
+            return [];
+        }
+        
+        var directories = Directory.GetDirectories(ProfilesPath);
+        if (directories is not null && directories.Length > 0)
+        {
+            var folderNames = directories
+                .Select(Path.GetFileName)
+                .Where(name => name is not null)
+                .Cast<string>()
+                .ToList();
+            
+            Log.Information($"Found {folderNames.Count} profile(s): {string.Join(", ", folderNames)}");
+            return new ObservableCollection<string>(folderNames);
+        }
+        
+        Log.Warning("No profiles found in profiles directory");
+        return [];
+    }
+
+    internal static void RefreshProfiles()
+    {
+        Profiles = GetProfiles();
+    }
+
+    internal static bool CreateProfile(string profile, string referenceProfile = "")
+    {
+        Log.Information(string.IsNullOrWhiteSpace(referenceProfile)
+            ? $"Creating new profile '{profile}'"
+            : $"Duplicating profile '{referenceProfile}'");
+
+        if (!IsValidProfileName(profile))
+        {
+            Log.Warning($"Profile name '{profile}' contains invalid characters or is reserved");
+            Growl.Warning("Profile name contains invalid characters. Please use only letters, numbers, spaces, and common punctuation.");
+            return false;
+        }
+        
+        var exists = Directory.Exists(Path.Combine(ProfilesPath, profile));
+        if (exists)
+        {
+            Log.Warning($"Profile '{profile}' already exists, cannot create duplicate");
+            Growl.Warning("Profile name is already taken. Please choose another name.");
+            return false;
+        }
+        
+        var newProfilePath = Path.Combine(ProfilesPath, profile);
+        Directory.CreateDirectory(newProfilePath);
+        Log.Debug($"Created profile directory: {newProfilePath}");
+
+        RefreshProfiles();
+        
+        if (referenceProfile is not "")
+        {
+            var referenceProfilePath = Path.Combine(ProfilesPath, referenceProfile);
+            var referenceContents = File.ReadAllText(Path.Combine(referenceProfilePath, "programs.json"));
+            Log.Debug($"Duplicating profile '{referenceProfile}' now..");
+            
+            File.WriteAllText(Path.Combine(newProfilePath, "programs.json"), referenceContents);
+            OnProfilesChanged();
+            Log.Information($"Profile '{referenceProfile}' successfully duplicated");
+            Growl.Success("Profile successfully duplicated");
+            return true;
+        }
+        
+        Log.Debug($"Creating empty programs.json for new profile '{profile}'");
+        File.WriteAllText(Path.Combine(newProfilePath, "programs.json"), "[]");
+        OnProfilesChanged();
+        Log.Information($"Profile '{profile}' created successfully");
+        Growl.Success("Profile successfully created");
+        return true;
+    }
+
+    internal static void SwitchToProfile(string profile)
+    {
+        Log.Information($"Switching from '{SelectedProfile}' to '{profile}'");
+        
+        if (!IsValidProfileName(profile))
+        {
+            Log.Warning($"Profile name '{profile}' is invalid, cannot switch to it");
+            Growl.Warning("Profile name is invalid, cannot switch to it");
+            return;
+        }
+        
+        var profilePath = Path.Combine(ProfilesPath, profile);
+        if (!Directory.Exists(profilePath))
+        {
+            Log.Warning("Profile does not exist, cannot switch to it");
+            return;
+        }
+
+        SelectedProfile = profile;
+        OnProfilesChanged();
+        
+        RefreshPrograms();
+        
+        Log.Information($"Successfully switched to profile '{profile}'");
+        Growl.Success($"Switched to profile '{profile}'");
+    }
+    
+    internal static bool RenameProfile(string oldName, string newName)
+    {
+        Log.Information($"Renaming profile from '{oldName}' to '{newName}'");
+        
+        if (!IsValidProfileName(oldName) || !IsValidProfileName(newName))
+        {
+            Log.Warning($"Profile name is invalid, cannot rename it - old: '{oldName}', new: '{newName}'");
+            Growl.Warning("The profile name you chose to rename is invalid. Please use only letters, numbers, spaces, and common punctuation.");
+            return false;
+        }
+        
+        var oldPath = Path.Combine(ProfilesPath, oldName);
+        var newPath = Path.Combine(ProfilesPath, newName);
+        
+        var oldExists = Directory.Exists(oldPath);
+        if (!oldExists)
+        {
+            Log.Warning($"Profile '{oldName}' does not exist, cannot rename it");
+            Growl.Error("The profile you chose to rename does not exist.");
+            return false;
+        }
+        
+        var newExists = Directory.Exists(newPath);
+        if (newExists)
+        {
+            Log.Warning($"Profile '{newName}' is already taken, cannot rename to existing name");
+            Growl.Warning("Profile name is already taken. Please choose another name.");
+            return false;
+        }
+        
+        try
+        {
+            Log.Debug($"Moving profile directory from '{oldPath}' to '{newPath}'");
+            Directory.Move(oldPath, newPath);
+            
+            // If we renamed the currently selected profile, update the selection
+            if (SelectedProfile == oldName)
+            {
+                Log.Debug($"Updating selected profile from '{oldName}' to '{newName}'");
+                SelectedProfile = newName;
+                RefreshPrograms();
+            }
+            
+            OnProfilesChanged();
+            Log.Information($"Successfully renamed profile '{oldName}' to '{newName}'");
+            Growl.Success("Profile successfully renamed");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Failed to rename profile from '{oldName}' to '{newName}': {ex.Message}");
+            Growl.Error($"Failed to rename profile: {ex.Message}");
+            return false;
+        }
+    }
+
+    internal static bool DuplicateProfile(string profile)
+    {
+        Log.Information($"Duplicating profile '{profile}'");
+        
+        if (!IsValidProfileName(profile))
+        {
+            Log.Warning($"Profile name '{profile}' contains invalid characters or is reserved");
+            return false;
+        }
+        
+        var profilePath = Path.Combine(ProfilesPath, profile);
+        if (!Directory.Exists(profilePath))
+        {
+            Log.Warning($"Profile '{profile}' does not exist, cannot duplicate it");
+            Growl.Warning("Profile does not exist, cannot duplicate it");
+            return false;
+        }
+        
+        string newProfile = $"{profile} (duplicate)";
+        Log.Debug($"Creating duplicate profile with name '{newProfile}'");
+        return CreateProfile(newProfile, profile);
+    }
+    
+    internal static void DeleteProfile(string profile)
+    {
+        Log.Information($"Deleting profile '{profile}'");
+        
+        if (!IsValidProfileName(profile))
+        {
+            Log.Warning($"Profile name '{profile}' is invalid, cannot delete it");
+            Growl.Warning("Profile name contains invalid characters. Please try deleting it in your documents folder by deleting the folder of this profile.");
+            return;
+        }
+        
+        var path = Path.Combine(ProfilesPath, profile);
+        if (Directory.Exists(path))
+        {
+            Log.Debug($"Deleting profile directory: {path}");
+            Directory.Delete(path, true);
+            
+            // If we deleted the currently selected profile, select the first available one
+            if (SelectedProfile == profile)
+            {
+                Log.Debug($"Deleted profile '{profile}' was the currently selected profile, selecting first available profile");
+                RefreshProfiles();
+                if (Profiles.Count > 0)
+                {
+                    var newSelectedProfile = Profiles[0];
+                    Log.Debug($"Switching to profile '{newSelectedProfile}' after deleting '{profile}'");
+                    SelectedProfile = newSelectedProfile;
+                    RefreshPrograms();
+                }
+                else
+                {
+                    Log.Warning("No profiles remaining after deletion, creating default profile");
+                    CreateDefaultProfile();
+                }
+            }
+            
+            OnProfilesChanged();
+            Log.Information($"Successfully deleted profile '{profile}'");
+            Growl.Success("Profile successfully deleted");
+            return;
+        }
+        
+        Log.Warning($"Profile '{profile}' not found, cannot delete it");
+        Growl.Warning("Profile not found");
     }
     
     internal static void LoadSettings()
@@ -189,7 +518,7 @@ internal struct Global
     internal static void CopyProperties(Program source, Program destination)
     {
         // Use reflection to copy over each property
-        Log.Information($"Copying properties..");
+        Log.Information("Copying properties..");
         
         foreach (var property in typeof(Program).GetProperties())
         {
