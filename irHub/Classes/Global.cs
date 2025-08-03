@@ -63,6 +63,47 @@ internal struct Global
         ProfilesChanged?.Invoke(null, EventArgs.Empty);
     }
 
+    internal static void InitializeDefaultProfile()
+    {
+        Log.Information("Initializing default profile system");
+        EnsureValidDefaultProfile();
+    }
+
+    internal static void SetDefaultProfile(string profile)
+    {
+        Log.Information($"Setting '{profile}' as default profile");
+        
+        if (!IsValidProfileName(profile))
+        {
+            Log.Warning($"Profile name '{profile}' contains invalid characters or is reserved");
+            Growl.Warning("Profile name contains invalid characters");
+            return;
+        }
+        
+        var profilePath = Path.Combine(ProfilesPath, profile);
+        if (!Directory.Exists(profilePath))
+        {
+            Log.Warning($"Profile '{profile}' does not exist, cannot set as default");
+            Growl.Warning("Profile does not exist");
+            return;
+        }
+        
+        if (Settings.DefaultProfile == profile)
+        {
+            Log.Debug($"Profile '{profile}' is already the default profile");
+            return;
+        }
+        
+        var previousDefault = Settings.DefaultProfile;
+        Settings.DefaultProfile = profile;
+        
+        Log.Information($"Successfully set '{profile}' as default profile (was '{previousDefault}')");
+        Growl.Success($"'{profile}' is now the default profile");
+        
+        // Refresh the UI to show the new default profile
+        OnProfilesChanged();
+    }
+
     private static void CreateDefaultProfile()
     {
         var defaultProfileName = "default profile";
@@ -75,6 +116,62 @@ internal struct Global
         RefreshPrograms();
         
         Log.Information($"Created new default profile '{defaultProfileName}'");
+        Growl.Info("Created new default profile since all profiles were deleted");
+    }
+
+    private static void EnsureValidDefaultProfile()
+    {
+        Log.Debug("Ensuring valid default profile is selected");
+        
+        var profiles = GetProfiles();
+        
+        // If no profiles exist, create default profile
+        if (profiles.Count is 0)
+        {
+            Log.Information("No profiles exist, creating default profile");
+            CreateDefaultProfile();
+            Settings.DefaultProfile = "default profile";
+            return;
+        }
+        
+        // If only one profile exists, make it the default
+        if (profiles.Count is 1)
+        {
+            var singleProfile = profiles[0];
+            Log.Information($"Only one profile exists ('{singleProfile}'), setting as default");
+            Settings.DefaultProfile = singleProfile;
+            SelectedProfile = singleProfile;
+            RefreshPrograms();
+            return;
+        }
+        
+        // Multiple profiles exist, check if configured default exists
+        if (profiles.Contains(Settings.DefaultProfile))
+        {
+            Log.Debug($"Configured default profile '{Settings.DefaultProfile}' exists, using it");
+            SelectedProfile = Settings.DefaultProfile;
+            RefreshPrograms();
+            return;
+        }
+        
+        // Configured default doesn't exist, fallback to "default profile"
+        Log.Warning($"Configured default profile '{Settings.DefaultProfile}' doesn't exist, checking for fallback");
+        
+        if (profiles.Contains("default profile"))
+        {
+            Log.Information("Using fallback 'default profile'");
+            Settings.DefaultProfile = "default profile";
+            SelectedProfile = "default profile";
+            RefreshPrograms();
+            return;
+        }
+        
+        // Even fallback doesn't exist, use first available profile
+        var firstProfile = profiles[0];
+        Log.Warning($"Neither configured default nor fallback exist, using first available profile '{firstProfile}'");
+        Settings.DefaultProfile = firstProfile;
+        SelectedProfile = firstProfile;
+        RefreshPrograms();
     }
 
     internal static bool IsValidProfileName(string profileName)
@@ -102,7 +199,7 @@ internal struct Global
     {
         get
         {
-            if (_programs is null || _programs.Count is 0)
+            if (_programs is null)
                 _programs = GetPrograms();
             return _programs;
         }
@@ -132,7 +229,15 @@ internal struct Global
     private static string? _selectedProfile;
     internal static string SelectedProfile
     {
-        get => _selectedProfile ?? (Profiles.Count > 0 ? Profiles[0] : "");
+        get
+        {
+            if (_selectedProfile is null)
+            {
+                EnsureValidDefaultProfile();
+                return _selectedProfile ?? "";
+            }
+            return _selectedProfile;
+        }
         set
         {
             if (value is null) return;
@@ -142,6 +247,7 @@ internal struct Global
 
     private static ObservableCollection<Program> GetPrograms()
     {
+        // todo wordt vaker dan 1x uitgevoerd met startup????
         var bitmap = new BitmapImage();
         bitmap.BeginInit();
         bitmap.UriSource = new Uri("pack://application:,,,/irHub;component/Resources/logo.png");
@@ -174,7 +280,17 @@ internal struct Global
             return programs;
         }
         
-        var json = File.ReadAllText(programsJsonPath);
+        string json;
+        try
+        {
+            json = File.ReadAllText(programsJsonPath);
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Failed to read programs.json for profile '{SelectedProfile}': {ex.Message}");
+            return programs;
+        }
+        
         if (!IsValidJson(json))
         {
             Log.Warning($"Invalid JSON in programs.json for profile '{SelectedProfile}', returning empty programs list");
@@ -279,10 +395,28 @@ internal struct Global
         if (referenceProfile is not "")
         {
             var referenceProfilePath = Path.Combine(ProfilesPath, referenceProfile);
-            var referenceContents = File.ReadAllText(Path.Combine(referenceProfilePath, "programs.json"));
-            Log.Debug($"Duplicating profile '{referenceProfile}' now..");
+            if (!Directory.Exists(referenceProfilePath))
+            {
+                Log.Warning($"Reference profile '{referenceProfile}' does not exist, cannot duplicate from it");
+                Growl.Warning($"Profile '{referenceProfile}' does not exist, cannot duplicate from it");
+                Directory.Delete(newProfilePath, true);
+                return false;
+            }
             
+            var referenceProgramsPath = Path.Combine(referenceProfilePath, "programs.json");
+            if (!File.Exists(referenceProgramsPath))
+            {
+                Log.Warning($"Programs.json not found in reference profile '{referenceProfile}', creating empty file");
+                File.WriteAllText(Path.Combine(newProfilePath, "programs.json"), "[]");
+                Growl.Warning($"Applications config not found in profile '{referenceProfile}', creating empty file");
+                Directory.Delete(newProfilePath, true);
+                return false;
+            }
+            
+            Log.Debug($"Duplicating profile '{referenceProfile}'");
+            var referenceContents = File.ReadAllText(referenceProgramsPath);
             File.WriteAllText(Path.Combine(newProfilePath, "programs.json"), referenceContents);
+            
             OnProfilesChanged();
             Log.Information($"Profile '{referenceProfile}' successfully duplicated");
             Growl.Success("Profile successfully duplicated");
@@ -294,6 +428,9 @@ internal struct Global
         OnProfilesChanged();
         Log.Information($"Profile '{profile}' created successfully");
         Growl.Success("Profile successfully created");
+        
+        // Ensure valid default profile after creating new profile
+        EnsureValidDefaultProfile();
         return true;
     }
 
@@ -313,6 +450,15 @@ internal struct Global
         {
             Log.Warning("Profile does not exist, cannot switch to it");
             return;
+        }
+
+        if (!string.IsNullOrEmpty(SelectedProfile))
+        {
+            Log.Debug($"Saving current programs for profile '{SelectedProfile}' before switching profile");
+            var json = JsonSerializer.Serialize(Programs, JsonSerializerOptions);
+            var currentProfilePath = Path.Combine(ProfilesPath, SelectedProfile, "programs.json");
+            File.WriteAllText(currentProfilePath, json);
+            Log.Information($"Saved programs for profile '{SelectedProfile}'");
         }
 
         SelectedProfile = profile;
@@ -370,6 +516,9 @@ internal struct Global
             OnProfilesChanged();
             Log.Information($"Successfully renamed profile '{oldName}' to '{newName}'");
             Growl.Success("Profile successfully renamed");
+            
+            // Ensure valid default profile after renaming
+            EnsureValidDefaultProfile();
             return true;
         }
         catch (Exception ex)
@@ -387,6 +536,7 @@ internal struct Global
         if (!IsValidProfileName(profile))
         {
             Log.Warning($"Profile name '{profile}' contains invalid characters or is reserved");
+            Growl.Warning("Profile name contains invalid characters. Please use only letters, numbers, spaces, and common punctuation.");
             return false;
         }
         
@@ -400,7 +550,13 @@ internal struct Global
         
         string newProfile = $"{profile} (duplicate)";
         Log.Debug($"Creating duplicate profile with name '{newProfile}'");
-        return CreateProfile(newProfile, profile);
+        var result = CreateProfile(newProfile, profile);
+        if (!result)
+        {
+            Log.Error($"Failed to duplicate profile '{profile}'");
+            Growl.Error($"Failed to duplicate profile '{profile}'");
+        }
+        return result;
     }
     
     internal static void DeleteProfile(string profile)
@@ -423,20 +579,8 @@ internal struct Global
             // If we deleted the currently selected profile, select the first available one
             if (SelectedProfile == profile)
             {
-                Log.Debug($"Deleted profile '{profile}' was the currently selected profile, selecting first available profile");
-                RefreshProfiles();
-                if (Profiles.Count > 0)
-                {
-                    var newSelectedProfile = Profiles[0];
-                    Log.Debug($"Switching to profile '{newSelectedProfile}' after deleting '{profile}'");
-                    SelectedProfile = newSelectedProfile;
-                    RefreshPrograms();
-                }
-                else
-                {
-                    Log.Warning("No profiles remaining after deletion, creating default profile");
-                    CreateDefaultProfile();
-                }
+                Log.Debug($"Deleted profile '{profile}' was the currently selected profile, switching to default profile");
+                EnsureValidDefaultProfile();
             }
             
             OnProfilesChanged();

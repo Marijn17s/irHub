@@ -313,6 +313,8 @@ public partial class MainWindow
     {
         await UpdateApplication();
         
+        Global.InitializeDefaultProfile();
+        
         // Minimize if set in settings or if set in arguments
         if (Global.Settings.StartMinimized || Global.StartMinimizedArgument)
         {
@@ -382,9 +384,10 @@ public partial class MainWindow
         foreach (var profile in Global.Profiles)
         {
             var isActive = profile.Trim() == Global.SelectedProfile.Trim();
+            var isDefault = profile == Global.Settings.DefaultProfile;
             var profileDisplayName = isActive ? $"{profile} (active)" : profile;
             
-            Log.Debug($"Adding profile '{profile}' to menu (active: {isActive})");
+            Log.Debug($"Adding profile '{profile}' to menu (active: {isActive}, default: {isDefault})");
             
             var switchItem = new MenuItem { Header = "Switch to profile" };
             switchItem.Click += (_, _) =>
@@ -433,6 +436,24 @@ public partial class MainWindow
             item.Items.Add(renameItem);
             item.Items.Add(duplicateItem);
             item.Items.Add(deleteItem);
+            
+            // Add "Set as default" option only if not already default
+            if (!isDefault)
+            {
+                var setAsDefaultItem = new MenuItem { Header = "Set as default profile" };
+                setAsDefaultItem.Click += (_, _) =>
+                {
+                    Log.Information($"User clicked 'Set as default profile' for '{profile}'");
+                    Global.SetDefaultProfile(profile);
+                };
+                item.Items.Add(setAsDefaultItem);
+            }
+            else
+            {
+                // Show that this profile is already the default
+                var defaultIndicatorItem = new MenuItem { Header = "✓ Default profile", IsEnabled = false };
+                item.Items.Add(defaultIndicatorItem);
+            }
             
             ProfilesMenu.Items.Add(item);
         }
