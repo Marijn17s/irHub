@@ -16,7 +16,7 @@ public partial class UpdateDialog
     {
         InitializeComponent();
         MoveToMainScreen();
-
+        
         var releaseNotes = newVersion.TargetFullRelease.NotesHTML;
         var html = ReleaseNotesHelper.GenerateReleaseNotes(releaseNotes);
         var tempFile = Path.Combine(Path.GetTempPath(), "irHubTempReleaseNotes.html");
