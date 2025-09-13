@@ -125,6 +125,9 @@ public partial class MainWindow
         if (File.Exists(programsPath))
         {
             var programs = File.ReadAllText(programsPath);
+            if (!Directory.Exists(defaultPath))
+                Directory.CreateDirectory(defaultPath);
+            
             File.WriteAllText(Path.Combine(defaultPath, "programs.json"), programs);
             File.Delete(programsPath);
         }
