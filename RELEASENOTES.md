@@ -1,9 +1,30 @@
 # irHub changelogs
 
+## Version 1.1.0
+This version brings some new features TODO
+
+Changes:
+- Added a sophisticated profile system with easy switching, a default profile and more
+- Added a global keyboard shortcut (CTRL + SHIFT + I) to recover irHub from the tray at any time
+- Added parallelized application startup
+- Improved the delay between starting irHub and minimizing it to tray when configured to do so
+- Added option to start irHub on Windows startup
+- Added the option to minimize an application to tray
+- Added the option to close an application to tray
+- Added more tooltips to settings page
+- Improved the check for managed apps
+- Improved single instance enforcement
+- Added a cleanup of logs older than 2 weeks
+
+Bugs:
+- Fixed multiple crashes caused by operations on managed processes
+- Fixed an issue where an app could change state twice by one operation
+- Fixed an issue where stopping an app wouldn't work if the process had to be killed
+
 ## Version 1.0.1
 This version brings a small bugfix
 
-Changes:
+Bugs:
 - Fixed an issue where update dialog wouldn't show in the center of the screen
 
 ## Version 1.0.0
