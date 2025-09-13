@@ -31,7 +31,7 @@ public partial class MainWindow
     private const uint VkI = 0x49; // 'I' key
     private const int WmHotkey = 0x0312;
     private bool _hotkeyRegistered;
-    private bool _trayIconClickHandlerAssigned;
+    private bool _trayEventHandlerAssigned;
 
     public MainWindow()
     {
@@ -222,7 +222,7 @@ public partial class MainWindow
         if (WindowState is WindowState.Minimized)
         {
             TrayIcon.Visibility = Visibility.Visible;
-            EnsureTrayIconClickHandler();
+            EnsureTrayEventHandler();
             Hide();
                 
             Log.Information("Minimized to system tray");
@@ -231,12 +231,12 @@ public partial class MainWindow
         base.OnStateChanged(e);
     }
 
-    private void EnsureTrayIconClickHandler()
+    private void EnsureTrayEventHandler()
     {
-        if (_trayIconClickHandlerAssigned) return;
+        if (_trayEventHandlerAssigned) return;
         
         TrayIcon.Click += (_, _) => RecoverFromTray();
-        _trayIconClickHandlerAssigned = true;
+        _trayEventHandlerAssigned = true;
         Log.Debug("Tray icon click handler assigned");
     }
 
@@ -299,7 +299,7 @@ public partial class MainWindow
             {
                 Hide();
                 TrayIcon.Visibility = Visibility.Visible;
-                EnsureTrayIconClickHandler();
+                EnsureTrayEventHandler();
                 Log.Information("Minimized to system tray");
             }));
         }
