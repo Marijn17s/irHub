@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Interop;
 using HandyControl.Controls;
 using HandyControl.Data;
@@ -51,6 +52,7 @@ public partial class MainWindow
         Log.Information("Application started");
         
         Global.Settings.PropertyChanged += Settings_PropertyChanged;
+        Global.ProfilesChanged += OnProfilesChanged;
         
         // Open on center of screen
         Left = (SystemParameters.WorkArea.Width - Width) / 2;
@@ -108,8 +110,36 @@ public partial class MainWindow
         if (!Directory.Exists(logPath))
             Directory.CreateDirectory(logPath);
 
-        if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "programs.json")))
-            File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "programs.json"), "[]");
+        Global.ProfilesPath = Path.Combine(Global.irHubDirectoryPath, "profiles");
+        if (!Directory.Exists(Global.ProfilesPath))
+            Directory.CreateDirectory(Global.ProfilesPath);
+        
+        var defaultPath = Path.Combine(Global.ProfilesPath, "default profile");
+        if (Directory.GetDirectories(Global.ProfilesPath).Length is 0)
+        {
+            Directory.CreateDirectory(defaultPath);
+            File.WriteAllText(Path.Combine(defaultPath, "programs.json"), "[]");
+        }
+
+        var programsPath = Path.Combine(Global.irHubDirectoryPath, "programs.json");
+        if (File.Exists(programsPath))
+        {
+            var programs = File.ReadAllText(programsPath);
+            File.WriteAllText(Path.Combine(defaultPath, "programs.json"), programs);
+            File.Delete(programsPath);
+        }
+        
+        // Check all profile directories and ensure they have a valid configuration
+        var profileDirectories = Directory.GetDirectories(Global.ProfilesPath);
+        foreach (var profileDir in profileDirectories)
+        {
+            var programsJsonPath = Path.Combine(profileDir, "programs.json");
+            if (!File.Exists(programsJsonPath))
+            {
+                Log.Information($"Creating missing programs.json for profile: {Path.GetFileName(profileDir)}");
+                File.WriteAllText(programsJsonPath, "[]");
+            }
+        }
             
         if (!File.Exists(Path.Combine(Global.irHubDirectoryPath, "settings.json")))
             File.WriteAllText(Path.Combine(Global.irHubDirectoryPath, "settings.json"), "{}");
@@ -170,7 +200,7 @@ public partial class MainWindow
         var dialog = new OpenFileDialog
         {
             Filter = "Executables (*.exe, *.bat, *.cmd)|*.exe;*.bat;*.cmd",
-            InitialDirectory = Environment.SpecialFolder.CommonProgramFiles.ToString(),
+            InitialDirectory = nameof(Environment.SpecialFolder.CommonProgramFiles),
             Multiselect = false,
             Title = "Select an application you want to add"
         };
@@ -305,6 +335,7 @@ public partial class MainWindow
         }
         
         await UpdateApplication();
+        Global.InitializeDefaultProfile();
         
         // Register global hotkey if enabled
         if (Global.Settings.EnableGlobalHotkey)
@@ -312,7 +343,8 @@ public partial class MainWindow
             
         Log.Information("MainWindow loaded");
         Global.MainWindowLoaded = true;
-        
+      
+        PopulateProfiles();
         await CheckProgramStateLoop();
     }
 
@@ -329,6 +361,131 @@ public partial class MainWindow
 
         Log.Information("Global hotkey disabled - unregistering hotkey");
         UnregisterGlobalHotkey();
+    }
+
+    private void OnProfilesChanged(object? sender, EventArgs e)
+    {
+        Log.Debug("Profile change event received, refreshing profiles menu");
+        
+        // Ensure we're on the UI thread
+        if (!Dispatcher.CheckAccess())
+        {
+            Log.Debug("Not on UI thread, dispatching to UI thread");
+            Dispatcher.Invoke(() => OnProfilesChanged(sender, e));
+            return;
+        }
+        
+        PopulateProfiles();
+    }
+
+    private void PopulateProfiles()
+    {
+        Log.Debug("Populating profiles menu");
+        
+        // Ensure we're on the UI thread
+        if (!Dispatcher.CheckAccess())
+        {
+            Log.Debug("Not on UI thread, dispatching to UI thread");
+            Dispatcher.Invoke(PopulateProfiles);
+            return;
+        }
+        
+        Global.RefreshProfiles();
+        
+        ProfilesMenu.Items.Clear();
+        Log.Debug($"Adding {Global.Profiles.Count} profile(s) to menu");
+        
+        foreach (var profile in Global.Profiles)
+        {
+            var isActive = profile.Trim() == Global.SelectedProfile.Trim();
+            var isDefault = profile == Global.Settings.DefaultProfile;
+            var profileDisplayName = isActive ? $"{profile} (active)" : profile;
+            
+            Log.Debug($"Adding profile '{profile}' to menu (active: {isActive}, default: {isDefault})");
+            
+            var switchItem = new MenuItem { Header = "Switch to profile" };
+            switchItem.Click += (_, _) =>
+            {
+                Log.Information($"User clicked 'Switch to profile' for '{profile}'");
+                Global.SwitchToProfile(profile);
+            };
+            
+            var renameItem = new MenuItem { Header = "Rename profile" };
+            renameItem.Click += (_, _) =>
+            {
+                Log.Information($"User clicked 'Rename profile' for '{profile}'");
+                Effect = Global.WindowBlurEffect;
+                new ProfileNameDialog(profile).ShowDialog();
+                Effect = null;
+            };
+            
+            var duplicateItem = new MenuItem { Header = "Duplicate profile" };
+            duplicateItem.Click += (_, _) =>
+            {
+                Log.Information($"User clicked 'Duplicate profile' for '{profile}'");
+                Global.DuplicateProfile(profile);
+            };
+            
+            var deleteItem = new MenuItem { Header = "Delete profile" };
+            deleteItem.Click += (_, _) =>
+            {
+                Growl.Ask("Are you sure you want to delete this profile?", confirm =>
+                {
+                    if (!confirm)
+                        return true;
+                    
+                    Log.Information($"User clicked 'Delete profile' for '{profile}'");
+                    Global.DeleteProfile(profile);
+                    return true;
+                });
+            };
+            
+            var item = new MenuItem
+            {
+                Header = profileDisplayName
+            };
+            
+            if (!isActive)
+                item.Items.Add(switchItem);
+            item.Items.Add(renameItem);
+            item.Items.Add(duplicateItem);
+            item.Items.Add(deleteItem);
+            
+            // Add "Set as default" option only if not already default
+            if (!isDefault)
+            {
+                var setAsDefaultItem = new MenuItem { Header = "Set as default profile" };
+                setAsDefaultItem.Click += (_, _) =>
+                {
+                    Log.Information($"User clicked 'Set as default profile' for '{profile}'");
+                    Global.SetDefaultProfile(profile);
+                };
+                item.Items.Add(setAsDefaultItem);
+            }
+            else
+            {
+                // Show that this profile is already the default
+                var defaultIndicatorItem = new MenuItem { Header = "✓ Default profile", IsEnabled = false };
+                item.Items.Add(defaultIndicatorItem);
+            }
+            
+            ProfilesMenu.Items.Add(item);
+        }
+        
+        var createNewItem = new MenuItem
+        {
+            Header = "Create new profile"
+        };
+        createNewItem.Click += (_, _) =>
+        {
+            Log.Information("User clicked 'Create new profile'");
+            Effect = Global.WindowBlurEffect;
+            new ProfileNameDialog().ShowDialog();
+            Effect = null;
+        };
+        ProfilesMenu.Items.Add(createNewItem);
+        
+        Log.Debug("Profiles menu populated successfully");
     }
 
     private void RegisterGlobalHotkey()

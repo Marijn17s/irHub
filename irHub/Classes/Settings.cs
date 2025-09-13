@@ -9,6 +9,7 @@ internal class Settings : INotifyPropertyChanged
     private bool _startMinimized;
     private bool _startWithWindows;
     private bool _enableGlobalHotkey = true;
+    private string _defaultProfile = "default profile";
     
     #region INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -60,6 +61,17 @@ internal class Settings : INotifyPropertyChanged
         {
             if (value == _enableGlobalHotkey) return;
             _enableGlobalHotkey = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public string DefaultProfile
+    {
+        get => _defaultProfile;
+        set
+        {
+            if (value == _defaultProfile) return;
+            _defaultProfile = value;
             OnPropertyChanged();
         }
     }
