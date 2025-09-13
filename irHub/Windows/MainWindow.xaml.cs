@@ -32,6 +32,7 @@ public partial class MainWindow
     private const uint VkI = 0x49; // 'I' key
     private const int WmHotkey = 0x0312;
     private bool _hotkeyRegistered;
+    private bool _trayEventHandlerAssigned;
 
     public MainWindow()
     {
@@ -251,13 +252,22 @@ public partial class MainWindow
         if (WindowState is WindowState.Minimized)
         {
             TrayIcon.Visibility = Visibility.Visible;
-            TrayIcon.Click += (_, _) => RecoverFromTray();
+            EnsureTrayEventHandler();
             Hide();
                 
             Log.Information("Minimized to system tray");
         }
 
         base.OnStateChanged(e);
+    }
+
+    private void EnsureTrayEventHandler()
+    {
+        if (_trayEventHandlerAssigned) return;
+        
+        TrayIcon.Click += (_, _) => RecoverFromTray();
+        _trayEventHandlerAssigned = true;
+        Log.Debug("Tray icon click handler assigned");
     }
 
     internal void RecoverFromTray()
@@ -311,17 +321,21 @@ public partial class MainWindow
 
     private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
-        await UpdateApplication();
-        
-        Global.InitializeDefaultProfile();
-        
         // Minimize if set in settings or if set in arguments
         if (Global.Settings.StartMinimized || Global.StartMinimizedArgument)
         {
-            WindowState = WindowState.Minimized;
-            Hide();
-            Log.Information("Minimized to system tray");
+            // Use Dispatcher to ensure UI is fully rendered before minimizing
+            await Dispatcher.BeginInvoke(new Action(() =>
+            {
+                Hide();
+                TrayIcon.Visibility = Visibility.Visible;
+                EnsureTrayEventHandler();
+                Log.Information("Minimized to system tray");
+            }));
         }
+        
+        await UpdateApplication();
+        Global.InitializeDefaultProfile();
         
         // Register global hotkey if enabled
         if (Global.Settings.EnableGlobalHotkey)
@@ -329,7 +343,7 @@ public partial class MainWindow
             
         Log.Information("MainWindow loaded");
         Global.MainWindowLoaded = true;
-
+      
         PopulateProfiles();
         await CheckProgramStateLoop();
     }
