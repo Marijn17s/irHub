@@ -541,13 +541,21 @@ public partial class MainWindow
     private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
         if (msg is not WmHotkey) return IntPtr.Zero;
-        switch (wParam.ToInt32())
+        if (wParam.ToInt32() is HotkeyId)
         {
-            case HotkeyId:
+            if (TrayIcon.Visibility is Visibility.Visible || WindowState is WindowState.Minimized)
+            {
                 Log.Information("Global hotkey pressed - recovering from tray");
                 RecoverFromTray();
-                handled = true;
-                break;
+            }
+            else
+            {
+                Log.Information("Global hotkey pressed - minimizing to tray");
+                TrayIcon.Visibility = Visibility.Visible;
+                EnsureTrayEventHandler();
+                Hide();
+            }
+            handled = true;
         }
         return IntPtr.Zero;
     }
