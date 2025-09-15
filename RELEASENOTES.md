@@ -1,7 +1,13 @@
 # irHub changelogs
 
+## Version 1.1.1
+This version brings a small feature update
+
+Changes:
+- Added ability to toggle hiding and recovering from tray using the global shortcut CTRL + SHIFT + I
+
 ## Version 1.1.0
-This version brings some new features TODO
+This version brings some new features
 
 Changes:
 - Added a sophisticated profile system with easy switching, a default profile and more
