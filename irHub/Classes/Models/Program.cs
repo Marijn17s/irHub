@@ -145,34 +145,31 @@ public class Program : INotifyPropertyChanged
         
         State = state;
         
-        await Task.Run(() =>
+        switch (state)
         {
-            switch (state)
-            {
-                case ProgramState.Running:
-                    ActionButton.Dispatcher.BeginInvoke(() =>
-                    {
-                        ActionButton.Content = Running;
-                        ActionButton.Background = Brushes.LightGreen;
-                    });
-                    break;
-                case ProgramState.Stopped:
-                    ActionButton.Dispatcher.BeginInvoke(() =>
-                    {
-                        ActionButton.Content = Start;
-                        ActionButton.Background = new SolidColorBrush(Color.FromRgb(55, 58, 62));
-                    });
-                    break;
-                case ProgramState.NotFound:
-                default:
-                    ActionButton.Dispatcher.BeginInvoke(() =>
-                    {
-                        ActionButton.Content = Notfound;
-                        ActionButton.Background = new SolidColorBrush(Color.FromRgb(100, 100, 100));
-                    });
-                    break;
-            }
-        });
+            case ProgramState.Running:
+                await ActionButton.Dispatcher.BeginInvoke(() =>
+                {
+                    ActionButton.Content = Running;
+                    ActionButton.Background = Brushes.LightGreen;
+                });
+                break;
+            case ProgramState.Stopped:
+                await ActionButton.Dispatcher.BeginInvoke(() =>
+                {
+                    ActionButton.Content = Start;
+                    ActionButton.Background = new SolidColorBrush(Color.FromRgb(55, 58, 62));
+                });
+                break;
+            case ProgramState.NotFound:
+            default:
+                await ActionButton.Dispatcher.BeginInvoke(() =>
+                {
+                    ActionButton.Content = Notfound;
+                    ActionButton.Background = new SolidColorBrush(Color.FromRgb(100, 100, 100));
+                });
+                break;
+        }
     }
 
     internal void SetIcon(string sourcePath)

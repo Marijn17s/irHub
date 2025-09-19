@@ -346,15 +346,14 @@ internal struct Global
             return [];
         }
         
-        var directories = Directory.GetDirectories(ProfilesPath);
-        if (directories is not null && directories.Length > 0)
+        var folderNames = Directory.EnumerateDirectories(ProfilesPath)
+            .Select(Path.GetFileName)
+            .Where(name => name is not null)
+            .Cast<string>()
+            .ToList();
+        
+        if (folderNames.Count > 0)
         {
-            var folderNames = directories
-                .Select(Path.GetFileName)
-                .Where(name => name is not null)
-                .Cast<string>()
-                .ToList();
-            
             Log.Information($"Found {folderNames.Count} profile(s): {string.Join(", ", folderNames)}");
             return new ObservableCollection<string>(folderNames);
         }
@@ -596,16 +595,18 @@ internal struct Global
         Growl.Warning("Profile not found");
     }
     
-    internal static void LoadSettings()
+    internal static async Task LoadSettings()
     {
         // Load application settings
         Log.Information("Loading application settings..");
         
-        var json = File.ReadAllText(Path.Combine(irHubDirectoryPath, "settings.json"));
+        var settingsPath = Path.Combine(irHubDirectoryPath, "settings.json");
+        var json = await File.ReadAllTextAsync(settingsPath).ConfigureAwait(false);
+        
         if (json is "{}")
         {
             Log.Information("Application settings are empty");
-            SaveSettings();
+            await SaveSettings().ConfigureAwait(false);
             return;
         }
         
@@ -626,13 +627,14 @@ internal struct Global
         Log.Information("Loaded application settings");
     }
 
-    internal static void SaveSettings()
+    internal static async Task SaveSettings()
     {
         // Save application settings
         Log.Information("Saving application settings..");
         
         var json = JsonSerializer.Serialize(Settings, JsonSerializerOptions);
-        File.WriteAllText(Path.Combine(irHubDirectoryPath, "settings.json"), json);
+        var settingsPath = Path.Combine(irHubDirectoryPath, "settings.json");
+        await File.WriteAllTextAsync(settingsPath, json).ConfigureAwait(false);
         
         Log.Information("Saved application settings");
     }
@@ -683,12 +685,31 @@ internal struct Global
         // Check all programs if they're running
         Log.Information("Checking if programs are running..");
         
-        var processes = Process.GetProcesses();
+        var executableNames = Programs
+            .Where(p => p.State is not ProgramState.NotFound && File.Exists(p.FilePath))
+            .Select(p => p.ExecutableName)
+            .Distinct()
+            .ToArray();
+        
+        var managedProcesses = new Dictionary<string, Process[]>();
+        foreach (var executableName in executableNames)
+        {
+            try
+            {
+                var processes = Process.GetProcessesByName(executableName);
+                if (processes.Length > 0)
+                    managedProcesses[executableName] = processes;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Error getting processes for {executableName}: {ex.Message}");
+            }
+        }
 
         foreach (var program in Programs)
         {
             if (program.State is ProgramState.NotFound && File.Exists(program.FilePath))
-                await program.ChangeState(ProgramState.Stopped);
+                await program.ChangeState(ProgramState.Stopped).ConfigureAwait(false);
             if (program.State is ProgramState.NotFound && !File.Exists(program.FilePath))
                 continue;
             if (program.State is ProgramState.Running && program.Process is not null && !program.Process.HasExited)
@@ -696,8 +717,15 @@ internal struct Global
 
             try
             {
-                var existingProcess = processes.FirstOrDefault(process => process.ProcessName == program.ExecutableName);
-                if (existingProcess is null || existingProcess.HasExited)
+                if (!managedProcesses.TryGetValue(program.ExecutableName, out var processes) || processes.Length == 0)
+                {
+                    if (program.State is not ProgramState.Stopped)
+                        Log.Information($"Process {program.ExecutableName} has exited early - CheckProgramsRunning");
+                    continue;
+                }
+
+                var existingProcess = processes.FirstOrDefault(p => !p.HasExited);
+                if (existingProcess is null)
                 {
                     if (program.State is not ProgramState.Stopped)
                         Log.Information($"Process {program.ExecutableName} has exited early - CheckProgramsRunning");
@@ -708,12 +736,12 @@ internal struct Global
                 if (program.ExecutableName != existingProcess.ProcessName)
                     program.ExecutableName = existingProcess.ProcessName;
 
-                await program.ChangeState(ProgramState.Running);
+                await program.ChangeState(ProgramState.Running).ConfigureAwait(false);
                 AddProcessEventHandlers(program, program.Process);
             }
             catch (InvalidOperationException)
             {
-                Log.Debug($"Process object is no longer valid when checking {program.ExecutableName}");
+                Log.Warning($"Process object is no longer valid when checking {program.ExecutableName}");
             }
             catch (Exception ex)
             {
@@ -729,8 +757,10 @@ internal struct Global
         
         try
         {
-            var existingProcess = Process.GetProcesses().FirstOrDefault(process => process.ProcessName == program.ExecutableName);
-            if (existingProcess is null || existingProcess.HasExited)
+            var processes = Process.GetProcessesByName(program.ExecutableName);
+            var existingProcess = processes.FirstOrDefault(process => !process.HasExited);
+            
+            if (existingProcess is null)
             {
                 Log.Information($"Process {program.Name} is not running.");
                 return false;
@@ -1042,6 +1072,9 @@ internal struct Global
     internal static bool IsFile(string path) => !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
     
     #region Processes
+    /// <summary>
+    /// Avoid using, call is expensive
+    /// </summary>
     internal static List<Process> GetProcessesByPartialName(string name)
     {
         Log.Information($"Attempting to retrieve processes with partial name: {name}");
@@ -1052,7 +1085,8 @@ internal struct Global
                 .Where(x => x.ProcessName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
                 .ToList();
 
-            foreach (var process in processes)
+            var processSpan = CollectionsMarshal.AsSpan(processes);
+            foreach (var process in processSpan)
                 Log.Information($"Found process {process.Id} with name {process.ProcessName}");
             return processes;
         }
@@ -1073,7 +1107,8 @@ internal struct Global
         Log.Information($"Attempting to kill processes with partial name: {name}..");
         var processes = GetProcessesByPartialName(name);
         
-        foreach (var process in processes)
+        var processSpan = CollectionsMarshal.AsSpan(processes);
+        foreach (var process in processSpan)
         {
             try
             {

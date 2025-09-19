@@ -33,12 +33,13 @@ public partial class MainWindow
     private const int WmHotkey = 0x0312;
     private bool _hotkeyRegistered;
     private bool _trayEventHandlerAssigned;
+    private static readonly Func<Task> LoadSettingsDelegate = async () => await Global.LoadSettings();
 
     public MainWindow()
     {
         InitializeComponent();
         InitialChecks();
-        Global.LoadSettings();
+        Task.Run(LoadSettingsDelegate);
             
         var logPath = Path.Combine(Global.irHubDirectoryPath, "logs");
         var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss");

@@ -73,11 +73,11 @@ public partial class ProgramListPage
                     Global.NeedsProgramRefresh = false;
                 }
 
-                var processes = Process.GetProcesses();
-                if (processes.Any(process => process.ProcessName.Contains("iRacingUI", StringComparison.OrdinalIgnoreCase)))
+                var uiProcesses = Process.GetProcessesByName("iRacingUI");
+                if (uiProcesses.Length > 0)
                 {
                     foreach (var program in Global.Programs.Where(program => program is { StartWithIracingUi: true, State: ProgramState.Stopped }))
-                        await Global.StartProgram(program);
+                        await Global.StartProgram(program).ConfigureAwait(false);
 
                     if (!Global.isUiOpen)
                     {
@@ -88,7 +88,7 @@ public partial class ProgramListPage
                 else
                 {
                     foreach (var program in Global.Programs.Where(program => program is { StopWithIracingUi: true, State: ProgramState.Running }))
-                        await Global.StopProgram(program);
+                        await Global.StopProgram(program).ConfigureAwait(false);
 
                     if (Global.isUiOpen)
                     {
@@ -97,12 +97,15 @@ public partial class ProgramListPage
                     }
                 }
                 
-                if (!Global.isSimOpen && processes.Any(process => process.ProcessName.Contains("iRacingSim64DX11", StringComparison.OrdinalIgnoreCase)))
+                var simProcesses = Process.GetProcessesByName("iRacingSim64DX11");
+                var hasIracingSim = simProcesses.Length > 0;
+                
+                if (!Global.isSimOpen && hasIracingSim)
                 {
                     Global.isSimOpen = true;
                     Log.Debug("iRacing Sim was just opened");
                 }
-                else if (Global.isSimOpen)
+                else if (Global.isSimOpen && !hasIracingSim)
                 {
                     Global.isSimOpen = false;
                     Log.Debug("iRacing Sim was just closed");
