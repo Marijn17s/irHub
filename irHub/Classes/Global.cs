@@ -41,6 +41,9 @@ internal struct Global
     internal static bool CancelIracingUiStateCheck = false;
     internal static bool StartMinimizedArgument = false;
     
+    internal static bool isUiOpen = false;
+    internal static bool isSimOpen = false;
+    
     internal static event EventHandler? ProfilesChanged;
 
     internal static readonly SdkWrapper iRacingClient = new();
