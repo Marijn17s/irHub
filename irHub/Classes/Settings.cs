@@ -14,12 +14,12 @@ internal class Settings : INotifyPropertyChanged
     #region INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged([CallerMemberName] string? name = null)
+    private async void OnPropertyChanged([CallerMemberName] string? name = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         if (!Global.MainWindowLoaded) return;
             
-        Global.SaveSettings();
+        await Global.SaveSettings();
     }
 
     #endregion
