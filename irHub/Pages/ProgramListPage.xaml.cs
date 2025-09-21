@@ -34,25 +34,20 @@ public partial class ProgramListPage
         Loaded += OnLoaded;
         
         Global.iRacingClient.Start();
-        Global.iRacingClient.ConnectSleepTime = 200;
-
-        Global.iRacingClient.TelemetryUpdated += (_, args) =>
-        {
-            var isGarageMenuOpen = args.TelemetryInfo.IsInGarage;
-        };
+        Global.iRacingClient.UpdateInterval = 60;
         
-        Global.iRacingClient.Connected += async (_, _) =>
+        Global.iRacingClient.OnConnected += async () =>
         {
-            Log.Information("Connected to iRacing SDK");
+            Log.Information("iRacing SDK: Connected");
             
             foreach (var program in Global.Programs.Where(program => program is { StartWithIracingSim: true, State: ProgramState.Stopped }))
                 await Global.StartProgram(program);
         };
-
-        Global.iRacingClient.Disconnected += async (_, _) =>
+        
+        Global.iRacingClient.OnDisconnected += async () =>
         {
-            Log.Information("Disconnected from iRacing SDK");
-            
+            Log.Information("iRacing SDK: Disconnected");
+
             foreach (var program in Global.Programs.Where(program => program is { StopWithIracingSim: true, State: ProgramState.Running }))
                 await Global.StopProgram(program);
         };
