@@ -13,10 +13,10 @@ using System.Threading.Tasks;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using HandyControl.Controls;
-using iRacingSdkWrapper;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using irHub.Helpers;
+using IRSDKSharper;
 using Serilog;
 using Image = System.Windows.Controls.Image;
 // ReSharper disable InconsistentNaming
@@ -46,7 +46,7 @@ internal struct Global
     
     internal static event EventHandler? ProfilesChanged;
 
-    internal static readonly SdkWrapper iRacingClient = new();
+    internal static readonly IRacingSdk iRacingClient = new();
     public static Settings Settings = new();
 
     internal static readonly JsonSerializerOptions JsonSerializerOptions = new()
