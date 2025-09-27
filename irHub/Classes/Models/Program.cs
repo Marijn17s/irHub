@@ -110,9 +110,7 @@ public class Program : INotifyPropertyChanged
     public bool IncludeInStartAll { get; set; } = true;
     public bool IncludeInStopAll { get; set; } = true;
     public bool MinimizeToTray { get; set; }
-    public int MinimizeToTrayDelay { get; set; } = 1000;
     public bool CloseToTray { get; set; }
-    public int CloseToTrayDelay { get; set; } = 1000;
     #endregion
     
     [JsonIgnore]
