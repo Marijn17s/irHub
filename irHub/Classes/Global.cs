@@ -863,18 +863,20 @@ internal struct Global
       
         if (program.MinimizeToTray)
         {
-            await Task.Delay(program.MinimizeToTrayDelay);
-            
-            var minimized = ApplicationWindowHelper.MinimizeWindowInterop(process);
+            Log.Information($"Waiting for window and minimizing {program.Name} to tray");
+            var minimized = await ApplicationWindowHelper.WaitAndOperateOnWindowAsync(process, WindowOperation.Minimize);
+            if (!minimized)
+            {
+                Log.Warning($"Failed to minimize {program.Name} to tray - window may not have become available within {ApplicationWindowHelper.WINDOW_TIMEOUT_MS}ms");
+            }
         }
         else if (program.CloseToTray)
         {
-            await Task.Delay(program.CloseToTrayDelay);
-            
-            var closed = ApplicationWindowHelper.CloseWindow(process);
+            Log.Information($"Waiting for window and closing {program.Name} to tray");
+            var closed = await ApplicationWindowHelper.WaitAndOperateOnWindowAsync(process, WindowOperation.Close);
             if (!closed)
             {
-                closed = ApplicationWindowHelper.CloseWindowInterop(process);
+                Log.Warning($"Failed to close {program.Name} to tray - window may not have become available within {ApplicationWindowHelper.WINDOW_TIMEOUT_MS}ms");
             }
         }
         
