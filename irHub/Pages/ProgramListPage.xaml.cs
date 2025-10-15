@@ -139,9 +139,11 @@ public partial class ProgramListPage
                 }
 
                 // Clean up process objects to prevent memory leaks
-                foreach (var process in uiProcesses)
+                var uiProcessSpan = uiProcesses.AsSpan();
+                foreach (var process in uiProcessSpan)
                     process.Dispose();
-                foreach (var process in simProcesses)
+                var simProcessSpan = simProcesses.AsSpan();
+                foreach (var process in simProcessSpan)
                     process.Dispose();
                 
                 errorCount = 0;

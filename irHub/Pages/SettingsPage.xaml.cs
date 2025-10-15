@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -46,6 +47,7 @@ public partial class SettingsPage
         }
 
         var programsBefore = Global.Programs.Count;
+        var existingPaths = new HashSet<string>(Global.Programs.Select(p => p.FilePath), StringComparer.OrdinalIgnoreCase);
         
         foreach (XmlNode node in nodes)
         {
@@ -55,11 +57,10 @@ public partial class SettingsPage
             var customIconPath = node.SelectSingleNode("PicturePath")?.InnerText;
             var installationDirectory = node.SelectSingleNode("InstallLocation")?.InnerText;
             var fileName = node.SelectSingleNode("FileName")?.InnerText;
-            var installationPath = $"{installationDirectory}\\{fileName}";
+            var installationPath = Path.Combine(installationDirectory, fileName);
             bool.TryParse(node.SelectSingleNode("StartHidden")?.InnerText, out var startHidden);
 
-            var exists = Global.Programs.Any(existingProgram => existingProgram.FilePath == installationPath);
-            if (exists) continue;
+            if (existingPaths.Contains(installationPath)) continue;
 
             name ??= fileName ?? "Unknown name";
             

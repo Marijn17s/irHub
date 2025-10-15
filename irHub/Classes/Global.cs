@@ -37,8 +37,8 @@ internal struct Global
     internal static string ProfilesPath = "";
     internal static bool MainWindowLoaded = false;
     internal static bool NeedsProgramRefresh;
-    internal static bool CancelStateCheck = false;
-    internal static bool CancelIracingUiStateCheck = false;
+    internal static bool CancelStateCheck;
+    internal static bool CancelIracingUiStateCheck;
     internal static bool StartMinimizedArgument = false;
     internal static CancellationTokenSource? IracingUiStateCheckCancellationTokenSource;
     
@@ -182,14 +182,18 @@ internal struct Global
             return false;
             
         // Check for invalid filesystem characters
-        var invalidChars = Path.GetInvalidFileNameChars();
+        var invalidChars = new HashSet<char>(Path.GetInvalidFileNameChars());
         if (profileName.Any(c => invalidChars.Contains(c)))
             return false;
             
         // Check for reserved names (Windows filesystem restrictions)
-        var reservedNames = new[] { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+        var reservedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) 
+        { 
+            "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", 
+            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" 
+        };
         var nameWithoutExtension = Path.GetFileNameWithoutExtension(profileName);
-        if (reservedNames.Contains(nameWithoutExtension.ToUpperInvariant()))
+        if (reservedNames.Contains(nameWithoutExtension))
             return false;
             
         return true;
@@ -200,8 +204,7 @@ internal struct Global
     {
         get
         {
-            if (_programs is null)
-                _programs = GetPrograms();
+            _programs ??= GetPrograms();
             return _programs;
         }
         set
@@ -767,8 +770,9 @@ internal struct Global
             if (existingProcess is null)
             {
                 Log.Information($"Process {program.Name} is not running.");
-                foreach (var process in processes)
-                    process?.Dispose();
+                var processesSpan = processes.AsSpan();
+                foreach (var process in processesSpan)
+                    process.Dispose();
                 return false;
             }
             
@@ -778,7 +782,9 @@ internal struct Global
 
             AddProcessEventHandlers(program, program.Process);
             
-            foreach (var process in processes.Where(p => p != existingProcess))
+            var processesToDispose = processes.Where(p => p != existingProcess).ToArray();
+            var processesToDisposeSpan = processesToDispose.AsSpan();
+            foreach (var process in processesToDisposeSpan)
                 process.Dispose();
                 
             return true;
@@ -966,7 +972,8 @@ internal struct Global
         Log.Information($"Getting start info for {program.Name}");
         var startInfo = new ProcessStartInfo();
         
-        if (program.ExecutableName.Contains("racelab", StringComparison.InvariantCultureIgnoreCase))
+        ReadOnlySpan<char> executableNameSpan = program.ExecutableName.AsSpan();
+        if (executableNameSpan.Contains("racelab", StringComparison.InvariantCultureIgnoreCase))
         {
             // todo check if doesn't contain app!!!!!!!!!!!!!!!!!
             var fi = new FileInfo(program.FilePath);
@@ -1025,7 +1032,8 @@ internal struct Global
             }
 
             const string onesim = "1simracing";
-            if (process.ProcessName.Contains(onesim, StringComparison.InvariantCultureIgnoreCase))
+            ReadOnlySpan<char> processNameSpan = process.ProcessName.AsSpan();
+            if (processNameSpan.Contains(onesim, StringComparison.InvariantCultureIgnoreCase))
             {
                 var hWnd = IntPtr.Zero;
                 var retries = 0;

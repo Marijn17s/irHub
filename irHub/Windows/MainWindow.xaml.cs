@@ -287,7 +287,16 @@ public partial class MainWindow
 
     private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)
     {
-        if (!Global.Programs.Any(program => program.State is ProgramState.Running && program.IncludeInStopAll))
+        var hasRunningPrograms = false;
+        foreach (var program in Global.Programs)
+        {
+            if (program.State is not ProgramState.Running || !program.IncludeInStopAll) continue;
+            
+            hasRunningPrograms = true;
+            break;
+        }
+        
+        if (!hasRunningPrograms)
         {
             UnregisterGlobalHotkey();
             Process.GetCurrentProcess().Kill();
