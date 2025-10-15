@@ -40,9 +40,7 @@ internal struct Global
     internal static bool CancelStateCheck = false;
     internal static bool CancelIracingUiStateCheck = false;
     internal static bool StartMinimizedArgument = false;
-    
-    internal static bool isUiOpen = false;
-    internal static bool isSimOpen = false;
+    internal static CancellationTokenSource? IracingUiStateCheckCancellationTokenSource;
     
     internal static event EventHandler? ProfilesChanged;
 
@@ -757,12 +755,20 @@ internal struct Global
         
         try
         {
+            if (program.Process is not null && !program.Process.HasExited)
+            {
+                Log.Information($"Process {program.Name} is already tracked and running");
+                return true;
+            }
+            
             var processes = Process.GetProcessesByName(program.ExecutableName);
             var existingProcess = processes.FirstOrDefault(process => !process.HasExited);
             
             if (existingProcess is null)
             {
                 Log.Information($"Process {program.Name} is not running.");
+                foreach (var process in processes)
+                    process?.Dispose();
                 return false;
             }
             
@@ -771,6 +777,10 @@ internal struct Global
                 program.ExecutableName = existingProcess.ProcessName;
 
             AddProcessEventHandlers(program, program.Process);
+            
+            foreach (var process in processes.Where(p => p != existingProcess))
+                process.Dispose();
+                
             return true;
         }
         catch (InvalidOperationException)
@@ -1165,6 +1175,20 @@ internal struct Global
         return (successCount, failedCount);
     }
     #endregion
+    
+    internal static void CleanupResources()
+    {
+        Log.Information("Cleaning up global resources");
+        
+        IracingUiStateCheckCancellationTokenSource?.Cancel();
+        IracingUiStateCheckCancellationTokenSource?.Dispose();
+        IracingUiStateCheckCancellationTokenSource = null;
+        
+        CancelIracingUiStateCheck = true;
+        CancelStateCheck = true;
+        
+        Log.Information("Global resource cleanup completed");
+    }
     
     #region DLLImports
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
