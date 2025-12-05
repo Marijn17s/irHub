@@ -1,5 +1,20 @@
 # irHub changelogs
 
+## Version 1.2.0
+This version brings a few small new features and fixes
+
+Changes:
+- Added exponentially more reliable way to minimize or close an app to tray on startup. The timing is now always perfect and requires no manual adjustment
+- Added logging to more accurately measure when iRacing opens and closes
+- Added extra logging
+- Major performance optimizations (less cpu usage, less memory usage, more responsive)
+- Updated iRacing SDK to a newer and more performant version
+- Improved the detection on if the iRacing UI is running or not
+- More general efficiency improvements
+
+Bugs:
+- Fixed a crash that could occur if you started the app for the first time
+
 ## Version 1.1.1
 This version brings a small feature update
 

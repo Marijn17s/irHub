@@ -1,7 +1,5 @@
 ﻿# Recommended Application Settings
 
-> The listed delays are a good baseline. For optimal performance, tweak them to match the specific application's startup speed on your PC.
-
 > Where the recommended settings are "none", leave the textbox empty.
 
 ### Simhub
