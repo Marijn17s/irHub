@@ -2,12 +2,14 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using System.Windows.Threading;
 using HandyControl.Controls;
 using irHub.Classes;
 using irHub.Classes.Enums;
@@ -32,6 +34,7 @@ public partial class ProgramListPage
         });
 
         Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
         
         Global.iRacingClient.Start();
         Global.iRacingClient.UpdateInterval = 60;
@@ -53,67 +56,128 @@ public partial class ProgramListPage
         };
     }
 
-    private async void OnLoaded(object o, RoutedEventArgs routedEventArgs)
+    private void OnLoaded(object o, RoutedEventArgs routedEventArgs)
     {
         Log.Information("Program list page loaded");
         
-        while (!Global.CancelIracingUiStateCheck)
+        Global.IracingUiStateCheckCancellationTokenSource ??= new CancellationTokenSource();
+        _ = Task.Run(async () => await MonitorIracingProcessesAsync(Global.IracingUiStateCheckCancellationTokenSource.Token));
+    }
+    
+    private async Task MonitorIracingProcessesAsync(CancellationToken cancellationToken)
+    {
+        const int maxErrorCount = 5;
+        const int refreshIntervalMs = 5000;
+        const int processCheckIntervalMs = 1000;
+        
+        var errorCount = 0;
+        var lastUiState = false;
+        var lastSimState = false;
+        var lastRefreshTime = DateTime.MinValue;
+
+        Log.Information("Starting iRacing process monitoring loop");
+
+        while (!cancellationToken.IsCancellationRequested && !Global.CancelIracingUiStateCheck)
         {
             try
             {
-                if (Global.NeedsProgramRefresh)
+                var currentTime = DateTime.Now;
+                
+                if (Global.NeedsProgramRefresh && (currentTime - lastRefreshTime).TotalMilliseconds >= refreshIntervalMs)
                 {
                     Log.Information("Programs need a refresh. Refreshing now..");
-                    LoadPrograms();
+                    
+                    await Dispatcher.InvokeAsync(LoadPrograms, DispatcherPriority.Normal, cancellationToken);
+                    
                     Global.NeedsProgramRefresh = false;
+                    lastRefreshTime = currentTime;
                 }
 
                 var uiProcesses = Process.GetProcessesByName("iRacingUI");
-                if (uiProcesses.Length > 0)
+                var isUiOpen = uiProcesses.Length > 0;
+                
+                if (isUiOpen != lastUiState)
                 {
-                    foreach (var program in Global.Programs.Where(program => program is { StartWithIracingUi: true, State: ProgramState.Stopped }))
-                        await Global.StartProgram(program).ConfigureAwait(false);
-
-                    if (!Global.isUiOpen)
+                    lastUiState = isUiOpen;
+                    
+                    if (isUiOpen)
                     {
-                        Global.isUiOpen = true;
-                        Log.Debug("iRacingUI was just opened");
+                        Log.Information("iRacingUI was just opened");
+                        var programsToStart = Global.Programs
+                            .Where(program => program is { StartWithIracingUi: true, State: ProgramState.Stopped })
+                            .ToList();
+                        
+                        foreach (var program in programsToStart)
+                        {
+                            if (cancellationToken.IsCancellationRequested) break;
+                            await Global.StartProgram(program).ConfigureAwait(false);
+                        }
                     }
-                }
-                else
-                {
-                    foreach (var program in Global.Programs.Where(program => program is { StopWithIracingUi: true, State: ProgramState.Running }))
-                        await Global.StopProgram(program).ConfigureAwait(false);
-
-                    if (Global.isUiOpen)
+                    else
                     {
-                        Global.isUiOpen = false;
-                        Log.Debug("iRacingUI was just closed");
+                        Log.Information("iRacingUI was just closed");
+                        var programsToStop = Global.Programs
+                            .Where(program => program is { StopWithIracingUi: true, State: ProgramState.Running })
+                            .ToList();
+                        
+                        foreach (var program in programsToStop)
+                        {
+                            if (cancellationToken.IsCancellationRequested) break;
+                            await Global.StopProgram(program).ConfigureAwait(false);
+                        }
                     }
                 }
                 
                 var simProcesses = Process.GetProcessesByName("iRacingSim64DX11");
-                var hasIracingSim = simProcesses.Length > 0;
+                var isSimOpen = simProcesses.Length > 0;
                 
-                if (!Global.isSimOpen && hasIracingSim)
+                if (isSimOpen != lastSimState)
                 {
-                    Global.isSimOpen = true;
-                    Log.Debug("iRacing Sim was just opened");
-                }
-                else if (Global.isSimOpen && !hasIracingSim)
-                {
-                    Global.isSimOpen = false;
-                    Log.Debug("iRacing Sim was just closed");
+                    lastSimState = isSimOpen;
+
+                    Log.Information(isSimOpen ? "iRacing Sim was just opened" : "iRacing Sim was just closed");
                 }
 
-                await Task.Delay(1000);
+                // Clean up process objects to prevent memory leaks
+                var uiProcessSpan = uiProcesses.AsSpan();
+                foreach (var process in uiProcessSpan)
+                    process.Dispose();
+                var simProcessSpan = simProcesses.AsSpan();
+                foreach (var process in simProcessSpan)
+                    process.Dispose();
+                
+                errorCount = 0;
+                
+                await Task.Delay(processCheckIntervalMs, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                Log.Information("iRacing process monitoring was cancelled");
+                break;
             }
             catch (Exception ex)
             {
-                Log.Error($"Program list page threw the following error: {ex.Message} {ex.StackTrace} {ex.InnerException} {ex.Source}");
-                Global.CancelIracingUiStateCheck = true;
+                errorCount++;
+                Log.Error($"Program list page threw the following error (attempt {errorCount}/{maxErrorCount}): {ex.Message} {ex.StackTrace} {ex.InnerException} {ex.Source}");
+                
+                if (errorCount >= maxErrorCount)
+                {
+                    Log.Error("Maximum error count reached, stopping iRacing UI monitoring");
+                    Global.CancelIracingUiStateCheck = true;
+                    break;
+                }
+                
+                await Task.Delay(processCheckIntervalMs, cancellationToken);
             }
         }
+        
+        Log.Information("iRacing process monitoring loop ended");
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        Log.Information("Program list page unloaded, cancelling monitoring tasks");
+        Global.CleanupResources();
     }
 
     private void LoadPrograms()
@@ -128,13 +192,15 @@ public partial class ProgramListPage
     private static async Task CheckProgramsRunning()
     {
         Log.Information("Checking if programs still exist and are running..");
-        foreach (var program in Global.Programs)
+        
+        var programsToCheck = Global.Programs.ToList(); // Create a snapshot to avoid collection modification issues
+        foreach (var program in programsToCheck)
         {
             var exists = File.Exists(program.FilePath);
             if (!exists)
             {
                 Log.Warning($"Program {program.FilePath} doesn't exist (anymore)");
-                await program.ChangeState(ProgramState.NotFound);
+                await program.ChangeState(ProgramState.NotFound).ConfigureAwait(false);
                 continue;
             } 
             Global.IsProgramRunning(program);
