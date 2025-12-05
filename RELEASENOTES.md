@@ -1,7 +1,7 @@
 # irHub changelogs
 
 ## Version 1.2.0
-This version brings a few small new features and fixes
+This version brings a few small new features, major performance improvements and fixes
 
 Changes:
 - Added exponentially more reliable way to minimize or close an app to tray on startup. The timing is now always perfect and requires no manual adjustment
