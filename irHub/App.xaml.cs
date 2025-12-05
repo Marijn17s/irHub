@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using irHub.Classes;
 using irHub.Windows;
@@ -18,7 +19,7 @@ public partial class App
     private static bool _ownsMutex;
     private static readonly string MutexName = "Global\\irHub_SingleInstance_Mutex_" + Environment.UserName;
     
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         VelopackApp.Build().Run();
@@ -56,12 +57,15 @@ public partial class App
         }
         
         Log.Information("This is the primary instance. Continuing startup.");
-        StartAsPrimaryInstance();
+        await StartAsPrimaryInstance();
     }
     
-    private void StartAsPrimaryInstance()
+    private async Task StartAsPrimaryInstance()
     {
         Log.Debug("Starting as primary instance..");
+
+        while (!Directory.Exists(Global.irHubDirectoryPath))
+            await Task.Delay(100);
         
         if (File.Exists(_signalFilePath))
         {
