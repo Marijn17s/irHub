@@ -950,7 +950,7 @@ internal struct Global
                 return;
             }
             
-            KillProcessesByPartialName(program.ExecutableName);
+            ProcessHelper.KillProcessesByPartialName(program.ExecutableName);
             return;
         }
         
@@ -972,11 +972,11 @@ internal struct Global
             processName = program.ExecutableName;
         }
 
-        KillProcessesByPartialName(processName);
+        ProcessHelper.KillProcessesByPartialName(processName);
 
         const string g61 = "garage61";
         if (processName.Contains(g61, StringComparison.InvariantCultureIgnoreCase))
-            KillProcessesByPartialName(g61);
+            ProcessHelper.KillProcessesByPartialName(g61);
 
         program.Process = null;
         await program.ChangeState(ProgramState.Stopped);
@@ -1105,67 +1105,6 @@ internal struct Global
     }
     
     internal static bool IsFile(string path) => !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
-    
-    #region Processes
-    /// <summary>
-    /// Avoid using, call is expensive
-    /// </summary>
-    internal static List<Process> GetProcessesByPartialName(string name)
-    {
-        Log.Information($"Attempting to retrieve processes with partial name: {name}");
-        
-        try
-        {
-            var processes = Process.GetProcesses()
-                .Where(x => !x.HasExited && x.ProcessName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
-                .ToList();
-
-            var processSpan = CollectionsMarshal.AsSpan(processes);
-            foreach (var process in processSpan)
-            {
-                if (process is null || process.HasExited)
-                    continue;
-                Log.Information($"Found process {process.Id} with name {process.ProcessName}");
-            }
-            return processes;
-        }
-        catch (InvalidOperationException)
-        {
-            Log.Debug($"Process object is no longer valid when checking for partial name: {name}");
-        }
-        catch (Exception ex)
-        {
-            Log.Error($"Error while retrieving processes with partial name {name}: {ex.Message}");
-        }
-        
-        return [];
-    }
-
-    internal static void KillProcessesByPartialName(string name)
-    {
-        Log.Information($"Attempting to kill processes with partial name: {name}..");
-        var processes = GetProcessesByPartialName(name);
-        
-        var processSpan = CollectionsMarshal.AsSpan(processes);
-        foreach (var process in processSpan)
-        {
-            try
-            {
-                Log.Information($"Killing process: {process.ProcessName}, process id: {process.Id}");
-                process.Kill();
-            }
-            catch (InvalidOperationException)
-            {
-                // Process is no longer associated with a running process
-                Log.Debug($"Process object is no longer valid when trying to kill processes with partial name: {name}");
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error while killing process with partial name {name}: {ex.Message}");
-            }
-        }
-    }
-    #endregion
     
     #region Parallelization
     internal static async Task<(int success, int failed)> StartProgramsParallel(IEnumerable<Program> programs, int maxConcurrency = -1)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,6 +15,7 @@ using irHub.Classes;
 using irHub.Classes.Enums;
 using irHub.Classes.Models;
 using irHub.Dialogs;
+using irHub.Helpers;
 using MaterialDesignThemes.Wpf;
 using Serilog;
 using Card = HandyControl.Controls.Card;
@@ -304,7 +305,7 @@ public partial class ProgramListPage
                 if (program.Process is null || program.Process.HasExited)
                 {
                     await program.ChangeState(ProgramState.Stopped);
-                    Global.KillProcessesByPartialName(program.ExecutableName);
+                    ProcessHelper.KillProcessesByPartialName(program.ExecutableName);
                     return;
                 }
             }
@@ -313,7 +314,7 @@ public partial class ProgramListPage
                 Log.Error($"Program list page threw the following error: {ex.Message} {ex.StackTrace} {ex.InnerException} {ex.Source}");
             
                 await program.ChangeState(ProgramState.Stopped);
-                Global.KillProcessesByPartialName(program.ExecutableName);
+                ProcessHelper.KillProcessesByPartialName(program.ExecutableName);
                 return;
             }
         

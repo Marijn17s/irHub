@@ -121,10 +121,8 @@ public class Program : INotifyPropertyChanged
     {
         if (Process is not null) return Process;
 
-        var processes = Global.GetProcessesByPartialName(ExecutableName);
-        if (processes.Count > 0) return processes[0];
-
-        return null;
+        var processes = ProcessHelper.GetProcessesByPartialName(ExecutableName);
+        return processes.Count > 0 ? processes[0] : null;
     }
 
     internal string GetProcessName()
