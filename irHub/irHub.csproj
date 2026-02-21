@@ -8,7 +8,7 @@
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
-        <LangVersion>13</LangVersion>
+        <LangVersion>14</LangVersion>
         <IsPackable>false</IsPackable>
         <ApplicationIcon>Resources\logo.ico</ApplicationIcon>
     </PropertyGroup>
