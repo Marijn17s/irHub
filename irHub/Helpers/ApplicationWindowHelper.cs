@@ -66,6 +66,19 @@ internal struct ApplicationWindowHelper
         SendMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
         return true;
     }
+
+    internal static async Task<bool> IsWindowVisibleAsync(Process? process)
+    {
+        if (process is null || process.HasExited) return false;
+        Log.Information($"IsWindowVisible {ProcessHelper.GetProcessName(process)} to tray");
+        var hWnd = process.MainWindowHandle;
+        
+        if (hWnd != IntPtr.Zero) return IsWindowVisible(hWnd);
+        
+        Log.Information($"Cannot find window for {ProcessHelper.GetProcessName(process)}");
+        return false;
+
+    }
     
     private static async Task<bool> WaitForWindowAsync(Process? process)
     {
@@ -127,14 +140,22 @@ internal struct ApplicationWindowHelper
         
         // Wait for window to become available
         var windowAvailable = await WaitForWindowAsync(process);
-        if (windowAvailable)
-            return operation switch
-            {
-                WindowOperation.Minimize => MinimizeWindowInterop(process),
-                WindowOperation.Close => CloseWindow(process) || CloseWindowInterop(process),
-                _ => false
-            };
-        Log.Warning($"Window did not become available for {ProcessHelper.GetProcessName(process)}, cannot perform {operation} operation");
+        if (!windowAvailable)
+        {
+            Log.Warning($"Window did not become available for {ProcessHelper.GetProcessName(process)}, cannot perform {operation} operation");
+            return false;
+        }
+
+        if (operation is WindowOperation.Minimize)
+            return MinimizeWindowInterop(process);
+        if (operation is WindowOperation.Close)
+        {
+            var result = CloseWindow(process);
+            if (!result)
+                result = CloseWindowInterop(process);
+            return result;
+        }
+
         return false;
     }
     

@@ -882,18 +882,33 @@ internal struct Global
             Log.Information($"Waiting for window and minimizing {program.Name} to tray");
             var minimized = await ApplicationWindowHelper.WaitAndOperateOnWindowAsync(process, WindowOperation.Minimize);
             if (!minimized)
-            {
                 Log.Warning($"Failed to minimize {program.Name} to tray - window may not have become available within {ApplicationWindowHelper.WINDOW_TIMEOUT_MS}ms");
-            }
         }
         else if (program.CloseToTray)
         {
             Log.Information($"Waiting for window and closing {program.Name} to tray");
             var closed = await ApplicationWindowHelper.WaitAndOperateOnWindowAsync(process, WindowOperation.Close);
             if (!closed)
-            {
                 Log.Warning($"Failed to close {program.Name} to tray - window may not have become available within {ApplicationWindowHelper.WINDOW_TIMEOUT_MS}ms");
+            
+            await Task.Delay(100);
+
+            var count = 0;
+            var actuallyClosed = false;
+            while (!actuallyClosed && count < 5)
+            {
+                actuallyClosed = await ApplicationWindowHelper.IsWindowVisibleAsync(process);
+                if (actuallyClosed)
+                    break;
+                
+                await ApplicationWindowHelper.WaitAndOperateOnWindowAsync(process, WindowOperation.Close);
+                count++;
+                
+                await Task.Delay(50);
             }
+            
+            if (actuallyClosed)
+                Log.Information($"Closed {program.Name} to tray on retry");
         }
         
         await Task.Delay(200);
