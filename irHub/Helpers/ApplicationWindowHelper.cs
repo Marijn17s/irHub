@@ -36,7 +36,11 @@ internal struct ApplicationWindowHelper
     
     private static bool CloseWindow(Process? process)
     {
-        if (process is null || process.HasExited) return false;
+        if (process is null || process.HasExited)
+        {
+            Log.Warning($"Process {ProcessHelper.GetProcessName(process)} became invalid before closing window");
+            return false;
+        }
         
         Log.Information($"Closing {ProcessHelper.GetProcessName(process)} to tray");
         return process.CloseMainWindow();
@@ -44,7 +48,11 @@ internal struct ApplicationWindowHelper
 
     private static bool CloseWindowInterop(Process? process)
     {
-        if (process is null || process.HasExited) return false;
+        if (process is null || process.HasExited)
+        {
+            Log.Warning($"Process {ProcessHelper.GetProcessName(process)} became invalid before closing window with interop");
+            return false;
+        }
 
         Log.Information($"Closing {ProcessHelper.GetProcessName(process)} to tray using Interop");
         
@@ -109,7 +117,11 @@ internal struct ApplicationWindowHelper
     
     internal static async Task<bool> WaitAndOperateOnWindowAsync(Process? process, WindowOperation operation)
     {
-        if (process is null || process.HasExited) return false;
+        if (process is null || process.HasExited)
+        {
+            Log.Warning($"Process {ProcessHelper.GetProcessName(process)} became invalid before operating on window");
+            return false;
+        }
 
         Log.Information($"Waiting for window and performing {operation} operation for {ProcessHelper.GetProcessName(process)}");
         
