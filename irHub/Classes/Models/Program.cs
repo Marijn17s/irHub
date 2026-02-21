@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -124,6 +125,21 @@ public class Program : INotifyPropertyChanged
         if (processes.Count > 0) return processes[0];
 
         return null;
+    }
+
+    internal string GetProcessName()
+    {
+        try
+        {
+            if (Process is null || Process.HasExited)
+                return ExecutableName;
+            return Process.ProcessName;
+        }
+        catch (InvalidOperationException)
+        {
+            Log.Warning($"Process {ExecutableName} became invalid while retrieving process name");
+            return ExecutableName;
+        }
     }
     
     public Program DeepClone()

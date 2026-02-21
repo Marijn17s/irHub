@@ -734,8 +734,8 @@ internal struct Global
                 }
                 
                 program.Process = existingProcess;
-                if (program.ExecutableName != existingProcess.ProcessName)
-                    program.ExecutableName = existingProcess.ProcessName;
+                if (program.ExecutableName != program.GetProcessName())
+                    program.ExecutableName = program.GetProcessName();
 
                 await program.ChangeState(ProgramState.Running).ConfigureAwait(false);
                 AddProcessEventHandlers(program, program.Process);
@@ -777,8 +777,8 @@ internal struct Global
             }
             
             program.Process = existingProcess;
-            if (program.ExecutableName != existingProcess.ProcessName)
-                program.ExecutableName = existingProcess.ProcessName;
+            if (program.ExecutableName != program.GetProcessName())
+                program.ExecutableName = program.GetProcessName();
 
             AddProcessEventHandlers(program, program.Process);
             
@@ -910,7 +910,7 @@ internal struct Global
             process = processes[0];
         }
         
-        if (program.ExecutableName != process.ProcessName)
+        if (!process.HasExited && program.ExecutableName != process.ProcessName)
             program.ExecutableName = process.ProcessName;
         
         AddProcessEventHandlers(program, process);
@@ -1102,12 +1102,16 @@ internal struct Global
         try
         {
             var processes = Process.GetProcesses()
-                .Where(x => x.ProcessName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .Where(x => !x.HasExited && x.ProcessName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
                 .ToList();
 
             var processSpan = CollectionsMarshal.AsSpan(processes);
             foreach (var process in processSpan)
+            {
+                if (process is null || process.HasExited)
+                    continue;
                 Log.Information($"Found process {process.Id} with name {process.ProcessName}");
+            }
             return processes;
         }
         catch (InvalidOperationException)

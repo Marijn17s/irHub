@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -21,12 +21,12 @@ internal struct ApplicationWindowHelper
     {
         if (process is null || process.HasExited) return false;
         
-        Log.Information($"Minimizing {process.ProcessName} to tray");
+        Log.Information($"Minimizing {ProcessHelper.GetProcessName(process)} to tray");
         
         var hWnd = process.MainWindowHandle;
         if (hWnd == IntPtr.Zero)
         {
-            Log.Information($"Cannot find mainwindow handle for {process.ProcessName}");
+            Log.Information($"Cannot find mainwindow handle for {ProcessHelper.GetProcessName(process)}");
             return false;
         }
         
@@ -38,7 +38,7 @@ internal struct ApplicationWindowHelper
     {
         if (process is null || process.HasExited) return false;
         
-        Log.Information($"Closing {process.ProcessName} to tray");
+        Log.Information($"Closing {ProcessHelper.GetProcessName(process)} to tray");
         return process.CloseMainWindow();
     }
 
@@ -46,12 +46,12 @@ internal struct ApplicationWindowHelper
     {
         if (process is null || process.HasExited) return false;
 
-        Log.Information($"Closing {process.ProcessName} to tray using Interop");
+        Log.Information($"Closing {ProcessHelper.GetProcessName(process)} to tray using Interop");
         
         var hWnd = process.MainWindowHandle;
         if (hWnd == IntPtr.Zero)
         {
-            Log.Information($"Cannot find mainwindow handle for {process.ProcessName}");
+            Log.Information($"Cannot find mainwindow handle for {ProcessHelper.GetProcessName(process)}");
             return false;
         }
         
@@ -63,7 +63,7 @@ internal struct ApplicationWindowHelper
     {
         if (process is null || process.HasExited) return false;
 
-        Log.Information($"Waiting for window to become available for {process.ProcessName} (timeout: {WINDOW_TIMEOUT_MS}ms)");
+        Log.Information($"Waiting for window to become available for {ProcessHelper.GetProcessName(process)} (timeout: {WINDOW_TIMEOUT_MS}ms)");
         
         var startTime = DateTime.Now;
         var timeout = TimeSpan.FromMilliseconds(WINDOW_TIMEOUT_MS);
@@ -77,14 +77,14 @@ internal struct ApplicationWindowHelper
                 
                 if (process.HasExited)
                 {
-                    Log.Warning($"Process {process.ProcessName} exited while waiting for window");
+                    Log.Warning($"Process {ProcessHelper.GetProcessName(process)} exited while waiting for window");
                     return false;
                 }
                 
                 var hWnd = process.MainWindowHandle;
                 if (hWnd != IntPtr.Zero && IsWindowVisible(hWnd))
                 {
-                    Log.Information($"Window became available for {process.ProcessName} after {(DateTime.Now - startTime).TotalMilliseconds:F0}ms");
+                    Log.Information($"Window became available for {ProcessHelper.GetProcessName(process)} after {(DateTime.Now - startTime).TotalMilliseconds:F0}ms");
                     return true;
                 }
                 
@@ -93,17 +93,17 @@ internal struct ApplicationWindowHelper
             }
             catch (InvalidOperationException)
             {
-                Log.Warning($"Process {process.ProcessName} became invalid while waiting for window");
+                Log.Warning($"Process {ProcessHelper.GetProcessName(process)} became invalid while waiting for window");
                 return false;
             }
             catch (Exception ex)
             {
-                Log.Warning($"Error while waiting for window for {process.ProcessName}: {ex.Message}");
+                Log.Warning($"Error while waiting for window for {ProcessHelper.GetProcessName(process)}: {ex.Message}");
                 await Task.Delay(CHECK_INTERVAL_MS);
             }
         }
         
-        Log.Warning($"Timeout waiting for window for {process.ProcessName} after {WINDOW_TIMEOUT_MS}ms");
+        Log.Warning($"Timeout waiting for window for {ProcessHelper.GetProcessName(process)} after {WINDOW_TIMEOUT_MS}ms");
         return false;
     }
     
@@ -111,7 +111,7 @@ internal struct ApplicationWindowHelper
     {
         if (process is null || process.HasExited) return false;
 
-        Log.Information($"Waiting for window and performing {operation} operation for {process.ProcessName}");
+        Log.Information($"Waiting for window and performing {operation} operation for {ProcessHelper.GetProcessName(process)}");
         
         // Wait for window to become available
         var windowAvailable = await WaitForWindowAsync(process);
@@ -122,7 +122,7 @@ internal struct ApplicationWindowHelper
                 WindowOperation.Close => CloseWindow(process) || CloseWindowInterop(process),
                 _ => false
             };
-        Log.Warning($"Window did not become available for {process.ProcessName}, cannot perform {operation} operation");
+        Log.Warning($"Window did not become available for {ProcessHelper.GetProcessName(process)}, cannot perform {operation} operation");
         return false;
     }
     
