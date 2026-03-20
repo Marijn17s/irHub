@@ -19,15 +19,15 @@ internal struct ProcessHelper
     /// <returns>The name of the given process</returns>
     internal static string GetProcessName(Process? process)
     {
+        if (process is null)
+            return "Unknown process";
+
         try
         {
-            if (process is null || process.HasExited)
-                return "Unknown process";
             return process.ProcessName;
         }
-        catch (InvalidOperationException)
+        catch
         {
-            Log.Warning("Process became invalid while retrieving process name");
             return "Unknown process";
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -82,49 +83,49 @@ internal struct ApplicationWindowHelper
     
     private static async Task<bool> WaitForWindowAsync(Process? process)
     {
-        if (process is null || process.HasExited) return false;
+        if (process is null || process.HasExited)
+            return false;
 
-        Log.Information($"Waiting for window to become available for {ProcessHelper.GetProcessName(process)} (timeout: {WINDOW_TIMEOUT_MS}ms)");
+        var processName = ProcessHelper.GetProcessName(process);
+        
+        Log.Information($"Waiting for window to become available for {processName} (timeout: {WINDOW_TIMEOUT_MS}ms)");
         
         var startTime = DateTime.Now;
         var timeout = TimeSpan.FromMilliseconds(WINDOW_TIMEOUT_MS);
-        
-        while (DateTime.Now - startTime < timeout)
+
+        try
         {
-            try
+            while (DateTime.Now - startTime < timeout)
             {
-                // Refresh the process to get updated information
-                process.Refresh();
+                IntPtr hWnd;
                 
-                if (process.HasExited)
+                try
                 {
-                    Log.Warning($"Process {ProcessHelper.GetProcessName(process)} exited while waiting for window");
+                    process.Refresh();
+                    hWnd = process.MainWindowHandle;
+                }
+                catch (Exception ex) when (ex is InvalidOperationException or Win32Exception)
+                {
+                    Log.Warning($"Process {processName} exited while waiting for window");
                     return false;
                 }
                 
-                var hWnd = process.MainWindowHandle;
                 if (hWnd != IntPtr.Zero && IsWindowVisible(hWnd))
                 {
-                    Log.Information($"Window became available for {ProcessHelper.GetProcessName(process)} after {(DateTime.Now - startTime).TotalMilliseconds:F0}ms");
+                    Log.Information($"Window became available for {processName} after {(DateTime.Now - startTime).TotalMilliseconds:F0}ms");
                     return true;
                 }
                 
-                // Wait before next check
-                await Task.Delay(CHECK_INTERVAL_MS);
-            }
-            catch (InvalidOperationException)
-            {
-                Log.Warning($"Process {ProcessHelper.GetProcessName(process)} became invalid while waiting for window");
-                return false;
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"Error while waiting for window for {ProcessHelper.GetProcessName(process)}: {ex.Message}");
                 await Task.Delay(CHECK_INTERVAL_MS);
             }
         }
+        catch (Exception ex)
+        {
+            Log.Warning($"Error while waiting for window for {processName}: {ex.Message}");
+            await Task.Delay(CHECK_INTERVAL_MS);
+        }
         
-        Log.Warning($"Timeout waiting for window for {ProcessHelper.GetProcessName(process)} after {WINDOW_TIMEOUT_MS}ms");
+        Log.Warning($"Timeout waiting for window for {processName} after {WINDOW_TIMEOUT_MS}ms");
         return false;
     }
     
@@ -135,14 +136,16 @@ internal struct ApplicationWindowHelper
             Log.Warning($"Process {ProcessHelper.GetProcessName(process)} became invalid before operating on window");
             return false;
         }
+        
+        var processName = ProcessHelper.GetProcessName(process);
 
-        Log.Information($"Waiting for window and performing {operation} operation for {ProcessHelper.GetProcessName(process)}");
+        Log.Information($"Waiting for window and performing {operation} operation for {processName}");
         
         // Wait for window to become available
         var windowAvailable = await WaitForWindowAsync(process);
         if (!windowAvailable)
         {
-            Log.Warning($"Window did not become available for {ProcessHelper.GetProcessName(process)}, cannot perform {operation} operation");
+            Log.Warning($"Window did not become available for {processName}, cannot perform {operation} operation");
             return false;
         }
 
